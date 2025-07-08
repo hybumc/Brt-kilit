@@ -9,28 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const startMenu = document.getElementById('start-menu');
     
-    const volumeIcon = document.getElementById('volume-icon');
-    const volumePanel = document.getElementById('volume-panel');
-    const volumeSlider = document.getElementById('volume-slider');
-    const volumeLevelText = document.getElementById('volume-level-text');
+    // YENİ EKLENDİ: Ses Kontrol Elemanları
+    const notificationVolumeSlider = document.getElementById('notification-volume');
+    const audioNotification = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
 
     const openAppsBar = document.getElementById('open-apps-bar');
     
     // --- 2. SİSTEM DEĞİŞKENLERİ ---
-    let openWindows = {}; // Açık pencereleri takip etmek için
+    let openWindows = {};
     let highestZIndex = 100;
     
     const appData = {
         'settings': { name: 'Ayarlar', window: document.getElementById('settings-window') },
-        'brt-store': { name: 'BRT Store', window: document.getElementById('brt-store-window') },
         'calculator': { name: 'Hesap Makinesi', window: document.getElementById('calculator-window') },
     };
 
     // --- 3. TEMEL SİSTEM FONKSİYONLARI ---
     
     function updateTime() {
-        const now = new Date();
-        currentTimeSpan.textContent = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        currentTimeSpan.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
     }
 
     function bootSystem() {
@@ -41,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 desktop.style.display = 'block';
                 taskbar.style.display = 'flex';
             }, 1000);
-        }, 2000); // 2 saniyelik açılış süresi
+        }, 1500);
     }
 
     // --- 4. PENCERE YÖNETİMİ ---
@@ -83,17 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
             header.addEventListener('mousedown', (e) => {
                 let offsetX = e.clientX - windowEl.offsetLeft;
                 let offsetY = e.clientY - windowEl.offsetTop;
-
                 function mouseMove(e) {
                     windowEl.style.left = `${e.clientX - offsetX}px`;
                     windowEl.style.top = `${e.clientY - offsetY}px`;
                 }
-
                 function mouseUp() {
                     document.removeEventListener('mousemove', mouseMove);
                     document.removeEventListener('mouseup', mouseUp);
                 }
-
                 document.addEventListener('mousemove', mouseMove);
                 document.addEventListener('mouseup', mouseUp);
             });
@@ -109,79 +103,135 @@ document.addEventListener('DOMContentLoaded', () => {
             appIcon.className = 'taskbar-app';
             appIcon.textContent = openWindows[appId].name;
             appIcon.dataset.appId = appId;
-            appIcon.onclick = () => {
-                openWindow(appId);
-            };
+            appIcon.onclick = () => openWindow(appId);
             openAppsBar.appendChild(appIcon);
         }
     }
 
     function setActiveTaskbarIcon(activeAppId) {
         document.querySelectorAll('.taskbar-app').forEach(icon => {
-            if(icon.dataset.appId === activeAppId) {
-                icon.classList.add('active');
-            } else {
-                icon.classList.remove('active');
-            }
+            icon.classList.toggle('active', icon.dataset.appId === activeAppId);
         });
     }
 
     // --- 6. UYGULAMA MANTIKLARI ---
     
-    // a) Hesap Makinesi
-    const calcDisplay = document.getElementById('calculator-display');
-    const calcHistoryList = document.getElementById('calc-history-list');
-    let calcHistory = [];
-    
-    document.getElementById('calculator-buttons').addEventListener('click', (e) => {
-        if (e.target.tagName !== 'BUTTON') return;
-        const key = e.target.textContent;
-        const currentVal = calcDisplay.textContent;
+    // a) YENİ HESAP MAKİNESİ MANTIĞI
+    class Calculator {
+        constructor(previousOperandTextElement, currentOperandTextElement) {
+            this.previousOperandTextElement = previousOperandTextElement;
+            this.currentOperandTextElement = currentOperandTextElement;
+            this.clear();
+        }
 
-        if (key === 'C') {
-            calcDisplay.textContent = '0';
-        } else if (key === 'CE') {
-            calcDisplay.textContent = '0';
-        } else if (key === '=') {
-            try {
-                const result = eval(currentVal.replace(/%/g, '/100'));
-                addCalcHistory(`${currentVal} = ${result}`);
-                calcDisplay.textContent = result;
-            } catch {
-                calcDisplay.textContent = 'Hata';
+        clear() {
+            this.currentOperand = '';
+            this.previousOperand = '';
+            this.operation = undefined;
+        }
+
+        delete() {
+            this.currentOperand = this.currentOperand.toString().slice(0, -1);
+        }
+
+        appendNumber(number) {
+            if (number === '.' && this.currentOperand.includes('.')) return;
+            this.currentOperand = this.currentOperand.toString() + number.toString();
+        }
+
+        chooseOperation(operation) {
+            if (this.currentOperand === '') return;
+            if (this.previousOperand !== '') {
+                this.compute();
             }
-        } else {
-            if (currentVal === '0' || currentVal === 'Hata') {
-                calcDisplay.textContent = key;
+            this.operation = operation;
+            this.previousOperand = this.currentOperand;
+            this.currentOperand = '';
+        }
+
+        compute() {
+            let computation;
+            const prev = parseFloat(this.previousOperand);
+            const current = parseFloat(this.currentOperand);
+            if (isNaN(prev) || isNaN(current)) return;
+            switch (this.operation) {
+                case '+': computation = prev + current; break;
+                case '-': computation = prev - current; break;
+                case '*': computation = prev * current; break;
+                case '÷': computation = prev / current; break;
+                default: return;
+            }
+            this.currentOperand = computation;
+            this.operation = undefined;
+            this.previousOperand = '';
+        }
+
+        updateDisplay() {
+            this.currentOperandTextElement.innerText = this.currentOperand;
+            if (this.operation != null) {
+                this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
             } else {
-                calcDisplay.textContent += key;
+                this.previousOperandTextElement.innerText = '';
             }
         }
+    }
+
+    const calculator = new Calculator(
+        document.querySelector('.previous-operand'),
+        document.querySelector('.current-operand')
+    );
+
+    document.querySelectorAll('[data-number]').forEach(button => {
+        button.addEventListener('click', () => {
+            calculator.appendNumber(button.innerText);
+            calculator.updateDisplay();
+        });
     });
 
-    function addCalcHistory(entry) {
-        calcHistory.unshift(entry);
-        if (calcHistory.length > 10) calcHistory.pop();
-        
-        calcHistoryList.innerHTML = '';
-        calcHistory.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item;
-            calcHistoryList.appendChild(li);
+    document.querySelectorAll('[data-operation]').forEach(button => {
+        button.addEventListener('click', () => {
+            calculator.chooseOperation(button.innerText);
+            calculator.updateDisplay();
         });
+    });
+
+    document.querySelector('[data-action="equals"]').addEventListener('click', () => {
+        calculator.compute();
+        calculator.updateDisplay();
+    });
+
+    document.querySelector('[data-action="clear"]').addEventListener('click', () => {
+        calculator.clear();
+        calculator.updateDisplay();
+    });
+
+    document.querySelector('[data-action="delete"]').addEventListener('click', () => {
+        calculator.delete();
+        calculator.updateDisplay();
+    });
+
+    // b) YENİ EKLENDİ: Ses Ayarı Mantığı
+    function setNotificationVolume(volume, save = true) {
+        const newVolume = parseFloat(volume);
+        if (isNaN(newVolume)) return;
+        
+        audioNotification.volume = newVolume;
+        notificationVolumeSlider.value = newVolume;
+        if (save) {
+            localStorage.setItem('brtos_notification_volume', newVolume);
+        }
     }
+    
+    notificationVolumeSlider.addEventListener('input', (e) => setNotificationVolume(e.target.value));
+    notificationVolumeSlider.addEventListener('change', () => audioNotification.play()); // Ayar değiştiğinde test sesi
+
 
     // --- 7. OLAY DİNLEYİCİLERİNİ BAŞLATMA ---
     function initializeEventListeners() {
-        // Masaüstü Simgeleri
         document.querySelectorAll('.desktop-icon').forEach(icon => {
-            icon.addEventListener('click', (e) => {
-                const appId = e.currentTarget.dataset.appId;
-                openWindow(appId);
-            });
+            icon.addEventListener('click', () => openWindow(icon.dataset.appId));
         });
         
-        // Başlat Menüsü
         startButton.addEventListener('click', (e) => {
             e.stopPropagation();
             startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
@@ -190,12 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!startMenu.contains(e.target) && e.target !== startButton) {
                 startMenu.style.display = 'none';
             }
-            if (!volumePanel.contains(e.target) && e.target !== volumeIcon) {
-                volumePanel.style.display = 'none';
-            }
         });
         
-        // Başlat Menüsü Uygulamaları
         startMenu.addEventListener('click', (e) => {
             const target = e.target.closest('.start-menu-item');
             if (target) {
@@ -204,33 +250,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Pencere Kapatma Butonları
         document.querySelectorAll('.close-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const appId = e.target.closest('.window').dataset.appId;
-                closeWindow(appId);
+                closeWindow(e.target.closest('.window').dataset.appId);
             });
         });
         
-        // Pencereleri Öne Getirme
         document.querySelectorAll('.window').forEach(win => {
            win.addEventListener('mousedown', () => bringToFront(win)); 
-        });
-
-        // Ses Ayarlayıcı
-        volumeIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            volumePanel.style.display = volumePanel.style.display === 'block' ? 'none' : 'block';
-        });
-        volumeSlider.addEventListener('input', (e) => {
-            volumeLevelText.textContent = e.target.value;
         });
     }
 
     // --- 8. SİSTEMİ BAŞLAT ---
     updateTime();
     setInterval(updateTime, 1000);
+    
+    // Kaydedilmiş ses ayarını yükle
+    const savedVolume = localStorage.getItem('brtos_notification_volume') || 0.5;
+    setNotificationVolume(savedVolume, false);
+
     initializeEventListeners();
     makeWindowsDraggable();
     bootSystem();
