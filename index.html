@@ -48,14 +48,11 @@
     <div id="taskbar">
         <div class="taskbar-left">
             <span id="start-button">Başlat</span>
-            <div class="taskbar-app-icons">
-                </div>
+            <span class="taskbar-icon" id="settings-taskbar-icon">⚙️</span>
+            <span class="taskbar-icon" id="task-manager-taskbar-icon">📊</span>
+            <span class="taskbar-icon" id="brt-store-taskbar-icon">🛍️</span>
         </div>
         <div class="taskbar-right">
-            <span class="taskbar-icon" id="volume-icon">🔊</span>
-            <div id="volume-slider-container">
-                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
-            </div>
             <span class="taskbar-icon" id="notifications-icon">🔔<span id="notification-dot"></span></span>
             <span id="current-time"></span>
         </div>
@@ -64,8 +61,6 @@
     <div id="start-menu">
         <div class="start-menu-section">
             <h5>Uygulamalar</h5>
-            <div id="start-menu-apps-list">
-                </div>
         </div>
         <div class="start-menu-section">
             <h5>Sistem</h5>
@@ -101,7 +96,7 @@
             <div class="window-controls">
                 <button class="minimize-button">_</button>
                 <button class="maximize-button">☐</button>
-                <button class="close-button">X</button>
+                <button class="close-button" id="close-settings-button">X</button>
             </div>
         </div>
         <div class="window-content">
@@ -130,7 +125,7 @@
             <div class="window-controls">
                 <button class="minimize-button">_</button>
                 <button class="maximize-button">☐</button>
-                <button class="close-button">X</button>
+                <button class="close-button" id="close-task-manager-button">X</button>
             </div>
         </div>
         <div class="window-content">
@@ -145,7 +140,7 @@
             <div class="window-controls">
                 <button class="minimize-button">_</button>
                 <button class="maximize-button">☐</button>
-                <button class="close-button">X</button>
+                <button class="close-button" id="close-brt-store-button">X</button>
             </div>
         </div>
         <div class="window-content">
@@ -160,17 +155,31 @@
             <div class="window-controls">
                 <button class="minimize-button">_</button>
                 <button class="maximize-button">☐</button>
-                <button class="close-button">X</button>
+                <button class="close-button" id="close-calculator-button">X</button>
             </div>
         </div>
         <div class="window-content" style="padding: 0; display: flex; flex-direction: column;">
             <div id="calculator-display">0</div>
             <div id="calculator-buttons">
-                <button class="clear">C</button><button>+/-</button><button>%</button><button class="operator">/</button>
-                <button>7</button><button>8</button><button>9</button><button class="operator">*</button>
-                <button>4</button><button>5</button><button>6</button><button class="operator">-</button>
-                <button>1</button><button>2</button><button>3</button><button class="operator">+</button>
-                <button class="zero">0</button><button class="decimal">.</button><button class="equals">=</button>
+                <button class="clear">C</button>
+                <button class="operator">+/-</button>
+                <button class="operator">%</button>
+                <button class="operator">/</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button class="operator">*</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button class="operator">-</button>
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button class="operator">+</button>
+                <button>0</button>
+                <button class="decimal">.</button>
+                <button class="equals">=</button>
             </div>
         </div>
     </div>
@@ -181,7 +190,7 @@
             <div class="window-controls">
                 <button class="minimize-button">_</button>
                 <button class="maximize-button">☐</button>
-                <button class="close-button">X</button>
+                <button class="close-button" id="close-notepad-button">X</button>
             </div>
         </div>
         <div class="window-content">
