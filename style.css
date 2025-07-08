@@ -1,63 +1,379 @@
-/* Genel */
-body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-button { cursor: pointer; border: none; font-family: inherit; }
+/* Genel Stil Ayarları */
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.5s, color 0.5s;
+}
 
-/* Temalar */
-body.dark-theme { background-color: #333; color: #eee; }
-body.dark-theme .window { background-color: #333; border: 1px solid #555; }
-body.dark-theme .window-header { background-color: #444; }
-body.dark-theme #taskbar, body.dark-theme #start-menu, body.dark-theme #notification-panel { background-color: rgba(0, 0, 0, 0.7); }
-body.dark-theme .notepad-textarea { background-color: #444; color: #eee; }
+body.dark-theme {
+    background-color: #333;
+    color: #eee;
+}
 
-body.light-theme { background-color: #f0f2f5; color: #333; }
-body.light-theme .window { background-color: #fff; border: 1px solid #ccc; }
-body.light-theme .window-header { background-color: #e0e0e0; }
-body.light-theme #taskbar, body.light-theme #start-menu, body.light-theme #notification-panel { background-color: rgba(255, 255, 255, 0.8); border-top: 1px solid #ccc; }
-body.light-theme .desktop-icon span { color: #333; text-shadow: none; }
-body.light-theme .notepad-textarea { background-color: #fff; color: #333; border: 1px solid #ccc;}
+body.light-theme {
+    background-color: #f0f2f5;
+    color: #333;
+}
 
 /* Açılış Ekranı */
-#boot-screen { position: fixed; inset: 0; background-color: #222; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #00bcd4; z-index: 10000; transition: opacity 1s; }
-#boot-screen.hidden { opacity: 0; pointer-events: none; }
-#boot-screen img { width: 100px; }
-#boot-message { font-size: 0.8em; color: #ccc; }
+#boot-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #222;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: #00bcd4;
+    z-index: 10000;
+    transition: opacity 1s ease-out;
+}
 
-/* Masaüstü ve Simgeler */
-#desktop { position: relative; width: 100vw; height: calc(100vh - 40px); background: url('https://via.placeholder.com/1920x1080/444/666?text=BRTOS+Desktop') no-repeat center center / cover; display: none; }
-.desktop-icon { position: absolute; width: 80px; text-align: center; cursor: pointer; user-select: none; padding: 5px; }
-.desktop-icon:hover { background-color: rgba(255, 255, 255, 0.15); border-radius: 5px; }
-.desktop-icon img { width: 48px; }
-.desktop-icon span { font-size: 0.8em; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+#boot-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
 
-/* Görev Çubuğu ve Başlat Menüsü */
-#taskbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; display: none; align-items: center; padding: 0 10px; box-sizing: border-box; z-index: 999; justify-content: space-between; backdrop-filter: blur(5px); }
-#start-button { background-color: #00bcd4; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
-#start-menu { position: absolute; bottom: 45px; left: 10px; width: 200px; padding: 10px; border-radius: 8px; display: none; z-index: 1000; }
-.start-menu-item { padding: 8px; cursor: pointer; border-radius: 4px; }
-.start-menu-item:hover { background-color: rgba(255, 255, 255, 0.1); }
-#notifications-icon { cursor: pointer; font-size: 1.5em; position: relative; }
-#notification-dot { display: none; position: absolute; top: 0; right: 0; width: 8px; height: 8px; background-color: red; border-radius: 50%; }
-#notification-panel { position: absolute; bottom: 45px; right: 10px; width: 300px; padding: 10px; border-radius: 8px; display: none; z-index: 1000; }
+#boot-screen img {
+    width: 100px; height: 100px;
+    margin-bottom: 20px;
+}
 
-/* Pencereler */
-.window { position: absolute; top: 10%; left: 15%; min-width: 320px; box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 100; display: none; flex-direction: column; border-radius: 8px; resize: both; overflow: auto; }
-.window-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; cursor: grab; }
-.close-btn { background: #d9534f; color: white; width: 22px; height: 22px; border-radius: 50%; line-height: 22px; text-align: center; }
-.window-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+#boot-message {
+    margin-top: 15px;
+    font-size: 0.8em;
+    color: #ccc;
+}
 
-/* Ayarlar ve Not Defteri */
-.settings-section { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #555; }
-.settings-item label { display: block; margin-bottom: 5px; }
-.settings-item select, .settings-item input[type="range"] { width: 100%; padding: 8px; background-color: #444; border: 1px solid #666; color: #eee; border-radius: 4px; box-sizing: border-box; }
-.settings-item input[type="range"] { padding: 0; cursor: pointer; }
-.notepad-textarea { flex-grow: 1; resize: none; border: none; padding: 10px; font-size: 1rem; }
+/* Masaüstü */
+#desktop {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 40px);
+    background: url('https://source.unsplash.com/random/1920x1080?nature,water') no-repeat center center / cover;
+    display: none;
+    overflow: hidden;
+}
 
-/* YENİ & GÜNCELLENMİŞ HESAP MAKİNESİ STİLLERİ */
-.calculator-content { padding: 15px; }
-#calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-#calculator-buttons button { padding: 20px; font-size: 1.2rem; border-radius: 5px; background-color: #555; color: white; }
-#calculator-buttons button:hover { background-color: #777; }
-#calculator-buttons .span-two { grid-column: span 2; }
-#calculator-display { background-color: rgba(0,0,0,0.2); color: white; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: right; word-wrap: break-word; word-break: break-all; }
-.previous-operand { font-size: 1rem; opacity: 0.75; min-height: 24px; }
-.current-operand { font-size: 2rem; min-height: 38px; }
+#desktop-branding {
+    position: absolute;
+    top: 20px; left: 20px;
+    font-size: 3em;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+/* Masaüstü Simgeleri */
+.desktop-icon {
+    position: absolute;
+    width: 80px; height: 80px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.desktop-icon.loaded {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.desktop-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.desktop-icon img {
+    width: 48px; height: 48px;
+    margin-bottom: 5px;
+    pointer-events: none;
+}
+
+.desktop-icon span {
+    font-size: 0.8em;
+    color: #eee;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Masaüstü Widget'ları */
+.desktop-widget {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    cursor: grab;
+    user-select: none;
+    color: #eee;
+}
+
+/* Görev Çubuğu */
+#taskbar {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 999;
+    justify-content: space-between;
+}
+
+.taskbar-left, .taskbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.taskbar-right {
+    color: #eee;
+    font-size: 0.9em;
+}
+
+.taskbar-icon {
+    font-size: 1.5em;
+    cursor: pointer;
+    margin: 0 10px;
+    color: #eee;
+    transition: color 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.taskbar-icon:hover { color: #00bcd4; }
+
+/* Başlat Butonu */
+#start-button {
+    background-color: #00bcd4;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-right: 15px;
+    transition: background-color 0.2s;
+}
+#start-button:hover { background-color: #0097a7; }
+
+/* Başlat Menüsü */
+#start-menu {
+    position: absolute;
+    bottom: 40px; left: 0;
+    width: 250px;
+    background-color: rgba(34, 34, 34, 0.95);
+    border: 1px solid #555;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px 8px 0 0;
+    padding: 10px 0;
+    display: none;
+    flex-direction: column;
+    z-index: 998;
+}
+#start-menu.show { display: flex; }
+
+#start-menu .start-menu-section h5 {
+    color: #00bcd4;
+    margin: 5px 15px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+#start-menu .start-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+#start-menu .start-menu-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+#start-menu .start-menu-item img {
+    width: 24px; height: 24px;
+    margin-right: 10px;
+}
+
+/* Bildirimler */
+#notification-dot {
+    position: absolute;
+    top: 2px; right: -5px;
+    width: 8px; height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    display: none;
+}
+#notification-panel {
+    position: absolute;
+    bottom: 40px; right: 0;
+    width: 300px;
+    max-height: 400px;
+    background-color: rgba(34, 34, 34, 0.95);
+    border: 1px solid #555;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px 8px 0 0;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    z-index: 998;
+    overflow-y: auto;
+}
+#notification-panel.show { display: flex; }
+
+/* Ses Ayarı */
+#volume-slider-container {
+    position: absolute;
+    bottom: 45px;
+    right: 50px;
+    background-color: rgba(34, 34, 34, 0.95);
+    padding: 15px 10px;
+    border-radius: 8px;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 1000;
+}
+#volume-slider-container.show { display: block; }
+#volume-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 120px; height: 5px;
+    background: #555;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+    border-radius: 3px;
+}
+#volume-slider:hover { opacity: 1; }
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 15px; height: 15px;
+    background: #00bcd4;
+    cursor: pointer;
+    border-radius: 50%;
+}
+#volume-slider::-moz-range-thumb {
+    width: 15px; height: 15px;
+    background: #00bcd4;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+/* Pencere Genel Stilleri */
+.window {
+    position: absolute;
+    background-color: #333;
+    border: 1px solid #555;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 300px;
+    min-height: 200px;
+    resize: both;
+}
+.window.active { z-index: 101; }
+.window.maximized {
+    top: 0 !important; left: 0 !important;
+    width: 100vw !important; height: calc(100vh - 40px) !important;
+    border-radius: 0;
+}
+.window.minimized { display: none; }
+.window-header {
+    background-color: #444;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    cursor: grab;
+    user-select: none;
+}
+.window-header .window-controls button {
+    background: none; border: none;
+    color: #eee; font-size: 1.2em;
+    cursor: pointer; padding: 5px;
+    line-height: 1;
+    transition: background-color 0.2s;
+    border-radius: 4px;
+}
+.window-header .window-controls button:hover { background-color: rgba(255, 255, 255, 0.1); }
+.window-header .window-controls .close-button:hover { background-color: #d9534f; }
+.window-content { padding: 15px; flex-grow: 1; overflow-y: auto; }
+
+/* Ayarlar */
+.settings-section { margin-bottom: 20px; }
+.settings-item select { width: 100%; padding: 8px; }
+
+/* Görev Yöneticisi */
+#running-apps-list { list-style: none; padding: 0; margin: 0; }
+#running-apps-list li {
+    background-color: #444; margin-bottom: 8px; padding: 10px;
+    border-radius: 4px; display: flex;
+    justify-content: space-between; align-items: center;
+}
+#running-apps-list li button {
+    background-color: #d9534f; color: white; border: none;
+    padding: 5px 10px; border-radius: 4px; cursor: pointer;
+}
+
+/* BRT STORE */
+#brt-store-window .app-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+}
+#brt-store-window .app-card {
+    background-color: #444; border-radius: 8px; padding: 15px;
+    text-align: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+#brt-store-window .app-card img { width: 60px; height: 60px; margin: 0 auto 10px; }
+#brt-store-window .app-card button {
+    background-color: #28a745; color: white; border: none;
+    padding: 8px 15px; border-radius: 5px; cursor: pointer;
+}
+#brt-store-window .app-card button.installed { background-color: #6c757d; cursor: default; }
+#brt-store-window .app-card button.uninstall { background-color: #dc3545; margin-top: 5px; }
+
+/* Hesap Makinesi */
+#calculator-window { min-width: 280px; width: 280px; min-height: 380px; height: 380px; resize: none; }
+#calculator-display {
+    background-color: #222; color: #eee;
+    font-size: 2.5em; text-align: right;
+    padding: 20px 15px;
+    min-height: 50px;
+    overflow-x: auto;
+}
+#calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; flex-grow: 1; }
+#calculator-buttons button {
+    background-color: #555; color: white; border: 1px solid #333;
+    padding: 15px; font-size: 1.2em; cursor: pointer;
+}
+#calculator-buttons button:hover { background-color: #666; }
+#calculator-buttons button.operator { background-color: #ff9800; }
+#calculator-buttons button.equals { background-color: #00bcd4; }
+#calculator-buttons button.zero { grid-column: span 2; }
+
+/* Not Defteri */
+#notepad-notes-list { list-style: none; padding: 0; margin: 10px 0; }
+#notepad-notes-list li { background-color: #444; margin-bottom: 5px; padding: 10px; border-radius: 4px; cursor: pointer; }
+#notepad-note-editor input, #notepad-note-editor textarea {
+    width: calc(100% - 20px); padding: 10px; border: 1px solid #666;
+    border-radius: 4px; background-color: #444; color: #eee; margin-bottom: 10px;
+}
+#notepad-note-editor textarea { height: 150px; resize: vertical; }
