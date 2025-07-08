@@ -2,10 +2,10 @@
 body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.5s, color 0.5s; }
 body.dark-theme { background-color: #333; color: #eee; }
 body.light-theme { background-color: #f0f2f5; color: #333; }
-button { cursor: pointer; }
+button { cursor: pointer; border: none; }
 
 /* Açılış Ekranı */
-#boot-screen { position: fixed; inset: 0; background-color: #222; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 2em; color: #00bcd4; z-index: 10000; transition: opacity 1s; }
+#boot-screen { position: fixed; inset: 0; background-color: #222; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #00bcd4; z-index: 10000; transition: opacity 1s; }
 #boot-screen.hidden { opacity: 0; pointer-events: none; }
 #boot-screen img { width: 100px; height: 100px; margin-bottom: 20px; }
 #boot-message { margin-top: 15px; font-size: 0.8em; color: #ccc; }
@@ -21,41 +21,64 @@ button { cursor: pointer; }
 #taskbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center; padding: 0 10px; box-sizing: border-box; z-index: 999; justify-content: space-between; }
 body.light-theme #taskbar { background-color: #e0e0e0; }
 .taskbar-left, .taskbar-right { display: flex; align-items: center; gap: 10px; }
-#start-button { background-color: #00bcd4; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; }
-#start-button:hover { background-color: #0097a7; }
+#start-button { background-color: #00bcd4; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
 #open-apps-bar { display: flex; gap: 5px; }
-.taskbar-app { background-color: #555; padding: 5px 10px; border-radius: 3px; font-size: 14px; cursor: pointer; }
+.taskbar-app { background-color: #555; padding: 5px 10px; border-radius: 3px; font-size: 14px; }
 .taskbar-app.active { background-color: #00bcd4; }
-#system-tray .tray-icon { cursor: pointer; font-size: 18px; }
 
 /* Başlat Menüsü */
 #start-menu { position: absolute; bottom: 45px; left: 10px; width: 250px; background-color: rgba(34, 34, 34, 0.95); border: 1px solid #555; box-shadow: 0 0 15px rgba(0,0,0,0.5); border-radius: 8px; padding: 10px; display: none; z-index: 1000; }
-.start-menu-section h5 { color: #00bcd4; margin: 5px 0; border-bottom: 1px solid #555; padding-bottom: 5px; }
 .start-menu-item { display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 4px; }
 .start-menu-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .start-menu-item img { width: 24px; height: 24px; margin-right: 10px; }
 
-/* Ses Paneli */
-#volume-panel { position: absolute; bottom: 45px; right: 40px; background-color: #222; border: 1px solid #555; padding: 15px; border-radius: 8px; display: none; z-index: 1000; }
-#volume-slider { width: 150px; cursor: pointer; }
-
 /* Pencereler */
-.window { position: absolute; top: 10%; left: 15%; min-width: 350px; background-color: #333; border: 1px solid #555; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 100; display: none; flex-direction: column; border-radius: 8px; resize: both; overflow: auto; }
-.window-header { background-color: #444; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; cursor: grab; user-select: none; }
-.window-header .close-btn { background: #d9534f; color: white; border: none; width: 22px; height: 22px; border-radius: 50%; line-height: 22px; text-align: center; }
+.window { position: absolute; top: 10%; left: 15%; min-width: 300px; background-color: #333; border: 1px solid #555; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 100; display: none; flex-direction: column; border-radius: 8px; resize: both; overflow: auto; }
+.window-header { background-color: #444; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; cursor: grab; }
+.window-header .close-btn { background: #d9534f; color: white; width: 22px; height: 22px; border-radius: 50%; }
 .window-content { padding: 20px; flex-grow: 1; }
 
-/* Uygulama Özel Stilleri */
+/* Ayarlar */
 .settings-section { margin-bottom: 20px; border-bottom: 1px solid #555; padding-bottom: 15px; }
-.settings-section:last-child { border-bottom: none; }
-.app-card { background-color: #444; padding: 15px; border-radius: 6px; }
-.store-btn.installed { background-color: #6c757d; color: white; border: none; padding: 8px; border-radius: 4px; }
-.calculator-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-#calculator-display { background: #222; color: white; font-size: 2em; padding: 10px; text-align: right; border-radius: 4px; margin-bottom: 10px; min-height: 40px; }
-#calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-#calculator-buttons button { padding: 15px; font-size: 1.2em; border: none; border-radius: 4px; }
-#calculator-buttons button.operator { background-color: #555; color: white; }
-#calculator-buttons button.equals { background-color: #00bcd4; color: white; grid-column: span 2; }
-.calculator-history h4 { margin-top: 0; }
-#calc-history-list { list-style: none; padding: 0; margin: 0; font-size: 14px; max-height: 250px; overflow-y: auto; }
-#calc-history-list li { padding: 5px; border-bottom: 1px solid #444; }
+.settings-item { margin-bottom: 10px; }
+.settings-item label { display: block; margin-bottom: 5px; }
+.settings-item select, .settings-item input[type="range"] { width: 100%; padding: 8px; background-color: #444; border: 1px solid #666; color: #eee; border-radius: 4px; box-sizing: border-box; }
+.settings-item input[type="range"] { padding: 0; }
+
+
+/* YENİ & GÜNCELLENMİŞ HESAP MAKİNESİ STİLLERİ */
+#calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+#calculator-buttons button {
+    padding: 20px;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    background-color: #555;
+    color: white;
+}
+#calculator-buttons button:hover {
+    background-color: #777;
+}
+#calculator-buttons .span-two {
+    grid-column: span 2;
+}
+#calculator-display {
+    background-color: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: right;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+.previous-operand {
+    font-size: 1.5rem;
+    opacity: 0.75;
+}
+.current-operand {
+    font-size: 2.5rem;
+         }
