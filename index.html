@@ -18,66 +18,81 @@
             <img src="https://img.icons8.com/ios-filled/50/ffffff/settings.png" alt="Ayarlar">
             <span>Ayarlar</span>
         </div>
-        <div class="desktop-icon" data-app-id="calculator" style="top: 150px; left: 50px;">
+        <div class="desktop-icon" data-app-id="task-manager" style="top: 150px; left: 50px;">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/process.png" alt="Görev Yöneticisi">
+            <span>Görev Yöneticisi</span>
+        </div>
+        <div class="desktop-icon" data-app-id="brt-store" style="top: 250px; left: 50px;">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/shopping-basket.png" alt="BRT STORE">
+            <span>BRT Store</span>
+        </div>
+        <div class="desktop-icon" data-app-id="calculator" style="top: 50px; left: 150px;">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/calculator.png" alt="Hesap Makinesi">
             <span>Hesap Makinesi</span>
+        </div>
+        <div class="desktop-icon" data-app-id="notepad" style="top: 150px; left: 150px;">
+            <img src="https://i.imgur.com/lqpNRWg.png" alt="Not Defteri">
+            <span>Not Defteri</span>
         </div>
     </div>
 
     <div id="taskbar">
         <div class="taskbar-left">
             <span id="start-button">Başlat</span>
-            <div id="open-apps-bar"></div>
         </div>
         <div class="taskbar-right">
+            <span id="notifications-icon">🔔<span id="notification-dot"></span></span>
             <span id="current-time"></span>
         </div>
     </div>
 
     <div id="start-menu">
-        <div class="start-menu-section">
-            <h5>Uygulamalar</h5>
-            <div class="start-menu-item" data-app-id="calculator">
-                <img src="https://img.icons8.com/ios-filled/24/ffffff/calculator.png" alt="Hesap Makinesi">
-                <span>Hesap Makinesi</span>
-            </div>
-        </div>
-        <div class="start-menu-section">
-            <h5>Sistem</h5>
-            <div class="start-menu-item" data-app-id="settings">
-                <img src="https://img.icons8.com/ios-filled/24/ffffff/settings.png" alt="Ayarlar">
-                <span>Ayarlar</span>
-            </div>
-        </div>
+        <div class="start-menu-item" data-app-id="settings"><span>Ayarlar</span></div>
+        <div class="start-menu-item" data-app-id="task-manager"><span>Görev Yöneticisi</span></div>
+        <div class="start-menu-item" data-app-id="brt-store"><span>BRT Store</span></div>
+        <div class="start-menu-item" data-app-id="calculator"><span>Hesap Makinesi</span></div>
+        <div class="start-menu-item" data-app-id="notepad"><span>Not Defteri</span></div>
     </div>
 
+    <div id="notification-panel">
+        <h3>Bildirimler</h3>
+        <div id="notification-list">
+            <div class="no-notifications">Hiç bildirim yok.</div>
+        </div>
+    </div>
+    
     <div id="settings-window" class="window" data-app-id="settings">
-        <div class="window-header"><span>Ayarlar</span><div class="window-controls"><button class="close-btn">X</button></div></div>
+        <div class="window-header"><span>Ayarlar</span><button class="close-btn">X</button></div>
         <div class="window-content">
             <div class="settings-section">
-                <h3>Genel Ayarlar</h3>
-                <div class="settings-item">
-                    <label for="theme-select">Tema:</label>
-                    <select id="theme-select">
-                        <option value="dark">Koyu</option>
-                        <option value="light">Açık</option>
-                    </select>
-                </div>
+                <h3>Genel</h3>
+                <div class="settings-item"><label for="theme-select">Tema:</label><select id="theme-select"><option value="dark">Koyu</option><option value="light">Açık</option></select></div>
                 <div class="settings-item">
                     <label for="notification-volume">Bildirim Sesi Düzeyi:</label>
                     <input type="range" id="notification-volume" min="0" max="1" step="0.1" value="0.5">
                 </div>
             </div>
-            <div class="settings-section">
-                <h3>Hakkında</h3>
-                <p><strong>BRTOS Sürümü:</strong> 1.1</p>
-            </div>
         </div>
     </div>
 
+    <div id="task-manager-window" class="window" data-app-id="task-manager">
+        <div class="window-header"><span>Görev Yöneticisi</span><button class="close-btn">X</button></div>
+        <div class="window-content"><ul id="running-apps-list"></ul></div>
+    </div>
+
+    <div id="brt-store-window" class="window" data-app-id="brt-store">
+         <div class="window-header"><span>BRT Store</span><button class="close-btn">X</button></div>
+         <div class="window-content"><h2>Uygulamalar</h2><p>Yeni uygulama yakında eklenecektir.</p></div>
+    </div>
+    
+    <div id="notepad-window" class="window" data-app-id="notepad">
+        <div class="window-header"><span>Not Defteri</span><button class="close-btn">X</button></div>
+        <div class="window-content"><textarea class="notepad-textarea" placeholder="Notlarınızı buraya yazın..."></textarea></div>
+    </div>
+    
     <div id="calculator-window" class="window" data-app-id="calculator">
-        <div class="window-header"><span>Hesap Makinesi</span><div class="window-controls"><button class="close-btn">X</button></div></div>
-        <div class="window-content">
+        <div class="window-header"><span>Hesap Makinesi</span><button class="close-btn">X</button></div>
+        <div class="window-content calculator-content">
              <div id="calculator-display">
                 <div class="previous-operand"></div>
                 <div class="current-operand">0</div>
