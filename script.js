@@ -1,132 +1,162 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ELEMENTLERİ SEÇME ---
+    // TEMEL ELEMENTLER
+    const bootScreen = document.getElementById('boot-screen');
+    const bootMessage = document.getElementById('boot-message');
     const desktop = document.getElementById('desktop');
     const taskbar = document.getElementById('taskbar');
+    const osTitle = document.getElementById('os-title');
+    const currentTimeSpan = document.getElementById('current-time');
+
+    // WIDGET ELEMENTLERİ
+    const timeWidget = document.getElementById('time-widget');
+    const widgetTime = document.getElementById('widget-time');
+    const widgetDate = document.getElementById('widget-date');
+
+    // PENCERE ELEMENTLERİ
+    const settingsWindow = document.getElementById('settings-window');
+    const taskManagerWindow = document.getElementById('task-manager-window');
+    const brtStoreWindow = document.getElementById('brt-store-window');
+    const calculatorWindow = document.getElementById('calculator-window');
+    const notepadWindow = document.getElementById('notepad-window');
+    
+    // İKON ve BUTON ELEMENTLERİ
+    const settingsDesktopIcon = document.getElementById('settings-desktop-icon');
+    const taskManagerDesktopIcon = document.getElementById('task-manager-desktop-icon');
+    const brtStoreDesktopIcon = document.getElementById('brt-store-desktop-icon');
+    const calculatorDesktopIcon = document.getElementById('calculator-desktop-icon');
+    const notepadDesktopIcon = document.getElementById('notepad-desktop-icon');
+
+    const closeSettingsButton = document.getElementById('close-settings-button');
+    const closeTaskManagerButton = document.getElementById('close-task-manager-button');
+    const closeBrtStoreButton = document.getElementById('close-brt-store-button');
+    const closeCalculatorButton = document.getElementById('close-calculator-button');
+    const closeNotepadButton = document.getElementById('close-notepad-button');
+
     const startButton = document.getElementById('start-button');
     const startMenu = document.getElementById('start-menu');
+
     const notificationsIcon = document.getElementById('notifications-icon');
-    const notificationPanel = document.getElementById('notification-panel');
     const notificationDot = document.getElementById('notification-dot');
+    const notificationPanel = document.getElementById('notification-panel');
     const notificationList = document.getElementById('notification-list');
-    const volumeIcon = document.getElementById('volume-icon');
-    const volumeSliderContainer = document.getElementById('volume-slider-container');
-    const volumeSlider = document.getElementById('volume-slider');
-    const currentTimeSpan = document.getElementById('current-time');
+    
+    // UYGULAMA İÇİ ELEMENTLER
     const runningAppsList = document.getElementById('running-apps-list');
+    const storeAppList = document.getElementById('store-app-list');
+    const calculatorDisplay = document.getElementById('calculator-display');
+    const calculatorButtons = document.getElementById('calculator-buttons');
+    const createNewNoteButton = document.getElementById('create-new-note');
+    const notepadNotesList = document.getElementById('notepad-notes-list');
+    const notepadNoteEditor = document.getElementById('notepad-note-editor');
+    const noteTitleInput = document.getElementById('note-title-input');
+    const noteContentInput = document.getElementById('note-content-input');
+    const saveNoteButton = document.getElementById('save-note-button');
+    const cancelNoteButton = document.getElementById('cancel-note-button');
+    const themeSelect = document.getElementById('theme-select');
+    const currentBrtosVersionSpan = document.getElementById('current-brtos-version');
+    const checkforUpdatesButton = document.getElementById('check-for-updates');
+    const updateStatusMessage = document.getElementById('update-status-message');
 
-    // --- SİSTEM DEĞİŞKENLERİ ---
-    let activeWindows = {};
+
+    // SİSTEM DEĞİŞKENLERİ VE VERİLERİ
+    const audioBoot = new Audio('https://www.soundjay.com/buttons/sounds/button-1.mp3');
+    const audioNotification = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
     let installedApps = JSON.parse(localStorage.getItem('brtosInstalledApps')) || {};
-    let highestZIndex = 100;
+    let notes = JSON.parse(localStorage.getItem('brtosNotes')) || [];
+    let activeWindows = {};
 
-    // --- SES ALTYAPISI ---
-    const audioBootElement = new Audio('https://www.soundjay.com/buttons/sounds/button-1.mp3');
-    const audioNotificationElement = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
-    let audioContext, gainNode;
+    const availableApps = [
+        { id: 'settings', name: 'Ayarlar', windowElement: settingsWindow, openFunction: () => openWindow(settingsWindow, 'settings', 'Ayarlar') },
+        { id: 'task-manager', name: 'Görev Yöneticisi', windowElement: taskManagerWindow, openFunction: () => openWindow(taskManagerWindow, 'task-manager', 'Görev Yöneticisi') },
+        { id: 'brt-store', name: 'BRT STORE', windowElement: brtStoreWindow, openFunction: () => openWindow(brtStoreWindow, 'brt-store', 'BRT STORE') },
+        { id: 'calculator', name: 'Hesap Makinesi', windowElement: calculatorWindow, openFunction: () => openWindow(calculatorWindow, 'calculator', 'Hesap Makinesi') },
+        { id: 'notepad', name: 'Not Defteri', windowElement: notepadWindow, openFunction: () => openWindow(notepadWindow, 'notepad', 'Not Defteri') }
+    ];
 
-    // --- UYGULAMA TANIMLARI ---
-    const APPS = {
-        'settings': { name: 'Ayarlar', icon: '⚙️' },
-        'task-manager': { name: 'Görev Yöneticisi', icon: '📊' },
-        'brt-store': { name: 'BRT STORE', icon: '🛍️' },
-        'calculator': { name: 'Hesap Makinesi', icon: '🧮' },
-        'notepad': { name: 'Not Defteri', icon: '📝' }
-    };
-
-    // --- TEMEL SİSTEM FONKSİYONLARI ---
+    // --- SİSTEM BAŞLANGIÇ FONKSİYONLARI ---
 
     function bootSystem() {
-        // Saati başlat
         updateTime();
         setInterval(updateTime, 1000);
 
-        // Açılış ekranını göster
-        const bootScreen = document.getElementById('boot-screen');
         setTimeout(() => {
             bootScreen.classList.add('hidden');
-            audioBootElement.play().catch(e => console.warn("Autoplay engellendi."));
+            audioBoot.play();
             setTimeout(() => {
                 bootScreen.style.display = 'none';
                 desktop.style.display = 'block';
                 taskbar.style.display = 'flex';
                 renderDesktopIcons();
             }, 1000);
-        }, 2000);
+        }, 2000); // 2 saniye açılış süresi
     }
 
     function updateTime() {
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, '0');
         const minutes = now.getMinutes().toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const year = now.getFullYear();
+
         currentTimeSpan.textContent = `${hours}:${minutes}`;
-        
-        // Widget saatini de güncelle
-        const widgetTime = document.getElementById('widget-time');
-        const widgetDate = document.getElementById('widget-date');
         if (widgetTime) widgetTime.textContent = `${hours}:${minutes}`;
-        if (widgetDate) {
-             const day = now.getDate().toString().padStart(2, '0');
-             const month = (now.getMonth() + 1).toString().padStart(2, '0');
-             const year = now.getFullYear();
-             widgetDate.textContent = `${day}.${month}.${year}`;
-        }
+        if (widgetDate) widgetDate.textContent = `${day}.${month}.${year}`;
     }
 
-    function addNotification(message) {
-        audioNotificationElement.play().catch(e => console.warn("Ses çalınamadı."));
-        notificationDot.style.display = 'block';
-        const noNotificationMsg = notificationList.querySelector('.no-notifications');
-        if (noNotificationMsg) noNotificationMsg.style.display = 'none';
-
-        const item = document.createElement('div');
-        item.className = 'notification-item';
-        item.textContent = message;
-        notificationList.prepend(item);
-        setTimeout(() => item.remove(), 5000);
-    }
-    
     // --- PENCERE YÖNETİMİ ---
 
-    function openWindow(appId) {
-        if (!APPS[appId]) return;
-
-        if (activeWindows[appId]) { // Pencere zaten açıksa öne getir
-            bringWindowToFront(activeWindows[appId].element);
+    function openWindow(windowElement, appId, appName) {
+        if (windowElement.style.display === 'flex' && !windowElement.classList.contains('minimized')) {
+            bringWindowToFront(windowElement);
             return;
         }
 
-        const windowElement = document.getElementById(`${appId}-window`);
-        if (!windowElement) return;
+        if (windowElement.classList.contains('minimized')) {
+            windowElement.classList.remove('minimized');
+        }
 
         windowElement.style.display = 'flex';
         bringWindowToFront(windowElement);
-        
-        activeWindows[appId] = {
-            id: appId,
-            name: APPS[appId].name,
-            element: windowElement,
-        };
-        updateTaskManagerList();
+        addAppToTaskManager(appName, appId, windowElement);
+    }
+
+    function closeWindow(windowElement, appId) {
+        windowElement.style.display = 'none';
+        removeAppFromTaskManager(appId);
+        addNotification(`'${activeWindows[appId]?.name || appId}' kapatıldı.`);
     }
     
-    function closeWindow(appId) {
-        if (!activeWindows[appId]) return;
-        
-        const { element, name } = activeWindows[appId];
-        element.style.display = 'none';
-        delete activeWindows[appId];
-        
-        addNotification(`'${name}' kapatıldı.`);
+    function minimizeWindow(windowElement, appId) {
+        windowElement.classList.add('minimized');
+        setTimeout(() => { windowElement.style.display = 'none'; }, 300);
+        if(activeWindows[appId]) activeWindows[appId].minimized = true;
         updateTaskManagerList();
     }
 
     function bringWindowToFront(windowElement) {
-        highestZIndex++;
-        windowElement.style.zIndex = highestZIndex;
-        // Tüm pencerelerden 'active' sınıfını kaldır
-        document.querySelectorAll('.window').forEach(win => win.classList.remove('active'));
-        // Tıklanan pencereye 'active' sınıfını ekle
-        windowElement.classList.add('active');
+        let maxZIndex = 1001;
+        document.querySelectorAll('.window').forEach(el => {
+            const zIndex = parseInt(window.getComputedStyle(el).zIndex, 10);
+            if (zIndex > maxZIndex) maxZIndex = zIndex;
+        });
+        windowElement.style.zIndex = maxZIndex + 1;
+    }
+    
+    // --- GÖREV YÖNETİCİSİ ---
+    
+    function addAppToTaskManager(appName, appId, windowElement) {
+        if (!activeWindows[appId]) {
+            activeWindows[appId] = { name: appName, element: windowElement, minimized: false };
+            updateTaskManagerList();
+        }
+    }
+
+    function removeAppFromTaskManager(appId) {
+        if (activeWindows[appId]) {
+            delete activeWindows[appId];
+            updateTaskManagerList();
+        }
     }
 
     function updateTaskManagerList() {
@@ -141,211 +171,19 @@ document.addEventListener('DOMContentLoaded', () => {
             li.textContent = app.name;
             const terminateBtn = document.createElement('button');
             terminateBtn.textContent = 'Sonlandır';
-            terminateBtn.onclick = () => closeWindow(appId);
+            terminateBtn.onclick = () => closeWindow(app.element, appId);
             li.appendChild(terminateBtn);
             runningAppsList.appendChild(li);
         }
     }
-    
-    // --- İKON VE MENÜ RENDER ---
-    
-    function renderDesktopIcons() {
-        // Sistem uygulamaları her zaman yüklüdür
-        installedApps['settings'] = true;
-        installedApps['task-manager'] = true;
-        installedApps['brt-store'] = true;
 
-        document.querySelectorAll('.desktop-icon').forEach(icon => {
-            const appId = icon.dataset.appId;
-            if (installedApps[appId]) {
-                icon.style.display = 'flex';
-                setTimeout(() => icon.classList.add('loaded'), Math.random() * 500);
-            } else {
-                icon.style.display = 'none';
-            }
-        });
-        renderStartMenuApps();
-    }
 
-    function renderStartMenuApps() {
-        const appListContainer = document.getElementById('start-menu-apps-list');
-        appListContainer.innerHTML = '';
-        Object.keys(installedApps).forEach(appId => {
-            if (installedApps[appId] && APPS[appId] && !['settings', 'task-manager', 'brt-store'].includes(appId)) {
-                const item = document.createElement('div');
-                item.className = 'start-menu-item';
-                item.dataset.appId = appId;
-                item.innerHTML = `<span>${APPS[appId].icon}</span> <span>${APPS[appId].name}</span>`;
-                appListContainer.appendChild(item);
-            }
-        });
-    }
-
-    // --- OLAY DİNLEYİCİLERİ ---
-
-    function setupEventListeners() {
-        // İlk tıklamada ses altyapısını kur
-        document.body.addEventListener('click', setupAudio, { once: true });
-
-        // Masaüstü ve Başlat Menüsü tıklamaları
-        desktop.addEventListener('click', (e) => {
-            // Panelleri kapat
-            startMenu.classList.remove('show');
-            notificationPanel.classList.remove('show');
-            volumeSliderContainer.classList.remove('show');
-
-            // Bir masaüstü simgesine tıklandıysa uygulamayı aç
-            const icon = e.target.closest('.desktop-icon');
-            if (icon) {
-                openWindow(icon.dataset.appId);
-            }
-        });
-
-        startMenu.addEventListener('click', (e) => {
-            const item = e.target.closest('.start-menu-item');
-            if (item && item.dataset.appId) {
-                openWindow(item.dataset.appId);
-                startMenu.classList.remove('show');
-            }
-        });
-
-        // Görev Çubuğu Butonları
-        startButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            notificationPanel.classList.remove('show');
-            volumeSliderContainer.classList.remove('show');
-            startMenu.classList.toggle('show');
-        });
-        
-        notificationsIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            startMenu.classList.remove('show');
-            volumeSliderContainer.classList.remove('show');
-            notificationPanel.classList.toggle('show');
-            notificationDot.style.display = 'none';
-        });
-
-        volumeIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            startMenu.classList.remove('show');
-            notificationPanel.classList.remove('show');
-            volumeSliderContainer.classList.toggle('show');
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            if (gainNode) gainNode.gain.value = e.target.value;
-            audioBootElement.volume = e.target.value;
-            audioNotificationElement.volume = e.target.value;
-        });
-
-        // Pencere Kontrolleri (Kapat, Küçült vb.)
-        document.querySelectorAll('.window').forEach(windowEl => {
-            const header = windowEl.querySelector('.window-header');
-            const appId = windowEl.id.replace('-window', '');
-
-            // Pencereyi öne getirme
-            windowEl.addEventListener('mousedown', () => bringWindowToFront(windowEl));
-            
-            // Pencere kontrolleri
-            header.querySelector('.close-button')?.addEventListener('click', () => closeWindow(appId));
-            // Diğer kontroller (minimize, maximize) buraya eklenebilir
-            
-            // Sürüklenebilir yapma
-            makeDraggable(windowEl, header);
-        });
-
-        // Diğer uygulama özel event'leri
-        setupBrtStore();
-        setupCalculator();
-        // Not Defteri ve diğerleri için de benzer fonksiyonlar oluşturulabilir.
-    }
-    
-    // --- UYGULAMA ÖZEL FONKSİYONLARI ---
-
-    function setupBrtStore() {
-        const storeWindow = document.getElementById('brt-store-window');
-        const storeAppList = document.getElementById('store-app-list');
-        
-        function renderStore() {
-            storeAppList.innerHTML = '';
-            Object.keys(APPS).forEach(appId => {
-                // Sadece yüklenebilir uygulamaları göster
-                if (['calculator', 'notepad'].includes(appId)) {
-                    const isInstalled = !!installedApps[appId];
-                    const app = APPS[appId];
-                    const card = document.createElement('div');
-                    card.className = 'app-card';
-                    card.innerHTML = `
-                        <h4>${app.name}</h4>
-                        <button class="install-btn" data-app-id="${appId}" ${isInstalled ? 'disabled' : ''}>${isInstalled ? 'Yüklendi' : 'Yükle'}</button>
-                        ${isInstalled ? `<button class="uninstall-btn" data-app-id="${appId}">Kaldır</button>` : ''}
-                    `;
-                    storeAppList.appendChild(card);
-                }
-            });
-        }
-        
-        storeWindow.addEventListener('click', (e) => {
-            const target = e.target;
-            const appId = target.dataset.appId;
-            if (target.classList.contains('install-btn') && !target.disabled) {
-                installedApps[appId] = true;
-                localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
-                addNotification(`${APPS[appId].name} yüklendi.`);
-                renderDesktopIcons();
-                renderStore();
-            } else if (target.classList.contains('uninstall-btn')) {
-                delete installedApps[appId];
-                localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
-                addNotification(`${APPS[appId].name} kaldırıldı.`);
-                renderDesktopIcons();
-                renderStore();
-            }
-        });
-        
-        // Mağaza açıldığında listeyi render et
-        document.querySelector('[data-app-id="brt-store"]').addEventListener('click', renderStore);
-    }
-    
-    function setupCalculator() {
-        const display = document.getElementById('calculator-display');
-        const buttons = document.getElementById('calculator-buttons');
-        let currentValue = '';
-        let operator = '';
-        let previousValue = '';
-
-        buttons.addEventListener('click', e => {
-            const btn = e.target;
-            const value = btn.textContent;
-
-            if (!isNaN(value) || value === '.') {
-                currentValue += value;
-                display.textContent = currentValue;
-            } else if (btn.classList.contains('operator')) {
-                previousValue = currentValue;
-                currentValue = '';
-                operator = value;
-            } else if (btn.classList.contains('equals')) {
-                if (previousValue && currentValue && operator) {
-                    const result = eval(`${previousValue} ${operator} ${currentValue}`);
-                    display.textContent = result;
-                    currentValue = result;
-                    previousValue = '';
-                }
-            } else if (btn.classList.contains('clear')) {
-                currentValue = '';
-                previousValue = '';
-                operator = '';
-                display.textContent = '0';
-            }
-        });
-    }
-
-    // --- YARDIMCI FONKSİYONLAR ---
-
+    // --- SÜRÜKLEME FONKSİYONU ---
     function makeDraggable(element, handle) {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        handle.onmousedown = dragMouseDown;
+        const dragHandle = handle || element;
+
+        dragHandle.onmousedown = dragMouseDown;
 
         function dragMouseDown(e) {
             e.preventDefault();
@@ -353,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pos4 = e.clientY;
             document.onmouseup = closeDragElement;
             document.onmousemove = elementDrag;
+            bringWindowToFront(element);
         }
 
         function elementDrag(e) {
@@ -371,22 +210,250 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function setupAudio() {
-        if (audioContext) return;
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        gainNode = audioContext.createGain();
-        
-        const source1 = audioContext.createMediaElementSource(audioBootElement);
-        const source2 = audioContext.createMediaElementSource(audioNotificationElement);
-        
-        source1.connect(gainNode);
-        source2.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+    // --- UYGULAMA MANTIKLARI ---
+    
+    // BRT Store
+    function renderBrtStore() {
+        storeAppList.innerHTML = '';
+        const appsToDisplay = availableApps.filter(app => ['calculator', 'notepad'].includes(app.id));
+        appsToDisplay.forEach(app => {
+            const isInstalled = installedApps[app.id] && installedApps[app.id].installed;
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.innerHTML = `
+                <img src="${document.getElementById(app.id + '-desktop-icon').querySelector('img').src}" alt="${app.name}">
+                <h4>${app.name}</h4>
+                <div class="progress-overlay"></div>
+                <button class="install-btn" data-app-id="${app.id}" ${isInstalled ? 'disabled' : ''}>${isInstalled ? 'Yüklendi' : 'Yükle'}</button>
+                ${isInstalled ? `<button class="uninstall-btn" data-app-id="${app.id}">Kaldır</button>` : ''}
+            `;
+            storeAppList.appendChild(card);
+        });
+    }
+    
+    function installApp(appId) {
+        installedApps[appId] = { installed: true };
+        localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
+        addNotification(`${appId} yüklendi!`);
+        renderBrtStore();
+        renderDesktopIcons();
+    }
+    
+    function uninstallApp(appId) {
+        if (confirm(`${appId} uygulamasını kaldırmak istediğinizden emin misiniz?`)) {
+            delete installedApps[appId];
+            localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
+            addNotification(`${appId} kaldırıldı.`);
+            renderBrtStore();
+            renderDesktopIcons();
+        }
+    }
+    
+    // Hesap Makinesi
+    let calcCurrentInput = '0';
+    let calcOperator = null;
+    let calcFirstOperand = null;
+    let calcWaitingForSecond = false;
+    
+    function updateCalcDisplay() { calculatorDisplay.textContent = calcCurrentInput; }
+    
+    function handleCalculatorClick(e) {
+        const target = e.target;
+        if (!target.matches('button')) return;
 
-        // Slider değerini ses seviyesine ata
-        gainNode.gain.value = volumeSlider.value;
-        audioBootElement.volume = volumeSlider.value;
-        audioNotificationElement.volume = volumeSlider.value;
+        if (target.classList.contains('operator')) {
+             handleOperator(target.textContent);
+        } else if (target.classList.contains('decimal')) {
+            inputDecimal(target.textContent);
+        } else if (target.classList.contains('clear')) {
+            resetCalculator();
+        } else if (target.classList.contains('equals')) {
+            calculate();
+        } else {
+            inputDigit(target.textContent);
+        }
+        updateCalcDisplay();
+    }
+    
+    function inputDigit(digit) {
+        if (calcWaitingForSecond) {
+            calcCurrentInput = digit;
+            calcWaitingForSecond = false;
+        } else {
+            calcCurrentInput = calcCurrentInput === '0' ? digit : calcCurrentInput + digit;
+        }
+    }
+    
+    function inputDecimal(dot) {
+        if (!calcCurrentInput.includes(dot)) calcCurrentInput += dot;
+    }
+    
+    function handleOperator(nextOperator) {
+        const inputValue = parseFloat(calcCurrentInput);
+        if (calcOperator && calcWaitingForSecond) {
+            calcOperator = nextOperator;
+            return;
+        }
+        if (calcFirstOperand === null) {
+            calcFirstOperand = inputValue;
+        } else if (calcOperator) {
+            const result = performCalculation[calcOperator](calcFirstOperand, inputValue);
+            calcCurrentInput = String(result);
+            calcFirstOperand = result;
+        }
+        calcWaitingForSecond = true;
+        calcOperator = nextOperator;
+    }
+
+    const performCalculation = {
+        '/': (first, second) => first / second,
+        '*': (first, second) => first * second,
+        '+': (first, second) => first + second,
+        '-': (first, second) => first - second,
+    };
+    
+    function calculate() {
+        if (calcOperator && !calcWaitingForSecond) {
+            const result = performCalculation[calcOperator](calcFirstOperand, parseFloat(calcCurrentInput));
+            calcCurrentInput = String(result);
+            calcOperator = null;
+            calcFirstOperand = null;
+        }
+    }
+    
+    function resetCalculator() {
+        calcCurrentInput = '0';
+        calcOperator = null;
+        calcFirstOperand = null;
+        calcWaitingForSecond = false;
+    }
+    
+    // Not Defteri
+    let currentEditingNoteId = null;
+    function renderNotepadNotes() {
+        notepadNotesList.innerHTML = '';
+        if (notes.length === 0) {
+            notepadNotesList.innerHTML = '<li>Henüz not yok.</li>';
+            return;
+        }
+        notes.forEach(note => {
+            const li = document.createElement('li');
+            li.textContent = note.title || 'Başlıksız Not';
+            li.dataset.noteId = note.id;
+            li.onclick = () => editNote(note.id);
+            notepadNotesList.appendChild(li);
+        });
+    }
+    
+    function showNoteEditor(note) {
+        if (note) {
+            currentEditingNoteId = note.id;
+            noteTitleInput.value = note.title;
+            noteContentInput.value = note.content;
+        } else {
+            currentEditingNoteId = null;
+            noteTitleInput.value = '';
+            noteContentInput.value = '';
+        }
+        notepadNoteEditor.style.display = 'block';
+    }
+    
+    function saveNote() {
+        const title = noteTitleInput.value.trim();
+        const content = noteContentInput.value.trim();
+        if (currentEditingNoteId) {
+            const noteIndex = notes.findIndex(n => n.id === currentEditingNoteId);
+            notes[noteIndex] = { ...notes[noteIndex], title, content };
+        } else {
+            notes.push({ id: Date.now(), title, content });
+        }
+        localStorage.setItem('brtosNotes', JSON.stringify(notes));
+        notepadNoteEditor.style.display = 'none';
+        renderNotepadNotes();
+    }
+    
+    function editNote(id) {
+        const note = notes.find(n => n.id === id);
+        showNoteEditor(note);
+    }
+    
+    // --- Bildirimler ---
+    function addNotification(message) {
+        const item = document.createElement('div');
+        item.className = 'notification-item';
+        item.textContent = message;
+        notificationList.prepend(item);
+        notificationDot.style.display = 'block';
+        audioNotification.play();
+        const noNotificationMsg = notificationList.querySelector('.no-notifications');
+        if (noNotificationMsg) noNotificationMsg.style.display = 'none';
+
+        setTimeout(() => item.remove(), 5000);
+    }
+    
+    // --- MASAÜSTÜ İKON YÖNETİMİ ---
+    function renderDesktopIcons() {
+        // Varsayılan uygulamaları her zaman yüklü kabul et
+        ['settings', 'task-manager', 'brt-store'].forEach(id => {
+            installedApps[id] = { installed: true };
+        });
+        
+        availableApps.forEach(app => {
+            const iconElement = document.getElementById(`${app.id}-desktop-icon`);
+            if (iconElement) {
+                const isInstalled = installedApps[app.id] && installedApps[app.id].installed;
+                iconElement.style.display = isInstalled ? 'flex' : 'none';
+                if (isInstalled) {
+                    iconElement.classList.add('loaded');
+                }
+            }
+        });
+    }
+
+    // --- ETKİNLİK DİNLEYİCİLERİ (Event Listeners) ---
+    function setupEventListeners() {
+        // Pencereler
+        settingsDesktopIcon.onclick = () => openWindow(settingsWindow, 'settings', 'Ayarlar');
+        taskManagerDesktopIcon.onclick = () => openWindow(taskManagerWindow, 'task-manager', 'Görev Yöneticisi');
+        brtStoreDesktopIcon.onclick = () => { openWindow(brtStoreWindow, 'brt-store', 'BRT STORE'); renderBrtStore(); };
+        calculatorDesktopIcon.onclick = () => openWindow(calculatorWindow, 'calculator', 'Hesap Makinesi');
+        notepadDesktopIcon.onclick = () => { openWindow(notepadWindow, 'notepad', 'Not Defteri'); renderNotepadNotes(); };
+
+        closeSettingsButton.onclick = () => closeWindow(settingsWindow, 'settings');
+        closeTaskManagerButton.onclick = () => closeWindow(taskManagerWindow, 'task-manager');
+        closeBrtStoreButton.onclick = () => closeWindow(brtStoreWindow, 'brt-store');
+        closeCalculatorButton.onclick = () => closeWindow(calculatorWindow, 'calculator');
+        closeNotepadButton.onclick = () => closeWindow(notepadWindow, 'notepad');
+
+        // Görev Çubuğu
+        startButton.onclick = (e) => { e.stopPropagation(); startMenu.classList.toggle('show'); };
+        desktop.onclick = () => startMenu.classList.remove('show');
+        notificationsIcon.onclick = (e) => { e.stopPropagation(); notificationPanel.classList.toggle('show'); notificationDot.style.display = 'none'; };
+        
+        // Tema Değişikliği
+        themeSelect.onchange = (e) => {
+            document.body.className = `${e.target.value}-theme`;
+        };
+        
+        // BRT Store Butonları
+        storeAppList.addEventListener('click', (e) => {
+            const appId = e.target.dataset.appId;
+            if (e.target.classList.contains('install-btn')) installApp(appId);
+            if (e.target.classList.contains('uninstall-btn')) uninstallApp(appId);
+        });
+        
+        // Hesap Makinesi
+        calculatorButtons.onclick = handleCalculatorClick;
+
+        // Not Defteri
+        createNewNoteButton.onclick = () => showNoteEditor(null);
+        saveNoteButton.onclick = saveNote;
+        cancelNoteButton.onclick = () => { notepadNoteEditor.style.display = 'none'; };
+
+        // Pencereleri sürüklenebilir yap
+        document.querySelectorAll('.window').forEach(windowEl => {
+            makeDraggable(windowEl, windowEl.querySelector('.window-header'));
+        });
     }
 
     // --- SİSTEMİ BAŞLAT ---
