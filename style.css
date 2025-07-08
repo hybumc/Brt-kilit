@@ -1,124 +1,61 @@
-/* GENEL VE TEMEL AYARLAR */
-:root {
-    --dark-bg: #2b2d31; --dark-surface: #383a40; --dark-border: #4b4e57; --dark-text: #e0e2e5;
-    --light-bg: #f0f2f5; --light-surface: #ffffff; --light-border: #dcdfe3; --light-text: #333333;
-    --accent-color: #0095ff; --accent-hover: #0077cc; --danger-color: #e74c3c;
-}
-body {
-    margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
-}
-body.dark-theme { background-color: var(--dark-bg); color: var(--dark-text); }
-body.light-theme { background-color: var(--light-bg); color: var(--light-text); }
-.fa-solid, .fa-brands { line-height: 1; }
+/* Genel Stil Ayarları */
+body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.5s, color 0.5s; }
+body.dark-theme { background-color: #333; color: #eee; }
+body.light-theme { background-color: #f0f2f5; color: #333; }
+button { cursor: pointer; }
 
-/* AÇILIŞ EKRANI */
-#boot-screen { position: fixed; inset: 0; background-color: #222; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-color); z-index: 10000; transition: opacity 1s; }
+/* Açılış Ekranı */
+#boot-screen { position: fixed; inset: 0; background-color: #222; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 2em; color: #00bcd4; z-index: 10000; transition: opacity 1s; }
 #boot-screen.hidden { opacity: 0; pointer-events: none; }
+#boot-screen img { width: 100px; height: 100px; margin-bottom: 20px; }
+#boot-message { margin-top: 15px; font-size: 0.8em; color: #ccc; }
 
-/* MASAÜSTÜ */
-#desktop { position: relative; width: 100vw; height: calc(100vh - 40px); background: url('https://source.unsplash.com/random/1920x1080/?nature,water') no-repeat center center / cover; display: none; }
-.desktop-icon { position: absolute; top: 30px; left: 30px; width: 90px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 6px; cursor: pointer; padding: 5px; }
-.desktop-icon i { font-size: 32px; margin-bottom: 8px; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
-.desktop-icon span { font-size: 13px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-.desktop-icon:hover { background-color: rgba(255, 255, 255, 0.15); }
+/* Masaüstü */
+#desktop { position: relative; width: 100vw; height: calc(100vh - 40px); background: url('https://via.placeholder.com/1920x1080/444/666?text=BRTOS+Desktop') no-repeat center center / cover; display: none; }
+.desktop-icon { position: absolute; width: 80px; text-align: center; cursor: pointer; user-select: none; padding: 5px; }
+.desktop-icon:hover { background-color: rgba(255, 255, 255, 0.1); border-radius: 5px; }
+.desktop-icon img { width: 48px; height: 48px; }
+.desktop-icon span { font-size: 0.8em; color: #eee; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); }
 
-/* GÖREV ÇUBUĞU */
-#taskbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; display: none; align-items: center; justify-content: space-between; padding: 0 10px; box-sizing: border-box; z-index: 999; }
-body.dark-theme #taskbar { background-color: rgba(43, 45, 49, 0.8); backdrop-filter: blur(10px); }
-body.light-theme #taskbar { background-color: rgba(240, 242, 245, 0.8); backdrop-filter: blur(10px); border-top: 1px solid var(--light-border); }
-#start-button { font-size: 20px; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
-#start-button:hover { background-color: var(--dark-border); }
-body.light-theme #start-button:hover { background-color: var(--light-border); }
-.taskbar-left, .taskbar-right { display: flex; align-items: center; gap: 5px; }
-#system-tray { display: flex; align-items: center; gap: 5px; padding: 0 10px; }
-.tray-icon { position: relative; padding: 5px 8px; cursor: pointer; border-radius: 4px; transition: background-color 0.2s; }
-.tray-icon:hover { background-color: var(--dark-border); }
-body.light-theme .tray-icon:hover { background-color: var(--light-border); }
-#notification-dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background-color: var(--danger-color); border-radius: 50%; display: none; border: 1px solid var(--dark-bg); }
-#current-time { padding: 5px; }
+/* Görev Çubuğu */
+#taskbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center; padding: 0 10px; box-sizing: border-box; z-index: 999; justify-content: space-between; }
+body.light-theme #taskbar { background-color: #e0e0e0; }
+.taskbar-left, .taskbar-right { display: flex; align-items: center; gap: 10px; }
+#start-button { background-color: #00bcd4; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; }
+#start-button:hover { background-color: #0097a7; }
+#open-apps-bar { display: flex; gap: 5px; }
+.taskbar-app { background-color: #555; padding: 5px 10px; border-radius: 3px; font-size: 14px; cursor: pointer; }
+.taskbar-app.active { background-color: #00bcd4; }
+#system-tray .tray-icon { cursor: pointer; font-size: 18px; }
 
-/* SİSTEM TEPSİSİ PANELLERİ (SES, BİLDİRİM) */
-.tray-panel { position: absolute; bottom: 45px; right: 10px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); padding: 15px; display: none; z-index: 1000; }
-body.dark-theme .tray-panel { background-color: var(--dark-surface); border: 1px solid var(--dark-border); }
-body.light-theme .tray-panel { background-color: var(--light-surface); border: 1px solid var(--light-border); }
-#volume-panel { width: 200px; }
-#volume-slider { width: 100%; cursor: pointer; }
-#notification-panel { width: 320px; max-height: 400px; }
-.notification-item { padding: 10px; border-radius: 4px; margin-bottom: 5px; }
-body.dark-theme .notification-item { background-color: var(--dark-bg); }
-body.light-theme .notification-item { background-color: var(--light-bg); }
+/* Başlat Menüsü */
+#start-menu { position: absolute; bottom: 45px; left: 10px; width: 250px; background-color: rgba(34, 34, 34, 0.95); border: 1px solid #555; box-shadow: 0 0 15px rgba(0,0,0,0.5); border-radius: 8px; padding: 10px; display: none; z-index: 1000; }
+.start-menu-section h5 { color: #00bcd4; margin: 5px 0; border-bottom: 1px solid #555; padding-bottom: 5px; }
+.start-menu-item { display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 4px; }
+.start-menu-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+.start-menu-item img { width: 24px; height: 24px; margin-right: 10px; }
 
-/* PENCERE GENEL STİLLERİ */
-.window { position: absolute; min-width: 350px; min-height: 250px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; flex-direction: column; resize: both; overflow: hidden; }
-body.dark-theme .window { background-color: var(--dark-surface); border: 1px solid var(--dark-border); }
-body.light-theme .window { background-color: var(--light-surface); border: 1px solid var(--light-border); }
-.window-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; cursor: grab; font-weight: bold; }
-body.dark-theme .window-header { background-color: var(--dark-bg); }
-body.light-theme .window-header { background-color: var(--light-bg); }
-.window-header i { margin-right: 8px; }
-.window-controls button { background: none; border: none; color: var(--dark-text); font-size: 14px; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; }
-body.light-theme .window-controls button { color: var(--light-text); }
-.window-controls button:hover { background-color: var(--dark-border); }
-.window-controls .close-btn:hover { background-color: var(--danger-color); color: white; }
-.window-content { padding: 15px; flex-grow: 1; overflow-y: auto; }
-input, select, button { font-family: inherit; }
+/* Ses Paneli */
+#volume-panel { position: absolute; bottom: 45px; right: 40px; background-color: #222; border: 1px solid #555; padding: 15px; border-radius: 8px; display: none; z-index: 1000; }
+#volume-slider { width: 150px; cursor: pointer; }
 
-/* HESAP MAKİNESİ */
-.calculator-content { display: flex; gap: 15px; padding: 10px; }
-.calculator-main { flex-grow: 1; }
-#calculator-display-container { padding: 10px; border-radius: 6px; text-align: right; margin-bottom: 10px; }
-body.dark-theme #calculator-display-container { background-color: var(--dark-bg); }
-body.light-theme #calculator-display-container { background-color: var(--light-bg); }
-#calculator-expression { font-size: 14px; opacity: 0.7; min-height: 20px; }
-#calculator-result { font-size: 32px; font-weight: bold; min-height: 40px; }
-#calculator-mode-toggle { display: flex; margin-bottom: 10px; }
-#calculator-mode-toggle button { flex: 1; padding: 8px; border: 1px solid var(--dark-border); background: none; color: inherit; cursor: pointer; }
-#calculator-mode-toggle button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
-#calculator-buttons { display: grid; gap: 5px; }
-#calculator-buttons button { padding: 15px; border-radius: 4px; border: none; font-size: 16px; cursor: pointer; transition: background-color 0.2s; }
-body.dark-theme #calculator-buttons button { background-color: var(--dark-bg); color: var(--dark-text); }
-body.light-theme #calculator-buttons button { background-color: var(--light-bg); color: var(--light-text); }
-#calculator-buttons button:hover { filter: brightness(1.2); }
-#calculator-buttons button.operator { background-color: var(--dark-border); }
-#calculator-buttons button.equals { background-color: var(--accent-color); color: white; grid-column: span 2; }
-.calculator-history { width: 200px; border-left: 1px solid var(--dark-border); padding-left: 15px; }
-body.light-theme .calculator-history { border-left: 1px solid var(--light-border); }
-#calc-history-list { list-style: none; padding: 0; font-size: 14px; }
-#calc-history-list li { padding: 8px; border-radius: 4px; cursor: pointer; }
-#calc-history-list li:hover { background-color: var(--dark-border); }
+/* Pencereler */
+.window { position: absolute; top: 10%; left: 15%; min-width: 350px; background-color: #333; border: 1px solid #555; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 100; display: none; flex-direction: column; border-radius: 8px; resize: both; overflow: auto; }
+.window-header { background-color: #444; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; cursor: grab; user-select: none; }
+.window-header .close-btn { background: #d9534f; color: white; border: none; width: 22px; height: 22px; border-radius: 50%; line-height: 22px; text-align: center; }
+.window-content { padding: 20px; flex-grow: 1; }
 
-/* BRT STORE */
-#store-categories { display: flex; gap: 10px; margin-bottom: 15px; }
-#store-categories button { /* Stil */ }
-#store-app-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-.store-app-card { padding: 15px; border-radius: 6px; display: flex; flex-direction: column; }
-body.dark-theme .store-app-card { background-color: var(--dark-bg); }
-body.light-theme .store-app-card { background-color: var(--light-bg); }
-.app-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.app-card-header i { font-size: 36px; color: var(--accent-color); }
-.app-card-details p { font-size: 14px; opacity: 0.8; margin: 5px 0; }
-.app-card-rating .fa-star { color: #f1c40f; }
-
-/* ŞİFRE YÖNETİCİSİ */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 15px; }
-#pm-list { list-style: none; padding: 0; }
-#pm-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 4px; margin-bottom: 5px; }
-body.dark-theme #pm-list li { background-color: var(--dark-bg); }
-body.light-theme #pm-list li { background-color: var(--light-bg); }
-#pm-list .pm-pass { font-family: 'Password', monospace; }
-#pm-list .pm-actions button { margin-left: 5px; }
-
-/* SANAL KLAVYE */
-#virtual-keyboard { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1001; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 5px; transition: transform 0.3s ease-out; }
-#virtual-keyboard.hidden { transform: translateY(100%); }
-body.dark-theme #virtual-keyboard { background-color: rgba(30, 31, 34, 0.9); backdrop-filter: blur(10px); }
-body.light-theme #virtual-keyboard { background-color: rgba(220, 222, 227, 0.9); backdrop-filter: blur(10px); }
-.keyboard-row { display: flex; justify-content: center; gap: 5px; }
-.keyboard-key { min-width: 40px; height: 40px; border-radius: 4px; border: none; cursor: pointer; font-size: 16px; display: grid; place-items: center; }
-body.dark-theme .keyboard-key { background-color: var(--dark-border); color: var(--dark-text); }
-body.light-theme .keyboard-key { background-color: #fff; color: var(--light-text); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-.keyboard-key:active { transform: scale(0.95); filter: brightness(0.8); }
-.key-backspace, .key-enter, .key-shift { min-width: 80px; }
-.key-space { min-width: 300px; }
-.key-active { background-color: var(--accent-color); color: white; }
+/* Uygulama Özel Stilleri */
+.settings-section { margin-bottom: 20px; border-bottom: 1px solid #555; padding-bottom: 15px; }
+.settings-section:last-child { border-bottom: none; }
+.app-card { background-color: #444; padding: 15px; border-radius: 6px; }
+.store-btn.installed { background-color: #6c757d; color: white; border: none; padding: 8px; border-radius: 4px; }
+.calculator-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+#calculator-display { background: #222; color: white; font-size: 2em; padding: 10px; text-align: right; border-radius: 4px; margin-bottom: 10px; min-height: 40px; }
+#calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+#calculator-buttons button { padding: 15px; font-size: 1.2em; border: none; border-radius: 4px; }
+#calculator-buttons button.operator { background-color: #555; color: white; }
+#calculator-buttons button.equals { background-color: #00bcd4; color: white; grid-column: span 2; }
+.calculator-history h4 { margin-top: 0; }
+#calc-history-list { list-style: none; padding: 0; margin: 0; font-size: 14px; max-height: 250px; overflow-y: auto; }
+#calc-history-list li { padding: 5px; border-bottom: 1px solid #444; }
