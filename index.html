@@ -4,122 +4,1476 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="os-title">BRTOS 1.1</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Genel Stil Ayarları */
+        body {
+            margin: 0;
+            overflow: hidden; /* Kaydırma çubuklarını gizle */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.5s, color 0.5s; /* Tema geçişleri için animasyon */
+        }
+
+        body.dark-theme {
+            background-color: #333;
+            color: #eee;
+        }
+
+        body.light-theme {
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* Açılış Ekranı */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            color: #00bcd4; /* Aqua rengi */
+            z-index: 10000; /* En üstte olsun */
+            transition: opacity 1s ease-out;
+        }
+
+        #boot-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Etkileşimi engelle */
+        }
+
+        #boot-screen img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        #boot-message {
+            margin-top: 15px;
+            font-size: 0.8em;
+            color: #ccc;
+        }
+
+        #loading-progress {
+            margin-top: 10px;
+            font-size: 0.7em;
+            color: #00bcd4;
+        }
+
+        /* Masaüstü */
+        #desktop {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 40px); /* Görev çubuğu yüksekliği kadar boşluk bırak */
+            background: url('https://via.placeholder.com/1920x1080/444/666?text=BRTOS+Desktop') no-repeat center center / cover; /* Geçici masaüstü arkaplanı */
+            display: none; /* Başlangıçta gizli */
+            overflow: hidden; /* Simgelerin dışarı taşmasını engelle */
+        }
+
+        #desktop-branding {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 3em;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none; /* Tıklamayı engelle, altındaki öğelere erişilsin */
+        }
+
+        /* Masaüstü Simgeleri */
+        .desktop-icon {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none; /* Metin seçmeyi engelle */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .desktop-icon.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .desktop-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .desktop-icon img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 5px;
+            pointer-events: none; /* Resim sürükleme hatasını engelle */
+        }
+
+        .desktop-icon span {
+            font-size: 0.8em;
+            color: #eee;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Masaüstü Widget'ları */
+        .desktop-widget {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            cursor: grab;
+            user-select: none;
+            color: #eee;
+        }
+
+        body.light-theme .desktop-widget {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        /* Görev Çubuğu */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+            z-index: 999;
+            display: none; /* Başlangıçta gizli */
+            justify-content: space-between;
+        }
+
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            color: #eee;
+            font-size: 0.9em;
+        }
+
+        /* Başlat Butonu */
+        #start-button {
+            background-color: #00bcd4;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-right: 15px;
+            transition: background-color 0.2s;
+            position: relative; /* Başlat menüsü için */
+        }
+
+        #start-button:hover {
+            background-color: #0097a7;
+        }
+
+        /* Başlat Menüsü */
+        #start-menu {
+            position: absolute;
+            bottom: 40px; /* Görev çubuğunun hemen üstünde */
+            left: 0;
+            width: 250px;
+            background-color: rgba(34, 34, 34, 0.95);
+            border-top: 1px solid #555;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 10px 0;
+            display: none; /* Varsayılan olarak gizli */
+            flex-direction: column;
+            z-index: 998; /* Görev çubuğunun altında kalmasın */
+        }
+
+        #start-menu.show {
+            display: flex;
+        }
+
+        #start-menu .start-menu-section h5 {
+            color: #00bcd4;
+            margin: 5px 10px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+
+        #start-menu .start-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        #start-menu .start-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #start-menu .start-menu-item img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        #start-menu .start-menu-item span {
+            font-size: 0.9em;
+        }
+        
+        /* Görev Çubuğu Simgeleri (Genel) */
+        .taskbar-icon {
+            font-size: 1.5em;
+            cursor: pointer;
+            margin: 0 10px;
+            color: #eee;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .taskbar-icon:hover {
+            color: #00bcd4;
+        }
+
+        /* Bildirim Simgesi */
+        #notifications-icon {
+            position: relative;
+        }
+
+        #notification-dot {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background-color: red;
+            border-radius: 50%;
+            display: none; /* Varsayılan olarak gizli */
+        }
+
+        /* Bildirim Paneli */
+        #notification-panel {
+            position: absolute;
+            bottom: 40px; /* Görev çubuğunun üstünde */
+            right: 0;
+            width: 300px;
+            max-height: 400px;
+            background-color: rgba(34, 34, 34, 0.95);
+            border-top: 1px solid #555;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 10px;
+            display: none; /* Varsayılan olarak gizli */
+            flex-direction: column;
+            z-index: 998;
+            overflow-y: auto;
+        }
+
+        #notification-panel.show {
+            display: flex;
+        }
+
+        #notification-panel h3 {
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+
+        .notification-item {
+            background-color: #444;
+            padding: 8px 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-item .close-notification-btn {
+            background: none;
+            border: none;
+            color: #eee;
+            font-size: 1.1em;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .notification-item .close-notification-btn:hover {
+            opacity: 1;
+            color: #dc3545;
+        }
+        .notification-item.no-notifications {
+            text-align: center;
+            font-style: italic;
+            color: #aaa;
+        }
+
+        /* --- YENİ EKLENEN SES AYARI STİLLERİ --- */
+        #volume-icon {
+            font-size: 1.4em; /* Boyutu diğer ikonlarla uyumlu hale getir */
+        }
+        
+        #volume-slider-container {
+            position: absolute;
+            bottom: 45px; /* Görev çubuğunun biraz üstünde */
+            right: 50px;
+            background-color: rgba(34, 34, 34, 0.95);
+            padding: 15px 10px;
+            border-radius: 8px;
+            box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.4);
+            display: none; /* Başlangıçta gizli */
+            z-index: 1000;
+        }
+
+        #volume-slider-container.show {
+            display: block;
+        }
+        
+        #volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 120px;
+            height: 5px;
+            background: #555;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 3px;
+        }
+        
+        #volume-slider:hover {
+            opacity: 1;
+        }
+
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00bcd4;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        #volume-slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: #00bcd4;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* --- SES AYARI STİLLERİ SONU --- */
+
+        /* Pencere Genel Stilleri */
+        .window {
+            position: absolute;
+            background-color: #333;
+            border: 1px solid #555;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            display: none; /* Başlangıçta gizli */
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 300px; /* Minimum genişlik */
+            min-height: 200px; /* Minimum yükseklik */
+            resize: both;
+            overflow: auto;
+            transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out, width 0.3s ease-out, height 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .window::-webkit-resizer {
+            background: #00bcd4;
+            border-bottom-right-radius: 8px;
+        }
+
+        .window.minimized {
+            transform: translateY(100vh);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .window.maximized {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 40px) !important;
+            transform: none !important;
+            border-radius: 0;
+        }
+
+        .window-header {
+            background-color: #444;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border-bottom: 1px solid #555;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .window-header .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-header button {
+            background: none;
+            border: none;
+            color: #eee;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+            transition: color 0.2s, background-color 0.2s;
+            border-radius: 4px;
+        }
+
+        .window-header button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .window-header .close-button:hover {
+            background-color: #d9534f;
+        }
+
+        .window-content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Açık Tema Stilleri */
+        body.light-theme .window {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .window-header {
+            background-color: #e0e0e0;
+            border-bottom: 1px solid #ccc;
+            color: #333;
+        }
+
+        body.light-theme .window-header button {
+            color: #555;
+        }
+
+        body.light-theme .window-content {
+            color: #333;
+        }
+
+        body.light-theme .settings-section {
+            border-bottom-color: #ddd;
+        }
+
+        body.light-theme .settings-section h3 {
+            color: #007bff;
+        }
+
+        body.light-theme .settings-item input[type="text"],
+        body.light-theme .settings-item select {
+            background-color: #f8f8f8;
+            border-color: #ccc;
+            color: #333;
+        }
+
+        body.light-theme #task-manager-window li {
+            background-color: #f2f2f2;
+        }
+
+        body.light-theme #start-menu {
+            background-color: rgba(240, 242, 245, 0.95);
+            border-color: #ccc;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        body.light-theme #start-menu .start-menu-section h5 {
+            color: #007bff;
+            border-bottom-color: #ddd;
+        }
+        body.light-theme #start-menu .start-menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        body.light-theme #notification-panel {
+            background-color: rgba(240, 242, 245, 0.95);
+            border-color: #ccc;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        body.light-theme .notification-item {
+            background-color: #e9ecef;
+        }
+        body.light-theme .notification-item .close-notification-btn {
+            color: #555;
+        }
+
+        /* Ayarlar Penceresi */
+        .settings-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 15px;
+        }
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+        .settings-section h3 {
+            margin-top: 0;
+            color: #00bcd4;
+        }
+        .settings-item {
+            margin-bottom: 10px;
+        }
+        .settings-item label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .settings-item select {
+            width: 100%;
+            padding: 8px;
+            background-color: #444;
+            border: 1px solid #666;
+            color: #eee;
+            border-radius: 4px;
+        }
+        #update-status-message {
+            margin-top: 10px;
+            font-style: italic;
+            color: #aaa;
+        }
+
+        /* Görev Yöneticisi */
+        #task-manager-window ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #task-manager-window li {
+            background-color: #444;
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #task-manager-window li button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* BRT STORE */
+        #brt-store-window .app-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        #brt-store-window .app-card {
+            background-color: #444;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #brt-store-window .app-card:hover {
+            transform: translateY(-5px);
+        }
+        #brt-store-window .app-card img {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px;
+        }
+        #brt-store-window .app-card h4 {
+            margin: 0 0 10px 0;
+            color: #00bcd4;
+            font-size: 1.1em;
+        }
+        #brt-store-window .app-card button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #brt-store-window .app-card button.installed {
+            background-color: #6c757d;
+            cursor: default;
+        }
+        #brt-store-window .app-card button.uninstall {
+            background-color: #dc3545;
+            margin-top: 5px;
+        }
+        #brt-store-window .app-card .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-size: 1.5em;
+            color: #00bcd4;
+        }
+
+        /* Hesap Makinesi */
+        #calculator-window {
+            width: 300px;
+            height: 400px;
+        }
+        #calculator-display {
+            background-color: #333;
+            color: #eee;
+            font-size: 2.5em;
+            padding: 10px;
+            text-align: right;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow-x: auto;
+        }
+        #calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            height: 100%;
+        }
+        #calculator-buttons button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #calculator-buttons button:hover {
+            background-color: #777;
+        }
+        #calculator-buttons button.operator {
+            background-color: #ff9800;
+        }
+        #calculator-buttons button.equals {
+            background-color: #00bcd4;
+            grid-column: span 2;
+        }
+        #calculator-buttons button.clear {
+            background-color: #dc3545;
+        }
+
+        /* Not Defteri */
+        #notepad-notes-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        #notepad-notes-list li {
+            background-color: #444;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        #notepad-note-editor input[type="text"],
+        #notepad-note-editor textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 4px;
+            background-color: #444;
+            color: #eee;
+            margin-bottom: 10px;
+        }
+        #notepad-note-editor textarea {
+            height: 150px;
+            resize: vertical;
+        }
+    </style>
 </head>
 <body class="dark-theme">
 
     <div id="boot-screen">
         <img src="https://img.icons8.com/ios/100/00BCD4/laptop-play.png" alt="BRTOS Logo">
         <h1 id="boot-message">BRTOS 1.1 Yükleniyor...</h1>
+        <div id="loading-progress"></div>
     </div>
 
     <div id="desktop">
-        <div class="desktop-icon" data-app-id="settings" style="top: 50px; left: 50px;">
+        <div id="desktop-branding">BRTOS</div>
+
+        <div class="desktop-icon" id="settings-desktop-icon" data-app-id="settings" style="top: 100px; left: 50px;">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/settings.png" alt="Ayarlar">
             <span>Ayarlar</span>
         </div>
-        <div class="desktop-icon" data-app-id="task-manager" style="top: 150px; left: 50px;">
+        <div class="desktop-icon" id="task-manager-desktop-icon" data-app-id="task-manager" style="top: 200px; left: 50px;">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/process.png" alt="Görev Yöneticisi">
             <span>Görev Yöneticisi</span>
         </div>
-        <div class="desktop-icon" data-app-id="brt-store" style="top: 250px; left: 50px;">
+        <div class="desktop-icon" id="brt-store-desktop-icon" data-app-id="brt-store" style="top: 100px; left: 150px;">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/shopping-basket.png" alt="BRT STORE">
-            <span>BRT Store</span>
+            <span>BRT STORE</span>
         </div>
-        <div class="desktop-icon" data-app-id="calculator" style="top: 50px; left: 150px;">
+        <div class="desktop-icon" id="calculator-desktop-icon" data-app-id="calculator" style="top: 300px; left: 50px; display: none;">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/calculator.png" alt="Hesap Makinesi">
             <span>Hesap Makinesi</span>
         </div>
-        <div class="desktop-icon" data-app-id="notepad" style="top: 150px; left: 150px;">
+        <div class="desktop-icon" id="notepad-desktop-icon" data-app-id="notepad" style="top: 300px; left: 150px; display: none;">
             <img src="https://i.imgur.com/lqpNRWg.png" alt="Not Defteri">
             <span>Not Defteri</span>
+        </div>
+
+        <div class="desktop-widget" id="time-widget" style="top: 50px; right: 50px;">
+            <h3>Şehir Saati</h3>
+            <p id="widget-time" style="font-size: 1.5em; margin: 5px 0;"></p>
+            <p id="widget-date" style="font-size: 0.9em;"></p>
         </div>
     </div>
 
     <div id="taskbar">
         <div class="taskbar-left">
             <span id="start-button">Başlat</span>
+            <span class="taskbar-icon" id="settings-taskbar-icon">⚙️</span>
+            <span class="taskbar-icon" id="task-manager-taskbar-icon">📊</span>
+            <span class="taskbar-icon" id="brt-store-taskbar-icon">🛍️</span>
         </div>
         <div class="taskbar-right">
-            <span id="notifications-icon">🔔<span id="notification-dot"></span></span>
+            <span class="taskbar-icon" id="volume-icon">🔊</span>
+            <div id="volume-slider-container">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            <span class="taskbar-icon" id="notifications-icon">🔔<span id="notification-dot"></span></span>
             <span id="current-time"></span>
         </div>
     </div>
 
     <div id="start-menu">
-        <div class="start-menu-item" data-app-id="settings"><span>Ayarlar</span></div>
-        <div class="start-menu-item" data-app-id="task-manager"><span>Görev Yöneticisi</span></div>
-        <div class="start-menu-item" data-app-id="brt-store"><span>BRT Store</span></div>
-        <div class="start-menu-item" data-app-id="calculator"><span>Hesap Makinesi</span></div>
-        <div class="start-menu-item" data-app-id="notepad"><span>Not Defteri</span></div>
+        <div class="start-menu-section">
+            <h5>Uygulamalar</h5>
+        </div>
+        <div class="start-menu-section">
+            <h5>Sistem</h5>
+            <div class="start-menu-item" data-app-id="settings">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/settings.png" alt="Ayarlar">
+                <span>Ayarlar</span>
+            </div>
+            <div class="start-menu-item" data-app-id="task-manager">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/process.png" alt="Görev Yöneticisi">
+                <span>Görev Yöneticisi</span>
+            </div>
+            <div class="start-menu-item" data-app-id="brt-store">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/shopping-basket.png" alt="BRT STORE">
+                <span>BRT STORE</span>
+            </div>
+            <div class="start-menu-item" id="power-off-button">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/power.png" alt="Kapat">
+                <span>Kapat</span>
+            </div>
+        </div>
     </div>
 
     <div id="notification-panel">
         <h3>Bildirimler</h3>
         <div id="notification-list">
-            <div class="no-notifications">Hiç bildirim yok.</div>
+            <div class="notification-item no-notifications">Hiç bildirim yok.</div>
+        </div>
+    </div>
+
+    <div id="settings-window" class="window">
+        <div class="window-header">
+            <span>Ayarlar</span>
+            <div class="window-controls">
+                <button class="minimize-button">_</button>
+                <button class="maximize-button">☐</button>
+                <button class="close-button" id="close-settings-button">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="settings-section">
+                <h3>Genel Ayarlar</h3>
+                <div class="settings-item">
+                    <label for="theme-select">Tema:</label>
+                    <select id="theme-select">
+                        <option value="dark">Koyu</option>
+                        <option value="light">Açık</option>
+                    </select>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Sürüm Bilgisi</h3>
+                <p><strong>BRTOS Sürümü:</strong> <span id="current-brtos-version">1.1</span></p>
+                <button id="check-for-updates">Güncellemeleri Kontrol Et</button>
+                <div id="update-status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="task-manager-window" class="window">
+        <div class="window-header">
+            <span>Görev Yöneticisi</span>
+            <div class="window-controls">
+                <button class="minimize-button">_</button>
+                <button class="maximize-button">☐</button>
+                <button class="close-button" id="close-task-manager-button">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <h3>Çalışan Uygulamalar</h3>
+            <ul id="running-apps-list"></ul>
+        </div>
+    </div>
+
+    <div id="brt-store-window" class="window">
+        <div class="window-header">
+            <span>BRT STORE</span>
+            <div class="window-controls">
+                <button class="minimize-button">_</button>
+                <button class="maximize-button">☐</button>
+                <button class="close-button" id="close-brt-store-button">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <h2>Uygulamalar</h2>
+            <div class="app-list" id="store-app-list"></div>
+        </div>
+    </div>
+
+    <div id="calculator-window" class="window">
+        <div class="window-header">
+            <span>Hesap Makinesi</span>
+            <div class="window-controls">
+                <button class="minimize-button">_</button>
+                <button class="maximize-button">☐</button>
+                <button class="close-button" id="close-calculator-button">X</button>
+            </div>
+        </div>
+        <div class="window-content" style="padding: 0; display: flex; flex-direction: column;">
+            <div id="calculator-display">0</div>
+            <div id="calculator-buttons">
+                <button class="clear">C</button>
+                <button class="operator">+/-</button>
+                <button class="operator">%</button>
+                <button class="operator">/</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button class="operator">*</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button class="operator">-</button>
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button class="operator">+</button>
+                <button>0</button>
+                <button class="decimal">.</button>
+                <button class="equals">=</button>
+            </div>
         </div>
     </div>
     
-    <div id="settings-window" class="window" data-app-id="settings">
-        <div class="window-header"><span>Ayarlar</span><button class="close-btn">X</button></div>
+    <div id="notepad-window" class="window">
+        <div class="window-header">
+            <span>Not Defteri</span>
+            <div class="window-controls">
+                <button class="minimize-button">_</button>
+                <button class="maximize-button">☐</button>
+                <button class="close-button" id="close-notepad-button">X</button>
+            </div>
+        </div>
         <div class="window-content">
-            <div class="settings-section">
-                <h3>Genel</h3>
-                <div class="settings-item"><label for="theme-select">Tema:</label><select id="theme-select"><option value="dark">Koyu</option><option value="light">Açık</option></select></div>
-                <div class="settings-item">
-                    <label for="notification-volume">Bildirim Sesi Düzeyi:</label>
-                    <input type="range" id="notification-volume" min="0" max="1" step="0.1" value="0.5">
+            <button id="create-new-note">Yeni Not Oluştur</button>
+            <ul id="notepad-notes-list"></ul>
+            <div id="notepad-note-editor" style="display: none;">
+                <input type="text" id="note-title-input" placeholder="Not Başlığı">
+                <textarea id="note-content-input" placeholder="Not içeriği..."></textarea>
+                <div class="editor-buttons">
+                    <button id="save-note-button">Kaydet</button>
+                    <button id="cancel-note-button" class="cancel">İptal</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="task-manager-window" class="window" data-app-id="task-manager">
-        <div class="window-header"><span>Görev Yöneticisi</span><button class="close-btn">X</button></div>
-        <div class="window-content"><ul id="running-apps-list"></ul></div>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TEMEL ELEMENTLER
+            const bootScreen = document.getElementById('boot-screen');
+            const bootMessage = document.getElementById('boot-message');
+            const desktop = document.getElementById('desktop');
+            const taskbar = document.getElementById('taskbar');
+            const osTitle = document.getElementById('os-title');
+            const currentTimeSpan = document.getElementById('current-time');
 
-    <div id="brt-store-window" class="window" data-app-id="brt-store">
-         <div class="window-header"><span>BRT Store</span><button class="close-btn">X</button></div>
-         <div class="window-content"><h2>Uygulamalar</h2><p>Yeni uygulama yakında eklenecektir.</p></div>
-    </div>
-    
-    <div id="notepad-window" class="window" data-app-id="notepad">
-        <div class="window-header"><span>Not Defteri</span><button class="close-btn">X</button></div>
-        <div class="window-content"><textarea class="notepad-textarea" placeholder="Notlarınızı buraya yazın..."></textarea></div>
-    </div>
-    
-    <div id="calculator-window" class="window" data-app-id="calculator">
-        <div class="window-header"><span>Hesap Makinesi</span><button class="close-btn">X</button></div>
-        <div class="window-content calculator-content">
-             <div id="calculator-display">
-                <div class="previous-operand"></div>
-                <div class="current-operand">0</div>
-             </div>
-             <div id="calculator-buttons">
-                <button data-action="clear" class="span-two">AC</button>
-                <button data-action="delete">DEL</button>
-                <button data-operation>÷</button>
-                <button data-number>1</button>
-                <button data-number>2</button>
-                <button data-number>3</button>
-                <button data-operation>*</button>
-                <button data-number>4</button>
-                <button data-number>5</button>
-                <button data-number>6</button>
-                <button data-operation>+</button>
-                <button data-number>7</button>
-                <button data-number>8</button>
-                <button data-number>9</button>
-                <button data-operation>-</button>
-                <button data-number>.</button>
-                <button data-number>0</button>
-                <button data-action="equals" class="span-two">=</button>
-            </div>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+            // WIDGET ELEMENTLERİ
+            const timeWidget = document.getElementById('time-widget');
+            const widgetTime = document.getElementById('widget-time');
+            const widgetDate = document.getElementById('widget-date');
+
+            // PENCERE ELEMENTLERİ
+            const settingsWindow = document.getElementById('settings-window');
+            const taskManagerWindow = document.getElementById('task-manager-window');
+            const brtStoreWindow = document.getElementById('brt-store-window');
+            const calculatorWindow = document.getElementById('calculator-window');
+            const notepadWindow = document.getElementById('notepad-window');
+            
+            // İKON ve BUTON ELEMENTLERİ
+            const settingsDesktopIcon = document.getElementById('settings-desktop-icon');
+            const taskManagerDesktopIcon = document.getElementById('task-manager-desktop-icon');
+            const brtStoreDesktopIcon = document.getElementById('brt-store-desktop-icon');
+            const calculatorDesktopIcon = document.getElementById('calculator-desktop-icon');
+            const notepadDesktopIcon = document.getElementById('notepad-desktop-icon');
+
+            const closeSettingsButton = document.getElementById('close-settings-button');
+            const closeTaskManagerButton = document.getElementById('close-task-manager-button');
+            const closeBrtStoreButton = document.getElementById('close-brt-store-button');
+            const closeCalculatorButton = document.getElementById('close-calculator-button');
+            const closeNotepadButton = document.getElementById('close-notepad-button');
+
+            const startButton = document.getElementById('start-button');
+            const startMenu = document.getElementById('start-menu');
+
+            const notificationsIcon = document.getElementById('notifications-icon');
+            const notificationDot = document.getElementById('notification-dot');
+            const notificationPanel = document.getElementById('notification-panel');
+            const notificationList = document.getElementById('notification-list');
+
+            // --- YENİ EKLENEN SES AYARI ELEMENTLERİ ---
+            const volumeIcon = document.getElementById('volume-icon');
+            const volumeSliderContainer = document.getElementById('volume-slider-container');
+            const volumeSlider = document.getElementById('volume-slider');
+            
+            // UYGULAMA İÇİ ELEMENTLER
+            const runningAppsList = document.getElementById('running-apps-list');
+            const storeAppList = document.getElementById('store-app-list');
+            const calculatorDisplay = document.getElementById('calculator-display');
+            const calculatorButtons = document.getElementById('calculator-buttons');
+            const createNewNoteButton = document.getElementById('create-new-note');
+            const notepadNotesList = document.getElementById('notepad-notes-list');
+            const notepadNoteEditor = document.getElementById('notepad-note-editor');
+            const noteTitleInput = document.getElementById('note-title-input');
+            const noteContentInput = document.getElementById('note-content-input');
+            const saveNoteButton = document.getElementById('save-note-button');
+            const cancelNoteButton = document.getElementById('cancel-note-button');
+            const themeSelect = document.getElementById('theme-select');
+            const currentBrtosVersionSpan = document.getElementById('current-brtos-version');
+            const checkforUpdatesButton = document.getElementById('check-for-updates');
+            const updateStatusMessage = document.getElementById('update-status-message');
+
+
+            // SİSTEM DEĞİŞKENLERİ VE VERİLERİ
+            // --- SES AYARI İÇİN GÜNCELLEMELER ---
+            let audioContext;
+            let gainNode; // Ana ses kontrolü
+            let audioBoot;
+            let audioNotification;
+
+            let installedApps = JSON.parse(localStorage.getItem('brtosInstalledApps')) || {};
+            let notes = JSON.parse(localStorage.getItem('brtosNotes')) || [];
+            let activeWindows = {};
+
+            const availableApps = [
+                { id: 'settings', name: 'Ayarlar', windowElement: settingsWindow, openFunction: () => openWindow(settingsWindow, 'settings', 'Ayarlar') },
+                { id: 'task-manager', name: 'Görev Yöneticisi', windowElement: taskManagerWindow, openFunction: () => openWindow(taskManagerWindow, 'task-manager', 'Görev Yöneticisi') },
+                { id: 'brt-store', name: 'BRT STORE', windowElement: brtStoreWindow, openFunction: () => openWindow(brtStoreWindow, 'brt-store', 'BRT STORE') },
+                { id: 'calculator', name: 'Hesap Makinesi', windowElement: calculatorWindow, openFunction: () => openWindow(calculatorWindow, 'calculator', 'Hesap Makinesi') },
+                { id: 'notepad', name: 'Not Defteri', windowElement: notepadWindow, openFunction: () => openWindow(notepadWindow, 'notepad', 'Not Defteri') }
+            ];
+
+            // --- SES ALTYAPISINI OLUŞTURMA FONKSİYONU ---
+            function setupAudio() {
+                // AudioContext, kullanıcı etkileşimi olmadan başlayamaz.
+                // Bu yüzden ilk tıklama veya olayda başlatıyoruz.
+                if (audioContext) return;
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioContext.createGain();
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = volumeSlider.value; // Başlangıç ses seviyesi
+
+                // Ses kaynaklarını oluştur ve gainNode'a bağla
+                const bootSound = new Audio('https://www.soundjay.com/buttons/sounds/button-1.mp3');
+                const notificationSound = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
+                
+                audioBoot = audioContext.createMediaElementSource(bootSound);
+                audioNotification = audioContext.createMediaElementSource(notificationSound);
+
+                audioBoot.connect(gainNode);
+                audioNotification.connect(gainNode);
+                
+                // Orijinal Audio nesnelerine play fonksiyonu ekle
+                audioBoot.audioElement = bootSound;
+                audioBoot.play = () => audioBoot.audioElement.play();
+
+                audioNotification.audioElement = notificationSound;
+                audioNotification.play = () => audioNotification.audioElement.play();
+            }
+
+            // --- SİSTEM BAŞLANGIÇ FONKSİYONLARI ---
+
+            function bootSystem() {
+                updateTime();
+                setInterval(updateTime, 1000);
+
+                setTimeout(() => {
+                    bootScreen.classList.add('hidden');
+                    if(audioBoot) audioBoot.play();
+                    setTimeout(() => {
+                        bootScreen.style.display = 'none';
+                        desktop.style.display = 'block';
+                        taskbar.style.display = 'flex';
+                        renderDesktopIcons();
+                    }, 1000);
+                }, 2000); // 2 saniye açılış süresi
+            }
+
+            function updateTime() {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const year = now.getFullYear();
+
+                currentTimeSpan.textContent = `${hours}:${minutes}`;
+                if (widgetTime) widgetTime.textContent = `${hours}:${minutes}`;
+                if (widgetDate) widgetDate.textContent = `${day}.${month}.${year}`;
+            }
+
+            // --- PENCERE YÖNETİMİ ---
+
+            function openWindow(windowElement, appId, appName) {
+                if (windowElement.style.display === 'flex' && !windowElement.classList.contains('minimized')) {
+                    bringWindowToFront(windowElement);
+                    return;
+                }
+
+                if (windowElement.classList.contains('minimized')) {
+                    windowElement.classList.remove('minimized');
+                }
+
+                windowElement.style.display = 'flex';
+                bringWindowToFront(windowElement);
+                addAppToTaskManager(appName, appId, windowElement);
+            }
+
+            function closeWindow(windowElement, appId) {
+                windowElement.style.display = 'none';
+                removeAppFromTaskManager(appId);
+                addNotification(`'${activeWindows[appId]?.name || appId}' kapatıldı.`);
+            }
+            
+            function minimizeWindow(windowElement, appId) {
+                windowElement.classList.add('minimized');
+                setTimeout(() => { windowElement.style.display = 'none'; }, 300);
+                if(activeWindows[appId]) activeWindows[appId].minimized = true;
+                updateTaskManagerList();
+            }
+
+            function bringWindowToFront(windowElement) {
+                let maxZIndex = 1001;
+                document.querySelectorAll('.window').forEach(el => {
+                    const zIndex = parseInt(window.getComputedStyle(el).zIndex, 10);
+                    if (zIndex > maxZIndex) maxZIndex = zIndex;
+                });
+                windowElement.style.zIndex = maxZIndex + 1;
+            }
+            
+            // --- GÖREV YÖNETİCİSİ ---
+            
+            function addAppToTaskManager(appName, appId, windowElement) {
+                if (!activeWindows[appId]) {
+                    activeWindows[appId] = { name: appName, element: windowElement, minimized: false };
+                    updateTaskManagerList();
+                }
+            }
+
+            function removeAppFromTaskManager(appId) {
+                if (activeWindows[appId]) {
+                    delete activeWindows[appId];
+                    updateTaskManagerList();
+                }
+            }
+
+            function updateTaskManagerList() {
+                runningAppsList.innerHTML = '';
+                if (Object.keys(activeWindows).length === 0) {
+                    runningAppsList.innerHTML = '<li>Çalışan uygulama yok.</li>';
+                    return;
+                }
+                for (const appId in activeWindows) {
+                    const app = activeWindows[appId];
+                    const li = document.createElement('li');
+                    li.textContent = app.name;
+                    const terminateBtn = document.createElement('button');
+                    terminateBtn.textContent = 'Sonlandır';
+                    terminateBtn.onclick = () => closeWindow(app.element, appId);
+                    li.appendChild(terminateBtn);
+                    runningAppsList.appendChild(li);
+                }
+            }
+
+
+            // --- SÜRÜKLEME FONKSİYONU ---
+            function makeDraggable(element, handle) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                const dragHandle = handle || element;
+
+                dragHandle.onmousedown = dragMouseDown;
+
+                function dragMouseDown(e) {
+                    e.preventDefault();
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmouseup = closeDragElement;
+                    document.onmousemove = elementDrag;
+                    bringWindowToFront(element);
+                }
+
+                function elementDrag(e) {
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                }
+
+                function closeDragElement() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+            
+            // --- UYGULAMA MANTIKLARI ---
+            
+            // BRT Store
+            function renderBrtStore() {
+                storeAppList.innerHTML = '';
+                const appsToDisplay = availableApps.filter(app => ['calculator', 'notepad'].includes(app.id));
+                appsToDisplay.forEach(app => {
+                    const isInstalled = installedApps[app.id] && installedApps[app.id].installed;
+                    const card = document.createElement('div');
+                    card.className = 'app-card';
+                    card.innerHTML = `
+                        <img src="${document.getElementById(app.id + '-desktop-icon').querySelector('img').src}" alt="${app.name}">
+                        <h4>${app.name}</h4>
+                        <div class="progress-overlay"></div>
+                        <button class="install-btn" data-app-id="${app.id}" ${isInstalled ? 'disabled' : ''}>${isInstalled ? 'Yüklendi' : 'Yükle'}</button>
+                        ${isInstalled ? `<button class="uninstall-btn" data-app-id="${app.id}">Kaldır</button>` : ''}
+                    `;
+                    storeAppList.appendChild(card);
+                });
+            }
+            
+            function installApp(appId) {
+                installedApps[appId] = { installed: true };
+                localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
+                addNotification(`${appId} yüklendi!`);
+                renderBrtStore();
+                renderDesktopIcons();
+            }
+            
+            function uninstallApp(appId) {
+                if (confirm(`${appId} uygulamasını kaldırmak istediğinizden emin misiniz?`)) {
+                    delete installedApps[appId];
+                    localStorage.setItem('brtosInstalledApps', JSON.stringify(installedApps));
+                    addNotification(`${appId} kaldırıldı.`);
+                    renderBrtStore();
+                    renderDesktopIcons();
+                }
+            }
+            
+            // Hesap Makinesi
+            let calcCurrentInput = '0';
+            let calcOperator = null;
+            let calcFirstOperand = null;
+            let calcWaitingForSecond = false;
+            
+            function updateCalcDisplay() { calculatorDisplay.textContent = calcCurrentInput; }
+            
+            function handleCalculatorClick(e) {
+                const target = e.target;
+                if (!target.matches('button')) return;
+
+                if (target.classList.contains('operator')) {
+                    handleOperator(target.textContent);
+                } else if (target.classList.contains('decimal')) {
+                    inputDecimal(target.textContent);
+                } else if (target.classList.contains('clear')) {
+                    resetCalculator();
+                } else if (target.classList.contains('equals')) {
+                    calculate();
+                } else {
+                    inputDigit(target.textContent);
+                }
+                updateCalcDisplay();
+            }
+            
+            function inputDigit(digit) {
+                if (calcWaitingForSecond) {
+                    calcCurrentInput = digit;
+                    calcWaitingForSecond = false;
+                } else {
+                    calcCurrentInput = calcCurrentInput === '0' ? digit : calcCurrentInput + digit;
+                }
+            }
+            
+            function inputDecimal(dot) {
+                if (!calcCurrentInput.includes(dot)) calcCurrentInput += dot;
+            }
+            
+            function handleOperator(nextOperator) {
+                const inputValue = parseFloat(calcCurrentInput);
+                if (calcOperator && calcWaitingForSecond) {
+                    calcOperator = nextOperator;
+                    return;
+                }
+                if (calcFirstOperand === null) {
+                    calcFirstOperand = inputValue;
+                } else if (calcOperator) {
+                    const result = performCalculation[calcOperator](calcFirstOperand, inputValue);
+                    calcCurrentInput = String(result);
+                    calcFirstOperand = result;
+                }
+                calcWaitingForSecond = true;
+                calcOperator = nextOperator;
+            }
+
+            const performCalculation = {
+                '/': (first, second) => first / second,
+                '*': (first, second) => first * second,
+                '+': (first, second) => first + second,
+                '-': (first, second) => first - second,
+            };
+            
+            function calculate() {
+                if (calcOperator && !calcWaitingForSecond) {
+                    const result = performCalculation[calcOperator](calcFirstOperand, parseFloat(calcCurrentInput));
+                    calcCurrentInput = String(result);
+                    calcOperator = null;
+                    calcFirstOperand = null;
+                }
+            }
+            
+            function resetCalculator() {
+                calcCurrentInput = '0';
+                calcOperator = null;
+                calcFirstOperand = null;
+                calcWaitingForSecond = false;
+            }
+            
+            // Not Defteri
+            let currentEditingNoteId = null;
+            function renderNotepadNotes() {
+                notepadNotesList.innerHTML = '';
+                if (notes.length === 0) {
+                    notepadNotesList.innerHTML = '<li>Henüz not yok.</li>';
+                    return;
+                }
+                notes.forEach(note => {
+                    const li = document.createElement('li');
+                    li.textContent = note.title || 'Başlıksız Not';
+                    li.dataset.noteId = note.id;
+                    li.onclick = () => editNote(note.id);
+                    notepadNotesList.appendChild(li);
+                });
+            }
+            
+            function showNoteEditor(note) {
+                if (note) {
+                    currentEditingNoteId = note.id;
+                    noteTitleInput.value = note.title;
+                    noteContentInput.value = note.content;
+                } else {
+                    currentEditingNoteId = null;
+                    noteTitleInput.value = '';
+                    noteContentInput.value = '';
+                }
+                notepadNoteEditor.style.display = 'block';
+            }
+            
+            function saveNote() {
+                const title = noteTitleInput.value.trim();
+                const content = noteContentInput.value.trim();
+                if (currentEditingNoteId) {
+                    const noteIndex = notes.findIndex(n => n.id === currentEditingNoteId);
+                    notes[noteIndex] = { ...notes[noteIndex], title, content };
+                } else {
+                    notes.push({ id: Date.now(), title, content });
+                }
+                localStorage.setItem('brtosNotes', JSON.stringify(notes));
+                notepadNoteEditor.style.display = 'none';
+                renderNotepadNotes();
+            }
+            
+            function editNote(id) {
+                const note = notes.find(n => n.id === id);
+                showNoteEditor(note);
+            }
+            
+            // --- Bildirimler ---
+            function addNotification(message) {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.textContent = message;
+                notificationList.prepend(item);
+                notificationDot.style.display = 'block';
+                if(audioNotification) audioNotification.play();
+                const noNotificationMsg = notificationList.querySelector('.no-notifications');
+                if (noNotificationMsg) noNotificationMsg.style.display = 'none';
+
+                setTimeout(() => item.remove(), 5000);
+            }
+            
+            // --- MASAÜSTÜ İKON YÖNETİMİ ---
+            function renderDesktopIcons() {
+                // Varsayılan uygulamaları her zaman yüklü kabul et
+                ['settings', 'task-manager', 'brt-store'].forEach(id => {
+                    installedApps[id] = { installed: true };
+                });
+                
+                availableApps.forEach(app => {
+                    const iconElement = document.getElementById(`${app.id}-desktop-icon`);
+                    if (iconElement) {
+                        const isInstalled = installedApps[app.id] && installedApps[app.id].installed;
+                        iconElement.style.display = isInstalled ? 'flex' : 'none';
+                        if (isInstalled) {
+                            iconElement.classList.add('loaded');
+                        }
+                    }
+                });
+            }
+
+            // --- ETKİNLİK DİNLEYİCİLERİ (Event Listeners) ---
+            function setupEventListeners() {
+                // AudioContext'i ilk kullanıcı etkileşiminde başlat
+                document.body.addEventListener('click', setupAudio, { once: true });
+                
+                // Pencereler
+                settingsDesktopIcon.onclick = () => openWindow(settingsWindow, 'settings', 'Ayarlar');
+                taskManagerDesktopIcon.onclick = () => openWindow(taskManagerWindow, 'task-manager', 'Görev Yöneticisi');
+                brtStoreDesktopIcon.onclick = () => { openWindow(brtStoreWindow, 'brt-store', 'BRT STORE'); renderBrtStore(); };
+                calculatorDesktopIcon.onclick = () => openWindow(calculatorWindow, 'calculator', 'Hesap Makinesi');
+                notepadDesktopIcon.onclick = () => { openWindow(notepadWindow, 'notepad', 'Not Defteri'); renderNotepadNotes(); };
+
+                closeSettingsButton.onclick = () => closeWindow(settingsWindow, 'settings');
+                closeTaskManagerButton.onclick = () => closeWindow(taskManagerWindow, 'task-manager');
+                closeBrtStoreButton.onclick = () => closeWindow(brtStoreWindow, 'brt-store');
+                closeCalculatorButton.onclick = () => closeWindow(calculatorWindow, 'calculator');
+                closeNotepadButton.onclick = () => closeWindow(notepadWindow, 'notepad');
+
+                // Görev Çubuğu
+                startButton.onclick = (e) => { e.stopPropagation(); startMenu.classList.toggle('show'); };
+                notificationsIcon.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    notificationPanel.classList.toggle('show'); 
+                    notificationDot.style.display = 'none'; 
+                    // Diğer panelleri kapat
+                    startMenu.classList.remove('show');
+                    volumeSliderContainer.classList.remove('show');
+                };
+                
+                // --- YENİ EKLENEN SES AYARI ETKİNLİKLERİ ---
+                volumeIcon.onclick = (e) => {
+                    e.stopPropagation();
+                    volumeSliderContainer.classList.toggle('show');
+                    // Diğer panelleri kapat
+                    startMenu.classList.remove('show');
+                    notificationPanel.classList.remove('show');
+                };
+
+                volumeSlider.oninput = (e) => {
+                    if (gainNode) {
+                        gainNode.gain.value = e.target.value;
+                    }
+                };
+
+                // Dışarı tıklayınca panelleri kapat
+                desktop.addEventListener('click', () => {
+                    startMenu.classList.remove('show');
+                    notificationPanel.classList.remove('show');
+                    volumeSliderContainer.classList.remove('show');
+                });
+                
+                // Tema Değişikliği
+                themeSelect.onchange = (e) => {
+                    document.body.className = `${e.target.value}-theme`;
+                };
+                
+                // BRT Store Butonları
+                storeAppList.addEventListener('click', (e) => {
+                    const appId = e.target.dataset.appId;
+                    if (e.target.classList.contains('install-btn')) installApp(appId);
+                    if (e.target.classList.contains('uninstall-btn')) uninstallApp(appId);
+                });
+                
+                // Hesap Makinesi
+                calculatorButtons.onclick = handleCalculatorClick;
+
+                // Not Defteri
+                createNewNoteButton.onclick = () => showNoteEditor(null);
+                saveNoteButton.onclick = saveNote;
+                cancelNoteButton.onclick = () => { notepadNoteEditor.style.display = 'none'; };
+
+                // Pencereleri sürüklenebilir yap
+                document.querySelectorAll('.window').forEach(windowEl => {
+                    makeDraggable(windowEl, windowEl.querySelector('.window-header'));
+                });
+            }
+
+            // --- SİSTEMİ BAŞLAT ---
+            setupEventListeners();
+            bootSystem();
+        });
+    </script>
 </body>
-</html>
+    </html>
