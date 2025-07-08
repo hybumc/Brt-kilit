@@ -895,7 +895,8 @@
     <div id="boot-screen">
         <img src="https://img.icons8.com/ios/100/00BCD4/laptop-play.png" alt="BRTOS Logo">
         <h1 id="boot-message">BRTOS 1.1 Yükleniyor...</h1>
-        <div id="loading-progress"></div> </div>
+        <div id="loading-progress"></div>
+    </div>
 
     <div id="desktop">
         <div id="desktop-branding">BRTOS</div>
@@ -931,19 +932,21 @@
 
     <div id="taskbar">
         <div class="taskbar-left">
-            <span id="start-button">Başlat</span> <span class="taskbar-icon" id="settings-taskbar-icon">⚙️</span>
+            <span id="start-button">Başlat</span>
+            <span class="taskbar-icon" id="settings-taskbar-icon">⚙️</span>
             <span class="taskbar-icon" id="task-manager-taskbar-icon">📊</span>
             <span class="taskbar-icon" id="brt-store-taskbar-icon">🛍️</span>
         </div>
         <div class="taskbar-right">
-            <span class="taskbar-icon" id="notifications-icon">🔔<span id="notification-dot"></span></span> <span id="current-time"></span>
+            <span class="taskbar-icon" id="notifications-icon">🔔<span id="notification-dot"></span></span>
+            <span id="current-time"></span>
         </div>
     </div>
 
     <div id="start-menu">
         <div class="start-menu-section">
             <h5>Uygulamalar</h5>
-            </div>
+        </div>
         <div class="start-menu-section">
             <h5>Sistem</h5>
             <div class="start-menu-item" data-app-id="settings">
@@ -1035,7 +1038,7 @@
         <div class="window-content">
             <h3>Çalışan Uygulamalar</h3>
             <ul id="running-apps-list">
-                </ul>
+            </ul>
         </div>
     </div>
 
@@ -1051,7 +1054,7 @@
         <div class="window-content">
             <h2>Uygulamalar</h2>
             <div class="app-list" id="store-app-list">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -1084,8 +1087,7 @@
                 <button>3</button>
                 <button class="operator">+</button>
                 <button>0</button>
-                <button>.</button>
-                <button class="equals">=</button>
+                <button class="decimal">.</button> <button class="equals">=</button>
             </div>
         </div>
     </div>
@@ -1102,7 +1104,7 @@
         <div class="window-content">
             <button id="create-new-note">Yeni Not Oluştur</button>
             <ul id="notepad-notes-list">
-                </ul>
+            </ul>
 
             <div id="notepad-note-editor" style="display: none;">
                 <input type="text" id="note-title-input" placeholder="Not Başlığı">
@@ -1126,6 +1128,11 @@
             const currentTimeSpan = document.getElementById('current-time');
             const currentBrtosVersionSpan = document.getElementById('current-brtos-version');
             const osTitle = document.getElementById('os-title');
+
+            // HATA DÜZELTİLDİ: Bu değişkenler global olarak tanımlanmamıştı. Scriptin çökmesine neden oluyordu.
+            const timeWidget = document.getElementById('time-widget');
+            const widgetTime = document.getElementById('widget-time');
+            const widgetDate = document.getElementById('widget-date');
 
             const settingsIcon = document.getElementById('settings-taskbar-icon');
             const settingsDesktopIcon = document.getElementById('settings-desktop-icon');
@@ -1323,7 +1330,7 @@
                 }
             }
             setInterval(updateTime, 1000);
-            updateTime();
+            updateTime(); // Bu çağrı, değişkenler tanımlanmadan önce yapıldığında hataya neden oluyordu. Artık güvenli.
 
             // Açılış Ekranı Simülasyonu
             setTimeout(() => {
@@ -2194,4 +2201,4 @@
         });
     </script>
 </body>
-  </html>
+    </html>
