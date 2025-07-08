@@ -3,119 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="os-title">BRTOS 2.0</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title id="os-title">BRTOS 1.1</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dark-theme">
 
     <div id="boot-screen">
-        <i class="fa-solid fa-microchip fa-beat" style="font-size: 80px;"></i>
-        <h1 id="boot-message">BRTOS 2.0 Yükleniyor...</h1>
+        <img src="https://img.icons8.com/ios/100/00BCD4/laptop-play.png" alt="BRTOS Logo">
+        <h1 id="boot-message">BRTOS 1.1 Yükleniyor...</h1>
     </div>
 
     <div id="desktop">
-        <div id="desktop-branding">BRTOS</div>
-        <div class="desktop-icon" data-app-id="settings"><i class="fa-solid fa-gear"></i><span>Ayarlar</span></div>
-        <div class="desktop-icon" data-app-id="brt-store"><i class="fa-solid fa-store"></i><span>BRT Store</span></div>
-        <div class="desktop-icon" data-app-id="calculator"><i class="fa-solid fa-calculator"></i><span>Hesap Makinesi</span></div>
-        <div class="desktop-icon" data-app-id="password-manager"><i class="fa-solid fa-key"></i><span>Şifre Yöneticisi</span></div>
+        <div class="desktop-icon" id="settings-desktop-icon" data-app-id="settings" style="top: 50px; left: 50px;">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/settings.png" alt="Ayarlar">
+            <span>Ayarlar</span>
+        </div>
+        <div class="desktop-icon" id="brt-store-desktop-icon" data-app-id="brt-store" style="top: 150px; left: 50px;">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/shopping-basket.png" alt="BRT STORE">
+            <span>BRT Store</span>
+        </div>
+        <div class="desktop-icon" id="calculator-desktop-icon" data-app-id="calculator" style="top: 250px; left: 50px;">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/calculator.png" alt="Hesap Makinesi">
+            <span>Hesap Makinesi</span>
+        </div>
     </div>
 
     <div id="taskbar">
         <div class="taskbar-left">
-            <span id="start-button"><i class="fa-brands fa-windows"></i></span>
-            </div>
+            <span id="start-button">Başlat</span>
+            <div id="open-apps-bar"></div>
+        </div>
         <div class="taskbar-right">
             <div id="system-tray">
-                <span class="tray-icon" id="volume-icon"><i class="fa-solid fa-volume-high"></i></span>
-                <span class="tray-icon" id="keyboard-toggle-icon"><i class="fa-solid fa-keyboard"></i></span>
-                <span class="tray-icon" id="notifications-icon">
-                    <i class="fa-solid fa-bell"></i>
-                    <span id="notification-dot"></span>
-                </span>
+                <span class="tray-icon" id="volume-icon">🔊</span>
             </div>
             <span id="current-time"></span>
         </div>
     </div>
 
-    <div id="volume-panel" class="tray-panel">
-        <label for="volume-slider">Ses Düzeyi</label>
-        <input type="range" id="volume-slider" min="0" max="100" value="80">
-    </div>
-
-    <div id="notification-panel" class="tray-panel">
-        <h3>Bildirimler</h3>
-        <div id="notification-list">
-            <div class="notification-item no-notifications">Hiç bildirim yok.</div>
+    <div id="start-menu">
+        <div class="start-menu-section">
+            <h5>Uygulamalar</h5>
+            <div class="start-menu-item" data-app-id="calculator">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/calculator.png" alt="Hesap Makinesi">
+                <span>Hesap Makinesi</span>
+            </div>
+        </div>
+        <div class="start-menu-section">
+            <h5>Sistem</h5>
+            <div class="start-menu-item" data-app-id="settings">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/settings.png" alt="Ayarlar">
+                <span>Ayarlar</span>
+            </div>
+            <div class="start-menu-item" data-app-id="brt-store">
+                <img src="https://img.icons8.com/ios-filled/24/ffffff/shopping-basket.png" alt="BRT STORE">
+                <span>BRT Store</span>
+            </div>
         </div>
     </div>
 
+    <div id="volume-panel" class="tray-panel">
+        <span>Ses Düzeyi: <span id="volume-level-text">80</span>%</span>
+        <input type="range" id="volume-slider" min="0" max="100" value="80">
+    </div>
+
     <div id="settings-window" class="window" data-app-id="settings">
-        <div class="window-header"><span><i class="fa-solid fa-gear"></i> Ayarlar</span><div class="window-controls"><button class="minimize-btn">_</button><button class="maximize-btn">☐</button><button class="close-btn">X</button></div></div>
+        <div class="window-header"><span>Ayarlar</span><div class="window-controls"><button class="close-btn">X</button></div></div>
         <div class="window-content">
             <div class="settings-section">
                 <h3>Genel Ayarlar</h3>
                 <div class="settings-item"><label for="theme-select">Tema:</label><select id="theme-select"><option value="dark">Koyu</option><option value="light">Açık</option></select></div>
             </div>
-            <div class="settings-section about-section">
-                <h3><i class="fa-solid fa-circle-info"></i> BRTOS Hakkında</h3>
-                <p><strong>Sürüm:</strong> 2.0 "Phoenix"</p>
-                <p>BRTOS, modern web teknolojileriyle oluşturulmuş bir tarayıcı tabanlı işletim sistemi simülasyonudur.</p>
-                <p><strong>Geliştiriciler:</strong> BRTOS Ekibi & AI</p>
-                <p><strong>Lisans:</strong> MIT License</p>
-                <p><strong>Kullanılan Kütüphaneler:</strong> Font Awesome (Icons)</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="calculator-window" class="window" data-app-id="calculator">
-        <div class="window-header"><span><i class="fa-solid fa-calculator"></i> Hesap Makinesi</span><div class="window-controls"><button class="minimize-btn">_</button><button class="maximize-btn">☐</button><button class="close-btn">X</button></div></div>
-        <div class="window-content calculator-content">
-            <div class="calculator-main">
-                <div id="calculator-display-container">
-                    <div id="calculator-expression"></div>
-                    <div id="calculator-result">0</div>
-                </div>
-                <div id="calculator-mode-toggle"><button data-mode="standard" class="active">Standart</button><button data-mode="scientific">Bilimsel</button></div>
-                <div id="calculator-buttons">
-                    </div>
-            </div>
-            <div class="calculator-history">
-                <h4><i class="fa-solid fa-clock-rotate-left"></i> Geçmiş</h4>
-                <ul id="calc-history-list"><li>Geçmiş yok</li></ul>
+            <div class="settings-section">
+                <h3>Hakkında (Detaylandırıldı)</h3>
+                <p><strong>BRTOS Sürümü:</strong> 1.1</p>
+                <p><strong>Geliştirici:</strong> BRTOS Ekibi</p>
+                <p>Bu, web teknolojileriyle yapılmış bir işletim sistemi simülasyonudur.</p>
+                <p><strong>Lisans:</strong> MIT</p>
             </div>
         </div>
     </div>
 
     <div id="brt-store-window" class="window" data-app-id="brt-store">
-        <div class="window-header"><span><i class="fa-solid fa-store"></i> BRT Store</span><div class="window-controls"><button class="minimize-btn">_</button><button class="maximize-btn">☐</button><button class="close-btn">X</button></div></div>
+        <div class="window-header"><span>BRT Store</span><div class="window-controls"><button class="close-btn">X</button></div></div>
         <div class="window-content">
-            <div id="store-categories"><button class="active" data-category="all">Tümü</button><button data-category="utilities">Araçlar</button><button data-category="games">Oyunlar (Yakında)</button></div>
-            <div id="store-app-list"></div>
-        </div>
-    </div>
-
-    <div id="password-manager-window" class="window" data-app-id="password-manager">
-        <div class="window-header"><span><i class="fa-solid fa-key"></i> Şifre Yöneticisi</span><div class="window-controls"><button class="minimize-btn">_</button><button class="maximize-btn">☐</button><button class="close-btn">X</button></div></div>
-        <div class="window-content">
-            <h4>Yeni Kayıt Ekle</h4>
-            <div class="form-grid">
-                <input type="text" id="pm-service" placeholder="Servis (örn: google.com)">
-                <input type="text" id="pm-username" placeholder="Kullanıcı Adı">
-                <input type="password" id="pm-password" placeholder="Şifre">
-                <button id="pm-save-btn"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+            <h2>Uygulamalar</h2>
+            <div class="app-card">
+                <h4>Hesap Makinesi</h4>
+                <p>Standart işlemler ve işlem geçmişi özelliği sunan bir hesap makinesi.</p>
+                <button class="store-btn installed">Yüklü</button>
             </div>
-            <hr>
-            <h4>Kayıtlı Şifreler</h4>
-            <ul id="pm-list"><li>Kayıtlı şifre yok.</li></ul>
-            <small>Not: Şifreleriniz tarayıcınızın yerel depolama alanında basit bir şifreleme ile saklanır. Gerçek güvenlik için kullanmayınız!</small>
         </div>
     </div>
 
-    <div id="virtual-keyboard" class="hidden">
+    <div id="calculator-window" class="window" data-app-id="calculator">
+        <div class="window-header"><span>Hesap Makinesi</span><div class="window-controls"><button class="close-btn">X</button></div></div>
+        <div class="window-content calculator-grid">
+            <div class="calculator-main">
+                 <div id="calculator-display">0</div>
+                 <div id="calculator-buttons">
+                    <button class="operator">C</button><button class="operator">CE</button><button class="operator">%</button><button class="operator">/</button>
+                    <button>7</button><button>8</button><button>9</button><button class="operator">*</button>
+                    <button>4</button><button>5</button><button>6</button><button class="operator">-</button>
+                    <button>1</button><button>2</button><button>3</button><button class="operator">+</button>
+                    <button>0</button><button>.</button><button class="equals" colspan="2">=</button>
+                </div>
+            </div>
+            <div class="calculator-history">
+                <h4>Geçmiş</h4>
+                <ul id="calc-history-list"></ul>
+            </div>
         </div>
-    
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
