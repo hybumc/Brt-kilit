@@ -59,13 +59,24 @@
             transform: translateY(-2px);
             background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
+        
+        /* SÜREKLİ ANİMASYON EKLENDİ */
+        @keyframes rainbow-glow {
+            0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+            15% { border-color: #ff7f00; box-shadow: 0 0 20px #ff7f00; }
+            30% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+            45% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+            60% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
+            75% { border-color: #4b0082; box-shadow: 0 0 20px #4b0082; }
+            90% { border-color: #9400d3; box-shadow: 0 0 20px #9400d3; }
+        }
 
         .connection-info {
             background-color: rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 3px solid; /* Kalınlık artırıldı */
             padding: 25px; border-radius: 10px; min-height: 150px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
-            cursor: pointer;
+            animation: rainbow-glow 3s linear infinite; /* Animasyon direkt eklendi */
         }
         
         #server-ip { font-size: 1.1em; word-break: break-all; }
@@ -79,14 +90,14 @@
 
         .founders-section { margin-top: 40px; }
         .founders-grid {
-            display: grid; justify-content: center; /* Tek öğeyi ortalamak için */
+            display: grid; justify-content: center;
             gap: 25px; margin-top: 25px;
         }
         .founder-card {
             background-color: rgba(0, 0, 0, 0.4); padding: 20px;
-            border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease; cursor: pointer;
-            width: 150px; /* Sabit genişlik */
+            border-radius: 10px; border: 3px solid; /* Kalınlık artırıldı */
+            transition: all 0.3s ease; width: 150px;
+            animation: rainbow-glow 3s linear infinite; /* Animasyon direkt eklendi */
         }
         .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
         .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
@@ -94,21 +105,6 @@
         .founder-rank { font-size: 0.8em; color: var(--kurucu-color); margin: 0; }
 
         .footer { margin-top: 40px; font-size: 0.8em; color: #bbbbbb; text-shadow: 1px 1px 0 #000; }
-
-        /* YENİ EKLENEN ANİMASYON */
-        @keyframes rainbow-glow {
-            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
-            15% { border-color: #ff7f00; box-shadow: 0 0 10px #ff7f00; }
-            30% { border-color: #ffff00; box-shadow: 0 0 10px #ffff00; }
-            45% { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
-            60% { border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
-            75% { border-color: #4b0082; box-shadow: 0 0 10px #4b0082; }
-            90% { border-color: #9400d3; box-shadow: 0 0 10px #9400d3; }
-            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
-        }
-        .rainbow-animate {
-            animation: rainbow-glow 0.5s linear;
-        }
     </style>
 </head>
 <body>
@@ -137,14 +133,13 @@
         </div>
 
         <div class="footer">
-            <p>&copy; 2025 BRT MC. Bütün Hakları Saklıdır.</p>
+            <p>© 2025 BRT MC. Bütün Hakları Saklıdır.</p>
         </div>
     </div>
 
     <script>
         const editionButtons = document.querySelectorAll('.edition-btn');
         const connectionInfoContainer = document.getElementById('connection-info-container');
-        const foundersGrid = document.getElementById('founders-grid');
 
         const serverInfo = {
             java: {
@@ -181,16 +176,6 @@
             }
         }
 
-        // --- YENİ EKLENEN ANİMASYON VE MOBİL BUTON İŞLEVLERİ ---
-
-        function applyRainbowEffect(element) {
-            element.classList.add('rainbow-animate');
-            setTimeout(() => {
-                element.classList.remove('rainbow-animate');
-            }, 50000); // Animasyon süresi 0.5 saniye
-        }
-
-        // Bağlantı bilgisi kutusuna tıklandığında
         connectionInfoContainer.addEventListener('click', (event) => {
             // IP Kopyalama Butonu
             if (event.target && event.target.id === 'copy-button') {
@@ -205,30 +190,21 @@
                         copyButton.style.borderBottomColor = '#0000AA';
                     }, 2000);
                 });
-                return; // Diğer tıklama olayını engelle
             }
 
             // Mobil İçin Java Butonu
             if (event.target && event.target.id === 'mobile-java-btn') {
                 window.open('https://zalithlauncher.com/apk', '_blank');
-                alert("Yönlendiriliyorsunuz...\n\nLütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\nVideo Linki: https://youtu.be/kHKBl7_DoIg?si=Tmz5LK8GzM2SlyAq");
-                return; // Diğer tıklama olayını engelle
-            }
-            
-            // Kutunun kendisine tıklandığında animasyonu tetikle
-            applyRainbowEffect(connectionInfoContainer);
-        });
-
-        // Kurucu kartına tıklandığında
-        foundersGrid.addEventListener('click', (event) => {
-            const card = event.target.closest('.founder-card');
-            if (card) {
-                applyRainbowEffect(card);
+                // ALERT MESAJI DÜZENLENDİ
+                alert(
+                    "Yönlendiriliyorsunuz...\n\n" +
+                    "Lütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\n" +
+                    "--- Video Linki ---\n" +
+                    "https://youtu.be/kHKBl7_DoIg?si=Tmz5LK8GzM2SlyAq"
+                );
             }
         });
 
-
-        // --- ESKİ İŞLEVLER ---
         editionButtons.forEach(button => {
             button.addEventListener('click', () => {
                 updateConnectionInfo(button.dataset.edition);
@@ -238,7 +214,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateConnectionInfo('java');
         });
-
     </script>
 </body>
 </html>
