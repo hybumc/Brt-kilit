@@ -9,11 +9,9 @@
 
         :root {
             --kurucu-color: #FFAA00;
-            --admin-color: #FF5555;
-            --oyuncu-color: #55AAAA;
             --aktif-color: #55FF55;
-            --java-color: #5a9436;
-            --bedrock-color: #4D4D4D;
+            --java-color: #8B4513; /* Kahverengi - Kahve */
+            --bedrock-color: #228B22; /* Yeşil - Çimen */
             --main-font: 'Press Start 2P', cursive;
         }
 
@@ -22,7 +20,7 @@
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #ffffff; font-family: var(--main-font); text-align: center;
             margin: 0; padding: 40px 20px; display: flex;
-            justify-content: center; align-items: flex-start; /* Üste hizalama için flex-start */
+            justify-content: center; align-items: flex-start;
             min-height: 100vh; box-sizing: border-box;
         }
 
@@ -30,7 +28,7 @@
             background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
             border: 5px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
             padding: 40px; max-width: 750px; width: 100%;
-            box-shadow: 0 0 35px rgba(0,0,0,0.5); margin-bottom: 40px; /* Altta boşluk */
+            box-shadow: 0 0 35px rgba(0,0,0,0.5); margin-bottom: 40px;
         }
 
         .logo {
@@ -43,7 +41,6 @@
         h1 { font-size: 2em; letter-spacing: 2px; }
         h2 { font-size: 1.6em; margin-top: 40px; margin-bottom: 20px; }
 
-        /* SÜRÜM SEÇİCİ STİLLERİ */
         .edition-selector {
             display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
         }
@@ -52,30 +49,40 @@
             font-family: var(--main-font); font-size: 1em; color: #fff;
             padding: 12px 20px; border-radius: 8px; border: none;
             border-bottom: 4px solid; cursor: pointer; transition: all 0.2s ease;
-            background-color: var(--bedrock-color); border-bottom-color: #2e2e2e;
+            display: flex; align-items: center; gap: 10px; /* Simge ve yazı için */
         }
-        .edition-btn.active {
+        
+        /* Simge stilleri */
+        .edition-btn .icon { font-size: 1.2em; }
+
+        .edition-btn[data-edition="bedrock"] { background-color: var(--bedrock-color); border-bottom-color: #1a691a; }
+        .edition-btn[data-edition="java"] { background-color: #5e3c25; border-bottom-color: #4a2d1a; }
+
+        .edition-btn.active[data-edition="java"] {
             transform: translateY(-2px);
-            background-color: var(--java-color); border-bottom-color: #386129;
+            background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
 
         .connection-info {
             background-color: rgba(0, 0, 0, 0.4); border: 2px solid rgba(255, 255, 255, 0.2);
-            padding: 25px; border-radius: 10px; min-height: 120px;
+            padding: 25px; border-radius: 10px; min-height: 150px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
         }
         
         #server-ip { font-size: 1.1em; word-break: break-all; }
         #server-version { font-size: 1em; color: #ccc; }
-        #copy-button { /* Stillendirme öncekiyle benzer */ }
-
-        /* RÜTBE STİLLERİ (Değişiklik yok) */
-        .tags-container, .tag { /* ... */ }
-
-        /* KURUCULAR BÖLÜMÜ STİLLERİ */
-        .founders-section {
-            margin-top: 40px;
+        
+        /* YENİ EKLENEN AKTİF DURUM GÖSTERGESİ */
+        .server-status-active {
+            color: var(--aktif-color);
+            font-size: 0.9em;
+            text-shadow: 0 0 8px var(--aktif-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: rgba(85, 255, 85, 0.1);
         }
+
+        .founders-section { margin-top: 40px; }
         .founders-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 25px; margin-top: 25px;
@@ -90,10 +97,7 @@
         .founder-name { font-size: 1em; margin: 0 0 5px 0; }
         .founder-rank { font-size: 0.8em; color: var(--kurucu-color); margin: 0; }
 
-        /* ... önceki stillerin geri kalanı (modal, footer vb.) buraya eklenebilir ... */
-        /* Modal, Footer stilleri önceki koddan kopyalanabilir, değişiklik gerekmiyor */
         .footer { margin-top: 40px; font-size: 0.8em; color: #bbbbbb; text-shadow: 1px 1px 0 #000; }
-        .modal-overlay { /* ... */ } .modal-content { /* ... */ }
     </style>
 </head>
 <body>
@@ -103,8 +107,8 @@
         <h1>BRT MC Sunucusuna Hoş Geldin!</h1>
 
         <div class="edition-selector">
-            <button class="edition-btn active" data-edition="java">Java Edition</button>
-            <button class="edition-btn" data-edition="bedrock">Bedrock Edition</button>
+            <button class="edition-btn active" data-edition="java"><span class="icon">☕</span>Java Edition</button>
+            <button class="edition-btn" data-edition="bedrock"><span class="icon">🌿</span>Bedrock Edition</button>
         </div>
 
         <div class="connection-info" id="connection-info-container">
@@ -138,7 +142,8 @@
         const serverInfo = {
             java: {
                 ip: 'gold.magmanode.com:30394',
-                version: '1.20.1'
+                version: '1.20.1',
+                status: 'Aktif'
             },
             bedrock: {
                 status: 'Yakında...'
@@ -146,7 +151,6 @@
         };
 
         function updateConnectionInfo(edition) {
-            // Butonların aktif durumunu güncelle
             editionButtons.forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.edition === edition) {
@@ -154,11 +158,11 @@
                 }
             });
 
-            // Bilgi kutusunun içeriğini güncelle
             if (edition === 'java') {
                 const info = serverInfo.java;
                 connectionInfoContainer.innerHTML = `
                     <span id="server-ip">${info.ip}</span>
+                    <div class="server-status-active">● ${info.status}</div>
                     <span id="server-version">Sürüm: ${info.version}</span>
                     <button id="copy-button" style="font-family: var(--main-font); font-size: 1em; color: #fff; padding: 12px 20px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
                 `;
@@ -175,7 +179,6 @@
             });
         });
 
-        // IP Kopyalama için olay dinleyicisini ana kapsayıcıya ekle (Event Delegation)
         connectionInfoContainer.addEventListener('click', (event) => {
             if (event.target && event.target.id === 'copy-button') {
                 const copyButton = event.target;
@@ -192,7 +195,6 @@
             }
         });
 
-        // Sayfa ilk yüklendiğinde Java bilgilerini göster
         document.addEventListener('DOMContentLoaded', () => {
             updateConnectionInfo('java');
         });
