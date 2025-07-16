@@ -15,33 +15,39 @@
             font-family: 'Press Start 2P', cursive;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px; /* Üst ve alt boşluk eklendi */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7);
             border: 5px solid #5c5c5c;
             border-radius: 15px;
             padding: 30px;
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 25px rgba(0,0,0,0.6);
         }
 
         .logo {
-            max-width: 80%;
-            height: auto;
+            width: 180px;  /* Logo boyutu ayarlandı */
+            height: 180px; /* Logo boyutu ayarlandı */
+            border-radius: 50%; /* Logoyu yuvarlak yapar */
+            border: 5px solid #888888;
+            object-fit: cover; /* Resmin orantısını korur */
             margin-bottom: 20px;
         }
 
-        h1 {
-            font-size: 2em;
+        h1, h2 {
             text-shadow: 3px 3px 0px #000;
         }
+        
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; margin-top: 30px; }
 
         .status-box {
             background-color: #2a2a2a;
@@ -65,7 +71,7 @@
             background-color: #4a4a4a;
             border: 3px solid #3a3a3a;
             padding: 20px;
-            margin-top: 25px;
+            margin-top: 15px;
             border-radius: 10px;
             display: inline-flex;
             align-items: center;
@@ -96,11 +102,42 @@
             transform: scale(1.05);
         }
 
-        #copy-button:active {
-            background-color: #3333DD;
-            transform: scale(1);
+        /* YENİ EKLENEN STİLLER */
+        .features-box {
+            background-color: #2a2a2a;
+            border: 3px solid #1a1a1a;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 10px;
         }
         
+        .feature-item {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .tags-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            border-bottom: 3px solid rgba(0,0,0,0.3);
+        }
+
+        .tag-kurucu { background-color: #FFAA00; } /* Altın Rengi */
+        .tag-admin  { background-color: #FF5555; } /* Kırmızı */
+        .tag-oyuncu { background-color: #55AAAA; } /* Mavi-Yeşil */
+
+
         .footer {
             margin-top: 30px;
             font-size: 0.7em;
@@ -112,19 +149,29 @@
 <body>
 
     <div class="container">
-        <img src="http://googleusercontent.com/file_content/1" alt="BRT MC Logo" class="logo">
+        <img src="https://lh3.googleusercontent.com/4h_oRz7sQ6B84N14W63P69bE_9BwK3oH9A3D0B8mQ2I7Y7R5aG4vN3oD4c_Z5vJ6sE" alt="BRT MC Logo" class="logo">
 
-        <h1>Sunucu Bilgileri</h1>
-
-        <div class="status-box">
-            <p>Durum: <span class="status-online">Sunucu Açık</span></p>
-        </div>
+        <h1>Sunucumuza Hoş Geldin!</h1>
 
         <div class="ip-box">
             <span id="server-ip">brtmc.minesr.com</span>
             <button id="copy-button">IP Kopyala</button>
         </div>
-        
+
+        <div class="features-box">
+            <h2>Sunucu Özellikleri</h2>
+            
+            <div class="feature-item">
+                <p>🛡️ Giriş Koruma Sistemi Aktif</p>
+            </div>
+            
+            <div class="tags-container">
+                <span class="tag tag-kurucu">Kurucu</span>
+                <span class="tag tag-admin">Admin</span>
+                <span class="tag tag-oyuncu">Oyuncu</span>
+            </div>
+        </div>
+
         <div class="footer">
             <p>&copy; 2025 BRT MC. Tüm hakları saklıdır.</p>
         </div>
@@ -136,19 +183,16 @@
 
         copyButton.addEventListener('click', () => {
             navigator.clipboard.writeText(serverIp).then(() => {
-                // Başarıyla kopyalandığında
                 copyButton.textContent = 'Kopyalandı!';
-                copyButton.style.backgroundColor = '#55FF55'; // Yeşil renk
+                copyButton.style.backgroundColor = '#55FF55';
                 copyButton.style.borderColor = '#00AA00';
 
-                // 2 saniye sonra eski haline döndür
                 setTimeout(() => {
                     copyButton.textContent = 'IP Kopyala';
-                    copyButton.style.backgroundColor = '#5555FF'; // Orijinal mavi renk
+                    copyButton.style.backgroundColor = '#5555FF';
                     copyButton.style.borderColor = '#0000AA';
                 }, 2000);
             }).catch(err => {
-                // Hata durumunda
                 console.error('IP adresi kopyalanamadı: ', err);
                 copyButton.textContent = 'Hata!';
                  setTimeout(() => {
