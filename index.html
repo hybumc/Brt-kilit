@@ -5,17 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BRT MC - Minecraft Sunucusu</title>
     <style>
-        /* Minecraft Fontunu Google Fonts'tan Yükleme */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+        :root {
+            --kurucu-color: #FFAA00;
+            --admin-color: #FF5555;
+            --oyuncu-color: #55AAAA;
+            --main-font: 'Press Start 2P', cursive;
+        }
+
         body {
-            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-            background-color: #3a3a3a;
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.alphacoders.com/133/1337527.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #ffffff;
-            font-family: 'Press Start 2P', cursive;
+            font-family: var(--main-font);
             text-align: center;
             margin: 0;
-            padding: 40px 20px; /* Üst ve alt boşluk eklendi */
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,124 +32,194 @@
         }
 
         .container {
-            background-color: rgba(0, 0, 0, 0.7);
-            border: 5px solid #5c5c5c;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 650px;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
             width: 100%;
-            box-shadow: 0 0 25px rgba(0,0,0,0.6);
+            box-shadow: 0 0 35px rgba(0,0,0,0.5);
         }
 
         .logo {
-            width: 180px;  /* Logo boyutu ayarlandı */
-            height: 180px; /* Logo boyutu ayarlandı */
-            border-radius: 50%; /* Logoyu yuvarlak yapar */
-            border: 5px solid #888888;
-            object-fit: cover; /* Resmin orantısını korur */
-            margin-bottom: 20px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 6px solid #888888;
+            object-fit: cover;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
         }
 
         h1, h2 {
-            text-shadow: 3px 3px 0px #000;
+            text-shadow: 4px 4px 0px #000;
         }
         
-        h1 { font-size: 2em; }
-        h2 { font-size: 1.5em; margin-top: 30px; }
-
-        .status-box {
-            background-color: #2a2a2a;
-            border: 3px solid #1a1a1a;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 10px;
-        }
-
-        .status-box p {
-            margin: 0;
-            font-size: 1.2em;
-        }
-
-        .status-online {
-            color: #55FF55; /* Minecraft Yeşil */
-            text-shadow: 0 0 10px #55FF55;
-        }
+        h1 { font-size: 2.2em; letter-spacing: 2px; }
+        h2 { font-size: 1.6em; margin-top: 40px; margin-bottom: 20px; }
 
         .ip-box {
-            background-color: #4a4a4a;
-            border: 3px solid #3a3a3a;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.15);
             padding: 20px;
-            margin-top: 15px;
+            margin: 25px 0;
             border-radius: 10px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             flex-wrap: wrap;
             gap: 15px;
         }
 
         #server-ip {
-            font-size: 1.1em;
-            word-break: break-all;
+            font-size: 1.2em;
+            background-color: rgba(0,0,0,0.4);
+            padding: 10px 15px;
+            border-radius: 5px;
         }
 
         #copy-button {
-            background-color: #5555FF; /* Minecraft Mavi */
+            background-color: #5555FF;
             color: #ffffff;
-            border: 3px solid #0000AA;
-            padding: 10px 15px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.9em;
+            border: none;
+            border-bottom: 4px solid #0000AA;
+            padding: 12px 20px;
+            font-family: var(--main-font);
+            font-size: 1em;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.2s, transform 0.2s;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
         #copy-button:hover {
+            transform: translateY(-2px);
             background-color: #7777FF;
-            transform: scale(1.05);
+        }
+        #copy-button:active {
+            transform: translateY(1px);
+            border-bottom-width: 2px;
         }
 
-        /* YENİ EKLENEN STİLLER */
         .features-box {
-            background-color: #2a2a2a;
-            border: 3px solid #1a1a1a;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 10px;
-        }
-        
-        .feature-item {
-            font-size: 1em;
-            margin-bottom: 20px;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin-top: 40px;
         }
 
         .tags-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
+            margin-top: 25px;
         }
 
         .tag {
             color: #ffffff;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 1em;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            border-bottom: 3px solid rgba(0,0,0,0.3);
+            border-bottom: 4px solid rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tag:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+        }
+        .tag:active {
+            transform: translateY(1px);
+            border-bottom-width: 2px;
         }
 
-        .tag-kurucu { background-color: #FFAA00; } /* Altın Rengi */
-        .tag-admin  { background-color: #FF5555; } /* Kırmızı */
-        .tag-oyuncu { background-color: #55AAAA; } /* Mavi-Yeşil */
-
+        .tag-kurucu { background-color: var(--kurucu-color); }
+        .tag-admin  { background-color: var(--admin-color); }
+        .tag-oyuncu { background-color: var(--oyuncu-color); }
 
         .footer {
-            margin-top: 30px;
-            font-size: 0.7em;
-            color: #aaaaaa;
+            margin-top: 40px;
+            font-size: 0.8em;
+            color: #bbbbbb;
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        /* Modal Stilleri */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            border: 4px solid #444;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            border-bottom: 3px solid #555;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
+            margin: 0;
+        }
+        
+        #modal-rank-name { text-shadow: 2px 2px 0 #000; }
+
+        .modal-body ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+            font-size: 1em;
+            line-height: 1.8;
+        }
+        
+        .modal-body li::before {
+            content: '✦';
+            margin-right: 10px;
+            color: #FFAA00;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8em;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .modal-close-btn:hover {
+            transform: scale(1.2);
+            color: var(--admin-color);
         }
 
     </style>
@@ -149,35 +227,44 @@
 <body>
 
     <div class="container">
-        <img src="https://lh3.googleusercontent.com/4h_oRz7sQ6B84N14W63P69bE_9BwK3oH9A3D0B8mQ2I7Y7R5aG4vN3oD4c_Z5vJ6sE" alt="BRT MC Logo" class="logo">
+        <img src="brtmc.jpg" alt="BRT MC Logo" class="logo">
 
-        <h1>Sunucumuza Hoş Geldin!</h1>
+        <h1>BRT MC Sunucusuna Hoş Geldin!</h1>
 
         <div class="ip-box">
             <span id="server-ip">brtmc.minesr.com</span>
-            <button id="copy-button">IP Kopyala</button>
+            <button id="copy-button">IP Adresini Kopyala</button>
         </div>
 
         <div class="features-box">
-            <h2>Sunucu Özellikleri</h2>
-            
-            <div class="feature-item">
-                <p>🛡️ Giriş Koruma Sistemi Aktif</p>
-            </div>
+            <h2>Rütbeler ve Özellikleri</h2>
+            <p style="font-size: 0.9em; color: #ccc;">Rütbelerin özelliklerini görmek için üzerine tıkla!</p>
             
             <div class="tags-container">
-                <span class="tag tag-kurucu">Kurucu</span>
-                <span class="tag tag-admin">Admin</span>
-                <span class="tag tag-oyuncu">Oyuncu</span>
+                <div class="tag tag-kurucu" data-rank="kurucu">Kurucu</div>
+                <div class="tag tag-admin" data-rank="admin">Admin</div>
+                <div class="tag tag-oyuncu" data-rank="oyuncu">Oyuncu</div>
             </div>
         </div>
 
         <div class="footer">
-            <p>&copy; 2025 BRT MC. Tüm hakları saklıdır.</p>
+            <p>&copy; 2025 BRT MC. Bütün Hakları Saklıdır.</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="rank-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close">&times;</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Rütbe: <span id="modal-rank-name"></span></h3>
+            </div>
+            <div class="modal-body" id="modal-rank-features">
+                </div>
         </div>
     </div>
 
     <script>
+        // IP Kopyalama Scripti
         const copyButton = document.getElementById('copy-button');
         const serverIp = document.getElementById('server-ip').textContent;
 
@@ -185,20 +272,90 @@
             navigator.clipboard.writeText(serverIp).then(() => {
                 copyButton.textContent = 'Kopyalandı!';
                 copyButton.style.backgroundColor = '#55FF55';
-                copyButton.style.borderColor = '#00AA00';
-
+                copyButton.style.borderBottomColor = '#00AA00';
                 setTimeout(() => {
-                    copyButton.textContent = 'IP Kopyala';
+                    copyButton.textContent = 'IP Adresini Kopyala';
                     copyButton.style.backgroundColor = '#5555FF';
-                    copyButton.style.borderColor = '#0000AA';
+                    copyButton.style.borderBottomColor = '#0000AA';
                 }, 2000);
             }).catch(err => {
                 console.error('IP adresi kopyalanamadı: ', err);
-                copyButton.textContent = 'Hata!';
-                 setTimeout(() => {
-                    copyButton.textContent = 'IP Kopyala';
-                }, 2000);
             });
+        });
+
+        // Modal (Açılır Pencere) Scripti
+        const rankModal = document.getElementById('rank-modal');
+        const modalCloseBtn = document.getElementById('modal-close');
+        const modalRankName = document.getElementById('modal-rank-name');
+        const modalRankFeatures = document.getElementById('modal-rank-features');
+        const tags = document.querySelectorAll('.tag');
+
+        const rankFeatures = {
+            kurucu: {
+                name: 'Kurucu',
+                color: 'var(--kurucu-color)',
+                features: [
+                    'Tüm komutlara tam erişim',
+                    'Sunucu eklentilerini yönetme',
+                    'Oyuncuları banlama, atma ve susturma',
+                    'Sunucu konsoluna tam erişim',
+                    'Özel Kurucu kiti ve yetkileri'
+                ]
+            },
+            admin: {
+                name: 'Admin',
+                color: 'var(--admin-color)',
+                features: [
+                    'Yaratıcı mod (Creative) erişimi',
+                    'Oyuncuları ışınlama ve izleme',
+                    'Hava durumu ve zamanı değiştirme',
+                    'Yetkili sohbet kanalını kullanma',
+                    'Detaylı oyuncu envanter kontrolü'
+                ]
+            },
+            oyuncu: {
+                name: 'Oyuncu',
+                color: 'var(--oyuncu-color)',
+                features: [
+                    '/sethome ile ev belirleme hakkı',
+                    'Ekonomi komutları (/para, /market)',
+                    'Arkadaş ekleme sistemi (/arkadas)',
+                    'Arazi koruma (Claim) hakkı',
+                    'Sunucu etkinliklerine katılma'
+                ]
+            }
+        };
+
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                const rank = tag.dataset.rank;
+                const data = rankFeatures[rank];
+
+                modalRankName.textContent = data.name;
+                modalRankName.style.color = data.color;
+                
+                let featuresHTML = '<ul>';
+                data.features.forEach(feature => {
+                    featuresHTML += `<li>${feature}</li>`;
+                });
+                featuresHTML += '</ul>';
+                
+                modalRankFeatures.innerHTML = featuresHTML;
+                rankModal.style.display = 'flex';
+            });
+        });
+
+        const closeModal = () => {
+            rankModal.style.display = 'none';
+        };
+
+        modalCloseBtn.addEventListener('click', closeModal);
+        
+        // Modal dışına tıklandığında kapat
+        rankModal.addEventListener('click', (event) => {
+            if (event.target === rankModal) {
+                closeModal();
+            }
         });
     </script>
 
