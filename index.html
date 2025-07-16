@@ -49,48 +49,44 @@
             font-family: var(--main-font); font-size: 1em; color: #fff;
             padding: 12px 20px; border-radius: 8px; border: none;
             border-bottom: 4px solid; cursor: pointer; transition: all 0.2s ease;
-            display: flex; align-items: center; gap: 10px; /* Simge ve yazı için */
+            display: flex; align-items: center; gap: 10px;
         }
         
-        /* Simge stilleri */
         .edition-btn .icon { font-size: 1.2em; }
-
         .edition-btn[data-edition="bedrock"] { background-color: var(--bedrock-color); border-bottom-color: #1a691a; }
         .edition-btn[data-edition="java"] { background-color: #5e3c25; border-bottom-color: #4a2d1a; }
-
         .edition-btn.active[data-edition="java"] {
             transform: translateY(-2px);
             background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
 
         .connection-info {
-            background-color: rgba(0, 0, 0, 0.4); border: 2px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             padding: 25px; border-radius: 10px; min-height: 150px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
+            cursor: pointer;
         }
         
         #server-ip { font-size: 1.1em; word-break: break-all; }
         #server-version { font-size: 1em; color: #ccc; }
         
-        /* YENİ EKLENEN AKTİF DURUM GÖSTERGESİ */
         .server-status-active {
-            color: var(--aktif-color);
-            font-size: 0.9em;
-            text-shadow: 0 0 8px var(--aktif-color);
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: rgba(85, 255, 85, 0.1);
+            color: var(--aktif-color); font-size: 0.9em;
+            text-shadow: 0 0 8px var(--aktif-color); padding: 5px 10px;
+            border-radius: 5px; background-color: rgba(85, 255, 85, 0.1);
         }
 
         .founders-section { margin-top: 40px; }
         .founders-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: grid; justify-content: center; /* Tek öğeyi ortalamak için */
             gap: 25px; margin-top: 25px;
         }
         .founder-card {
             background-color: rgba(0, 0, 0, 0.4); padding: 20px;
             border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
+            transition: all 0.3s ease; cursor: pointer;
+            width: 150px; /* Sabit genişlik */
         }
         .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
         .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
@@ -98,6 +94,21 @@
         .founder-rank { font-size: 0.8em; color: var(--kurucu-color); margin: 0; }
 
         .footer { margin-top: 40px; font-size: 0.8em; color: #bbbbbb; text-shadow: 1px 1px 0 #000; }
+
+        /* YENİ EKLENEN ANİMASYON */
+        @keyframes rainbow-glow {
+            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            15% { border-color: #ff7f00; box-shadow: 0 0 10px #ff7f00; }
+            30% { border-color: #ffff00; box-shadow: 0 0 10px #ffff00; }
+            45% { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+            60% { border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+            75% { border-color: #4b0082; box-shadow: 0 0 10px #4b0082; }
+            90% { border-color: #9400d3; box-shadow: 0 0 10px #9400d3; }
+            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        }
+        .rainbow-animate {
+            animation: rainbow-glow 0.5s linear;
+        }
     </style>
 </head>
 <body>
@@ -116,15 +127,10 @@
 
         <div class="founders-section">
             <h2>Kurucular</h2>
-            <div class="founders-grid">
+            <div class="founders-grid" id="founders-grid">
                 <div class="founder-card">
                     <img src="https://mc-heads.net/avatar/brtmc/80" alt="brtmc skin" class="founder-avatar">
                     <h3 class="founder-name">brtmc</h3>
-                    <p class="founder-rank">Kurucu</p>
-                </div>
-                <div class="founder-card">
-                    <img src="https://mc-heads.net/avatar/Steve/80" alt="Steve skin" class="founder-avatar">
-                    <h3 class="founder-name">KullanıcıAdı</h3>
                     <p class="founder-rank">Kurucu</p>
                 </div>
             </div>
@@ -138,6 +144,7 @@
     <script>
         const editionButtons = document.querySelectorAll('.edition-btn');
         const connectionInfoContainer = document.getElementById('connection-info-container');
+        const foundersGrid = document.getElementById('founders-grid');
 
         const serverInfo = {
             java: {
@@ -164,7 +171,8 @@
                     <span id="server-ip">${info.ip}</span>
                     <div class="server-status-active">● ${info.status}</div>
                     <span id="server-version">Sürüm: ${info.version}</span>
-                    <button id="copy-button" style="font-family: var(--main-font); font-size: 1em; color: #fff; padding: 12px 20px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
+                    <button id="copy-button" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
+                    <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513; margin-top: 10px;">Mobil İçin Java</button>
                 `;
             } else {
                 connectionInfoContainer.innerHTML = `
@@ -173,13 +181,18 @@
             }
         }
 
-        editionButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                updateConnectionInfo(button.dataset.edition);
-            });
-        });
+        // --- YENİ EKLENEN ANİMASYON VE MOBİL BUTON İŞLEVLERİ ---
 
+        function applyRainbowEffect(element) {
+            element.classList.add('rainbow-animate');
+            setTimeout(() => {
+                element.classList.remove('rainbow-animate');
+            }, 500); // Animasyon süresi 0.5 saniye
+        }
+
+        // Bağlantı bilgisi kutusuna tıklandığında
         connectionInfoContainer.addEventListener('click', (event) => {
+            // IP Kopyalama Butonu
             if (event.target && event.target.id === 'copy-button') {
                 const copyButton = event.target;
                 navigator.clipboard.writeText(serverInfo.java.ip).then(() => {
@@ -192,7 +205,34 @@
                         copyButton.style.borderBottomColor = '#0000AA';
                     }, 2000);
                 });
+                return; // Diğer tıklama olayını engelle
             }
+
+            // Mobil İçin Java Butonu
+            if (event.target && event.target.id === 'mobile-java-btn') {
+                window.open('https://zalithlauncher.com/apk', '_blank');
+                alert("Yönlendiriliyorsunuz...\n\nLütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\nVideo Linki: https://youtu.be/kHKBl7_DoIg?si=Tmz5LK8GzM2SlyAq");
+                return; // Diğer tıklama olayını engelle
+            }
+            
+            // Kutunun kendisine tıklandığında animasyonu tetikle
+            applyRainbowEffect(connectionInfoContainer);
+        });
+
+        // Kurucu kartına tıklandığında
+        foundersGrid.addEventListener('click', (event) => {
+            const card = event.target.closest('.founder-card');
+            if (card) {
+                applyRainbowEffect(card);
+            }
+        });
+
+
+        // --- ESKİ İŞLEVLER ---
+        editionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                updateConnectionInfo(button.dataset.edition);
+            });
         });
 
         document.addEventListener('DOMContentLoaded', () => {
