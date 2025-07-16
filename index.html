@@ -1,101 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <title>Serversiz Araba Oyunu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRT MC - Minecraft Sunucusu</title>
     <style>
-        body { background-color: #333; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { display: block; }
+        /* Minecraft Fontunu Google Fonts'tan Yükleme */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+            background-color: #3a3a3a;
+            color: #ffffff;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 5px solid #5c5c5c;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-shadow: 3px 3px 0px #000;
+        }
+
+        .status-box {
+            background-color: #2a2a2a;
+            border: 3px solid #1a1a1a;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .status-box p {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .status-online {
+            color: #55FF55; /* Minecraft Yeşil */
+            text-shadow: 0 0 10px #55FF55;
+        }
+
+        .ip-box {
+            background-color: #4a4a4a;
+            border: 3px solid #3a3a3a;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        #server-ip {
+            font-size: 1.1em;
+            word-break: break-all;
+        }
+
+        #copy-button {
+            background-color: #5555FF; /* Minecraft Mavi */
+            color: #ffffff;
+            border: 3px solid #0000AA;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        #copy-button:hover {
+            background-color: #7777FF;
+            transform: scale(1.05);
+        }
+
+        #copy-button:active {
+            background-color: #3333DD;
+            transform: scale(1);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 0.7em;
+            color: #aaaaaa;
+        }
+
     </style>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+    <div class="container">
+        <img src="http://googleusercontent.com/file_content/1" alt="BRT MC Logo" class="logo">
+
+        <h1>Sunucu Bilgileri</h1>
+
+        <div class="status-box">
+            <p>Durum: <span class="status-online">Sunucu Açık</span></p>
+        </div>
+
+        <div class="ip-box">
+            <span id="server-ip">brtmc.minesr.com</span>
+            <button id="copy-button">IP Kopyala</button>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 BRT MC. Tüm hakları saklıdır.</p>
+        </div>
+    </div>
 
     <script>
-    // --- PreloadScene.js KODU BAŞLANGICI ---
-    class PreloadScene extends Phaser.Scene {
-        constructor() { super('PreloadScene'); }
-        preload() { this.createPlaceholderImages(); }
-        create() { this.scene.start('CarSelectionScene'); }
-        createPlaceholderImages() {
-            let roadGraphics = this.make.graphics({x: 0, y: 0}, false);
-            roadGraphics.fillStyle(0x555555).fillRect(0, 0, 100, 100).fillStyle(0xffffff, 0.6).fillRect(48, 0, 4, 100);
-            roadGraphics.generateTexture('road', 100, 100).destroy();
-            let car1Graphics = this.make.graphics({x: 0, y: 0}, false);
-            car1Graphics.fillStyle(0xff0000).fillRect(0, 0, 40, 80).fillStyle(0x000000, 0.5).fillRect(5, 10, 30, 20);
-            car1Graphics.generateTexture('car1', 40, 80).destroy();
-            let car2Graphics = this.make.graphics({x: 0, y: 0}, false);
-            car2Graphics.fillStyle(0x0000ff).fillRect(0, 0, 40, 80).fillStyle(0x000000, 0.5).fillRect(5, 10, 30, 20);
-            car2Graphics.generateTexture('car2', 40, 80).destroy();
-            let signalGraphics = this.make.graphics({x: 0, y: 0}, false);
-            signalGraphics.fillStyle(0xffa500).fillRect(0, 0, 10, 10);
-            signalGraphics.generateTexture('signal', 10, 10).destroy();
-        }
-    }
+        const copyButton = document.getElementById('copy-button');
+        const serverIp = document.getElementById('server-ip').textContent;
 
-    // --- CarSelectionScene.js KODU BAŞLANGICI ---
-    class CarSelectionScene extends Phaser.Scene {
-        constructor() { super('CarSelectionScene'); }
-        create() {
-            this.add.text(400, 100, 'Arabanı Seç', { fontSize: '48px', fill: '#ffffff' }).setOrigin(0.5);
-            const car1Button = this.add.image(250, 300, 'car1').setScale(1.5).setInteractive();
-            car1Button.on('pointerdown', () => this.scene.start('GameScene', { selectedCarKey: 'car1' }));
-            const car2Button = this.add.image(550, 300, 'car2').setScale(1.5).setInteractive();
-            car2Button.on('pointerdown', () => this.scene.start('GameScene', { selectedCarKey: 'car2' }));
-        }
-    }
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(serverIp).then(() => {
+                // Başarıyla kopyalandığında
+                copyButton.textContent = 'Kopyalandı!';
+                copyButton.style.backgroundColor = '#55FF55'; // Yeşil renk
+                copyButton.style.borderColor = '#00AA00';
 
-    // --- GameScene.js KODU BAŞLANGICI ---
-    class GameScene extends Phaser.Scene {
-        constructor() { super('GameScene'); }
-        init(data) { this.selectedCarKey = data.selectedCarKey; }
-        create() {
-            this.road = this.add.tileSprite(400, 300, 800, 600, 'road');
-            this.car = this.physics.add.sprite(400, 500, this.selectedCarKey);
-            this.car.setCollideWorldBounds(true).setDamping(true).setDrag(0.98).setMaxVelocity(400);
-            this.leftSignal = this.add.sprite(0, 0, 'signal').setVisible(false);
-            this.rightSignal = this.add.sprite(0, 0, 'signal').setVisible(false);
-            this.cameras.main.startFollow(this.car, true, 0.08, 0.08);
-            this.cursors = this.input.keyboard.createCursorKeys();
-            this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
-            this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-            this.speedText = this.add.text(10, 10, 'Hız: 0 km/s', { font: '18px Arial', fill: '#ffffff' }).setScrollFactor(0);
-            this.signalText = this.add.text(10, 30, 'Sinyal: Kapalı', { font: '18px Arial', fill: '#ffffff' }).setScrollFactor(0);
-            this.time.addEvent({ delay: 400, callback: this.flashSignals, callbackScope: this, loop: true });
-        }
-        update() {
-            this.road.tilePositionY -= this.car.body.velocity.length() * 0.05;
-            if (this.cursors.left.isDown) { this.car.setAngularVelocity(-200); }
-            else if (this.cursors.right.isDown) { this.car.setAngularVelocity(200); }
-            else { this.car.setAngularVelocity(0); }
-            if (this.cursors.up.isDown) { this.physics.velocityFromRotation(this.car.rotation - Math.PI / 2, 600, this.car.body.acceleration); }
-            else { this.car.setAcceleration(0); }
-            this.speedText.setText('Hız: ' + Math.floor(this.car.body.velocity.length()) + ' km/s');
-            if (Phaser.Input.Keyboard.JustDown(this.keyQ)) { this.isLeftSignalOn = !this.isLeftSignalOn; this.isRightSignalOn = false; }
-            if (Phaser.Input.Keyboard.JustDown(this.keyE)) { this.isRightSignalOn = !this.isRightSignalOn; this.isLeftSignalOn = false; }
-            const angle = this.car.rotation; const offsetX = 25;
-            this.leftSignal.setPosition(this.car.x - offsetX * Math.cos(angle), this.car.y - offsetX * Math.sin(angle));
-            this.rightSignal.setPosition(this.car.x + offsetX * Math.cos(angle), this.car.y + offsetX * Math.sin(angle));
-        }
-        flashSignals() {
-            let status = 'Kapalı';
-            if (this.isLeftSignalOn) { this.leftSignal.setVisible(!this.leftSignal.visible); this.rightSignal.setVisible(false); status = 'Sol'; }
-            else if (this.isRightSignalOn) { this.rightSignal.setVisible(!this.rightSignal.visible); this.leftSignal.setVisible(false); status = 'Sağ'; }
-            else { this.leftSignal.setVisible(false); this.rightSignal.setVisible(false); }
-            this.signalText.setText('Sinyal: ' + status);
-        }
-    }
-
-    // --- main.js KODU BAŞLANGICI ---
-    const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        physics: { default: 'arcade', arcade: { gravity: { y: 0 } } },
-        scene: [PreloadScene, CarSelectionScene, GameScene]
-    };
-    const game = new Phaser.Game(config);
-
+                // 2 saniye sonra eski haline döndür
+                setTimeout(() => {
+                    copyButton.textContent = 'IP Kopyala';
+                    copyButton.style.backgroundColor = '#5555FF'; // Orijinal mavi renk
+                    copyButton.style.borderColor = '#0000AA';
+                }, 2000);
+            }).catch(err => {
+                // Hata durumunda
+                console.error('IP adresi kopyalanamadı: ', err);
+                copyButton.textContent = 'Hata!';
+                 setTimeout(() => {
+                    copyButton.textContent = 'IP Kopyala';
+                }, 2000);
+            });
+        });
     </script>
+
 </body>
 </html>
