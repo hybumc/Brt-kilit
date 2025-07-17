@@ -20,115 +20,190 @@
             background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.alphacoders.com/133/1337527.png');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: #ffffff; font-family: var(--main-font); text-align: center;
-            margin: 0; padding: 40px 20px; display: flex;
-            justify-content: center; align-items: flex-start;
+            margin: 0; padding: 40px 20px;
             min-height: 100vh; box-sizing: border-box;
         }
 
         .container {
+            position: relative; /* İçerideki absolute konumlandırma için eklendi */
             background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
             border: 5px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
             padding: 40px; max-width: 750px; width: 100%;
             box-shadow: 0 0 35px rgba(0,0,0,0.5); margin-bottom: 40px;
         }
 
-        .logo {
-            width: 160px; height: 160px; border-radius: 50%;
-            border: 6px solid #888888; object-fit: cover;
-            margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.7);
+        /* --- YENİ EKLENEN BÖLÜMLER (CSS) --- */
+
+        #auth-container {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
+        .auth-btn, .user-display-btn {
+            font-family: var(--main-font);
+            font-size: 0.7em;
+            color: #fff;
+            background-color: rgba(0,0,0,0.5);
+            border: 2px solid #fff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .auth-btn:hover, .user-display-btn:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .user-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        #username-display {
+            font-size: 0.8em;
+            color: var(--kurucu-color);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background-color: rgba(10, 10, 10, 0.9);
+            border: 3px solid var(--kurucu-color);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            font-family: var(--main-font);
+            color: #fff;
+            text-align: left;
+        }
+
+        .modal h3 {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        
+        .modal-form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-form-group label {
+            font-size: 0.8em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: 2px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            font-family: var(--main-font);
+            font-size: 0.8em;
+            box-sizing: border-box;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--aktif-color);
+            color: #000;
+            border: none;
+            border-bottom: 4px solid #3c9f3c;
+            border-radius: 5px;
+            font-family: var(--main-font);
+            font-size: 0.9em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .modal-button.secondary {
+             background-color: #777;
+             border-bottom-color: #555;
+        }
+
+        .terms-group {
+            display: flex;
+            align-items: center;
+            font-size: 0.7em;
+        }
+        .terms-group input {
+            margin-right: 10px;
+        }
+        .terms-group a {
+            color: var(--kurucu-color);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        #modal-error {
+            color: var(--kapali-color);
+            font-size: 0.7em;
+            text-align: center;
+            height: 20px;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: none; border: none;
+            color: #fff; font-size: 1.5em; cursor: pointer;
+        }
+
+        /* --- ESKİ CSS KODLARI DEVAM EDİYOR --- */
+
+        .logo { width: 160px; height: 160px; border-radius: 50%; border: 6px solid #888888; object-fit: cover; margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
         h1, h2 { text-shadow: 4px 4px 0px #000; }
         h1 { font-size: 2em; letter-spacing: 2px; }
         h2 { font-size: 1.6em; margin-top: 40px; margin-bottom: 20px; }
-
-        .edition-selector {
-            display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
-        }
-
-        .edition-btn {
-            font-family: var(--main-font); font-size: 1em; color: #fff;
-            padding: 12px 20px; border-radius: 8px; border: none;
-            border-bottom: 4px solid; cursor: pointer; transition: all 0.2s ease;
-            display: flex; align-items: center; gap: 10px;
-        }
-        
+        .edition-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .edition-btn { font-family: var(--main-font); font-size: 1em; color: #fff; padding: 12px 20px; border-radius: 8px; border: none; border-bottom: 4px solid; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 10px; }
         .edition-btn .icon { font-size: 1.2em; }
-        
-        /* --- DEĞİŞİKLİK: Düğme stilleri güncellendi --- */
         .edition-btn[data-edition="java"] { background-color: #5e3c25; border-bottom-color: #4a2d1a; }
-        .edition-btn.active[data-edition="java"] {
-            transform: translateY(-2px);
-            background-color: var(--java-color); border-bottom-color: #5a2d0c;
-        }
-        
+        .edition-btn.active[data-edition="java"] { transform: translateY(-2px); background-color: var(--java-color); border-bottom-color: #5a2d0c; }
         .edition-btn[data-edition="bedrock"] { background-color: #1a691a; border-bottom-color: #114b11; }
-        .edition-btn.active[data-edition="bedrock"] {
-            transform: translateY(-2px);
-            background-color: var(--bedrock-color); border-bottom-color: #1a691a;
-        }
-        /* --- DEĞİŞİKLİK SONU --- */
-        
-        @keyframes rainbow-glow {
-            0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
-            15% { border-color: #ff7f00; box-shadow: 0 0 20px #ff7f00; }
-            30% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
-            45% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
-            60% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
-            75% { border-color: #4b0082; box-shadow: 0 0 20px #4b0082; }
-            90% { border-color: #9400d3; box-shadow: 0 0 20px #9400d3; }
-        }
-
-        .connection-info {
-            background-color: rgba(0, 0, 0, 0.4);
-            border: 3px solid;
-            padding: 25px; border-radius: 10px; min-height: 200px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
-            animation: rainbow-glow 3s linear infinite;
-        }
-        
+        .edition-btn.active[data-edition="bedrock"] { transform: translateY(-2px); background-color: var(--bedrock-color); border-bottom-color: #1a691a; }
+        @keyframes rainbow-glow { 0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; } 15% { border-color: #ff7f00; box-shadow: 0 0 20px #ff7f00; } 30% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; } 45% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; } 60% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; } 75% { border-color: #4b0082; box-shadow: 0 0 20px #4b0082; } 90% { border-color: #9400d3; box-shadow: 0 0 20px #9400d3; } }
+        .connection-info { background-color: rgba(0, 0, 0, 0.4); border: 3px solid; padding: 25px; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; animation: rainbow-glow 3s linear infinite; }
         #server-ip { font-size: 1.1em; word-break: break-all; }
         #server-version { font-size: 1em; color: #ccc; }
-        
-        .server-status {
-            font-size: 1.1em;
-            text-shadow: 0 0 8px;
-            padding: 8px 12px;
-            border-radius: 5px;
-        }
-        .server-status.active {
-            color: var(--aktif-color);
-            background-color: rgba(85, 255, 85, 0.1);
-            text-shadow: 0 0 8px var(--aktif-color);
-        }
-        .server-status.inactive {
-            color: var(--kapali-color);
-            background-color: rgba(255, 85, 85, 0.1);
-            text-shadow: 0 0 8px var(--kapali-color);
-        }
-
+        .server-status { font-size: 1.1em; text-shadow: 0 0 8px; padding: 8px 12px; border-radius: 5px; }
+        .server-status.active { color: var(--aktif-color); background-color: rgba(85, 255, 85, 0.1); text-shadow: 0 0 8px var(--aktif-color); }
+        .server-status.inactive { color: var(--kapali-color); background-color: rgba(255, 85, 85, 0.1); text-shadow: 0 0 8px var(--kapali-color); }
         .founders-section { margin-top: 40px; }
-        .founders-grid {
-            display: grid; justify-content: center;
-            gap: 25px; margin-top: 25px;
-        }
-        .founder-card {
-            background-color: rgba(0, 0, 0, 0.4); padding: 20px;
-            border-radius: 10px; border: 3px solid;
-            transition: all 0.3s ease; width: 150px;
-            animation: rainbow-glow 3s linear infinite;
-        }
+        .founders-grid { display: grid; justify-content: center; gap: 25px; margin-top: 25px; }
+        .founder-card { background-color: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px; border: 3px solid; transition: all 0.3s ease; width: 150px; animation: rainbow-glow 3s linear infinite; }
         .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
         .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
         .founder-name { font-size: 1em; margin: 0 0 5px 0; }
         .founder-rank { font-size: 0.8em; color: var(--kurucu-color); margin: 0; }
-
         .footer { margin-top: 40px; font-size: 0.8em; color: #bbbbbb; text-shadow: 1px 1px 0 #000; }
+
     </style>
 </head>
 <body>
 
     <div class="container">
+        <div id="auth-container"></div>
+
         <img src="brtmc.jpg" alt="BRT MC Logo" class="logo">
         <h1>BRT MC Sunucusuna Hoş Geldin!</h1>
 
@@ -137,8 +212,7 @@
             <button class="edition-btn" data-edition="bedrock"><span class="icon">🌿</span>Bedrock Edition</button>
         </div>
 
-        <div class="connection-info" id="connection-info-container">
-            </div>
+        <div class="connection-info" id="connection-info-container"></div>
 
         <div class="founders-section">
             <h2>Kurucular</h2>
@@ -156,106 +230,244 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-overlay" style="display: none;">
+        <div class="modal" id="modal-content">
+            </div>
+    </div>
+
+
     <script>
+        // --- DOM Elementleri ---
+        const authContainer = document.getElementById('auth-container');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContent = document.getElementById('modal-content');
+        
+        // --- Sunucu Bilgileri (Eski Kod) ---
         const javaIp = 'gold.magmanode.com:30394';
-        const javaVersion = '1.20.1'; // Sürüm güncellendi
+        const javaVersion = '1.20.1';
         const connectionInfoContainer = document.getElementById('connection-info-container');
         const javaButton = document.querySelector('.edition-btn[data-edition="java"]');
         const bedrockButton = document.querySelector('.edition-btn[data-edition="bedrock"]');
-
-        // Java sunucu bilgilerini gösteren fonksiyon
-        function showJavaInfo() {
-            connectionInfoContainer.innerHTML = `
-                <div class="server-status">Kontrol ediliyor...</div>
-                <span id="server-ip">${javaIp}</span>
-                <span id="server-version">Sürüm: ${javaVersion}</span>
-            `;
-
-            fetch(`https://mcapi.us/server/status?ip=${javaIp}`)
-                .then(response => response.json())
-                .then(data => {
-                    let statusHtml;
-                    if (data.online === true) {
-                        statusHtml = `
-                            <div class="server-status active">● Açık (${data.players.now}/${data.players.max})</div>
-                            <span id="server-ip">${javaIp}</span>
-                            <span id="server-version">Sürüm: ${javaVersion}</span>
-                        `;
-                    } else {
-                        statusHtml = `
-                            <div class="server-status inactive">● Kapalı</div>
-                            <span id="server-ip">${javaIp}</span>
-                            <span id="server-version">Sürüm: ${javaVersion}</span>
-                        `;
-                    }
-                    connectionInfoContainer.innerHTML = statusHtml + getButtonsHtml();
-                })
-                .catch(error => {
-                    console.error("Sunucu durumu alınamadı:", error);
-                    connectionInfoContainer.innerHTML = `
-                        <div class="server-status inactive">● Kapalı</div>
-                        <span id="server-ip">${javaIp}</span>
-                        <span id="server-version">Sürüm: ${javaVersion}</span>
-                        ${getButtonsHtml()}
-                    `;
-                });
-        }
-
-        // Bedrock için "Yakında" mesajını gösteren fonksiyon
-        function showBedrockInfo() {
-            connectionInfoContainer.innerHTML = `
-                <div style="font-size: 1.5em; color: var(--kurucu-color); text-shadow: 2px 2px 0 #000; padding: 70px 0;">Yakında...</div>
-            `;
-        }
-
-        // Java bilgileri gösterildiğinde butonları oluşturan yardımcı fonksiyon
-        function getButtonsHtml() {
-            return `
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button id="copy-button" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
-                    <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513;">Mobil Java</button>
-                </div>
-            `;
-        }
         
-        // Java ve Bedrock düğmeleri için olay dinleyicileri
-        javaButton.addEventListener('click', () => {
-            if (javaButton.classList.contains('active')) return;
-            bedrockButton.classList.remove('active');
-            javaButton.classList.add('active');
-            showJavaInfo();
-        });
+        // --- Global Durum ---
+        let currentUser = null;
 
-        bedrockButton.addEventListener('click', () => {
-            if (bedrockButton.classList.contains('active')) return;
-            javaButton.classList.remove('active');
-            bedrockButton.classList.add('active');
-            showBedrockInfo();
-        });
+        // --- ARAYÜZ GÜNCELLEME ---
+        function updateUI() {
+            if (currentUser) {
+                // Kullanıcı giriş yapmışsa
+                authContainer.innerHTML = `
+                    <div class="user-display">
+                        <span id="username-display">${currentUser.username}</span>
+                        <button id="settings-btn" class="user-display-btn">Ayarlar</button>
+                    </div>
+                `;
+            } else {
+                // Kullanıcı giriş yapmamışsa
+                authContainer.innerHTML = `
+                    <button id="login-btn" class="auth-btn">Giriş Yap</button>
+                    <button id="register-btn" class="auth-btn">Kayıt Ol</button>
+                `;
+            }
+        }
 
-        // IP Kopyalama ve Mobil Java butonları için olay dinleyici (event delegation)
-        connectionInfoContainer.addEventListener('click', (event) => {
-            const target = event.target.closest('button');
-            if (!target) return;
+        // --- MODAL İŞLEMLERİ ---
+        function openModal(htmlContent) {
+            modalContent.innerHTML = htmlContent;
+            modalOverlay.style.display = 'flex';
+        }
 
-            if (target.id === 'copy-button') {
-                navigator.clipboard.writeText(javaIp).then(() => {
-                    target.textContent = 'Kopyalandı!';
-                    target.style.backgroundColor = 'var(--aktif-color)';
-                    setTimeout(() => {
-                        target.textContent = 'IP Kopyala';
-                        target.style.backgroundColor = '#5555FF';
-                    }, 2000);
-                });
+        function closeModal() {
+            modalOverlay.style.display = 'none';
+            modalContent.innerHTML = '';
+        }
+
+        // --- MODAL İÇERİKLERİ ---
+        const registerModalHTML = `
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+            <h3>Hesap Oluştur</h3>
+            <div id="modal-error"></div>
+            <form id="register-form">
+                <div class="modal-form-group">
+                    <label for="reg-username">Kullanıcı Adı</label>
+                    <input type="text" id="reg-username" class="modal-input" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="reg-password">Şifre</label>
+                    <input type="password" id="reg-password" class="modal-input" required>
+                </div>
+                <div class="modal-form-group terms-group">
+                    <input type="checkbox" id="terms-check">
+                    <label for="terms-check">
+                        <a id="show-terms-link">Kullanım Şartları</a>'nı okudum ve kabul ediyorum.
+                    </label>
+                </div>
+                <button type="submit" class="modal-button">Kayıt Ol</button>
+            </form>
+        `;
+        
+        const loginModalHTML = `
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+            <h3>Giriş Yap</h3>
+            <div id="modal-error"></div>
+            <form id="login-form">
+                <div class="modal-form-group">
+                    <label for="login-username">Kullanıcı Adı</label>
+                    <input type="text" id="login-username" class="modal-input" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="login-password">Şifre</label>
+                    <input type="password" id="login-password" class="modal-input" required>
+                </div>
+                <button type="submit" class="modal-button">Giriş Yap</button>
+            </form>
+        `;
+        
+        const termsModalHTML = `
+            <h3>Kullanım Şartları</h3>
+            <p style="font-size:0.8em; line-height:1.5;">
+                Bu hesap, sunucu tabanlı bir sistem kullanmaz. Tüm bilgileriniz (kullanıcı adı ve şifre) yalnızca şu an kullandığınız bu tarayıcının yerel deposunda ('localStorage') saklanır.
+            </p>
+            <ul style="font-size:0.8em; line-height:1.5;">
+                <li>Hesabınıza başka bir bilgisayardan veya telefondan <b>erişemezsiniz.</b></li>
+                <li>Tarayıcınızın verilerini (geçmiş, çerezler vb.) temizlerseniz hesabınız <b>kalıcı olarak silinir.</b></li>
+                <li>Bu sistem güvenli değildir. Lütfen başka yerlerde kullandığınız şifreleri girmeyin.</li>
+            </ul>
+            <button class="modal-button secondary" id="back-to-register-btn">Anladım, Geri Dön</button>
+        `;
+
+        const settingsModalHTML = `
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+            <h3>Ayarlar</h3>
+            <div id="modal-error"></div>
+            <form id="change-password-form">
+                 <div class="modal-form-group">
+                    <label for="new-password">Yeni Şifre</label>
+                    <input type="password" id="new-password" class="modal-input" required>
+                </div>
+                <button type="submit" class="modal-button">Şifreyi Değiştir</button>
+            </form>
+            <button id="logout-btn" class="modal-button secondary" style="margin-top: 15px;">Çıkış Yap</button>
+        `;
+
+        // --- HESAP İŞLEMLERİ (localStorage) ---
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const termsChecked = document.getElementById('terms-check').checked;
+            const errorDiv = document.getElementById('modal-error');
+            
+            if (!termsChecked) {
+                errorDiv.textContent = "Kullanım şartlarını kabul etmelisiniz.";
+                return;
+            }
+            if (!username || !password) {
+                errorDiv.textContent = "Tüm alanları doldurun.";
+                return;
+            }
+            // Bu tarayıcıda zaten bir hesap var mı kontrol et
+            if (localStorage.getItem('brtmc-account')) {
+                 errorDiv.textContent = "Bu tarayıcıda zaten bir hesap var.";
+                 return;
             }
 
-            if (target.id === 'mobile-java-btn') {
-                window.open('https://zalithlauncher.com/apk', '_blank');
+            const account = { username, password };
+            localStorage.setItem('brtmc-account', JSON.stringify(account));
+            currentUser = account;
+            updateUI();
+            closeModal();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('modal-error');
+
+            const storedAccountRaw = localStorage.getItem('brtmc-account');
+            if (!storedAccountRaw) {
+                errorDiv.textContent = "Kayıtlı hesap bulunamadı.";
+                return;
             }
+
+            const storedAccount = JSON.parse(storedAccountRaw);
+            if (storedAccount.username === username && storedAccount.password === password) {
+                currentUser = storedAccount;
+                updateUI();
+                closeModal();
+            } else {
+                errorDiv.textContent = "Kullanıcı adı veya şifre yanlış.";
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            updateUI();
+            closeModal();
+        }
+
+        function handleChangePassword(e) {
+             e.preventDefault();
+             const newPassword = document.getElementById('new-password').value;
+             if (!newPassword) {
+                 document.getElementById('modal-error').textContent = "Yeni şifre boş olamaz.";
+                 return;
+             }
+             currentUser.password = newPassword;
+             localStorage.setItem('brtmc-account', JSON.stringify(currentUser));
+             alert("Şifre başarıyla değiştirildi!");
+             closeModal();
+        }
+
+
+        // --- GENEL OLAY DİNLEYİCİLERİ (Event Listeners) ---
+        document.addEventListener('click', (e) => {
+            // Ana butonlar
+            if (e.target.id === 'register-btn') openModal(registerModalHTML);
+            if (e.target.id === 'login-btn') openModal(loginModalHTML);
+            if (e.target.id === 'settings-btn') openModal(settingsModalHTML);
+            if (e.target.id === 'logout-btn') handleLogout();
+            
+            // Modal içi link ve butonlar
+            if (e.target.id === 'show-terms-link') openModal(termsModalHTML);
+            if (e.target.id === 'back-to-register-btn') openModal(registerModalHTML);
+
+            // Overlay'a tıklayarak modalı kapatma
+            if (e.target.classList.contains('modal-overlay')) closeModal();
         });
 
-        // Sayfa ilk yüklendiğinde Java bilgilerini göster
-        document.addEventListener('DOMContentLoaded', showJavaInfo);
+        // Form gönderimlerini dinleme
+        document.addEventListener('submit', (e) => {
+            if (e.target.id === 'register-form') handleRegister(e);
+            if (e.target.id === 'login-form') handleLogin(e);
+            if (e.target.id === 'change-password-form') handleChangePassword(e);
+        });
+        
+        // --- ESKİ KODLAR (Sunucu Durumu) ---
+        function showJavaInfo() { /* ... kod değişmedi ... */ 
+            connectionInfoContainer.innerHTML = `<div class="server-status">Kontrol ediliyor...</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>`;
+            fetch(`https://mcapi.us/server/status?ip=${javaIp}`).then(response => response.json()).then(data => {
+                let statusHtml; if (data.online === true) { statusHtml = `<div class="server-status active">● Açık (${data.players.now}/${data.players.max})</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>`; } else { statusHtml = `<div class="server-status inactive">● Kapalı</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>`; }
+                connectionInfoContainer.innerHTML = statusHtml + getButtonsHtml();
+            }).catch(error => { console.error("Sunucu durumu alınamadı:", error); connectionInfoContainer.innerHTML = `<div class="server-status inactive">● Kapalı</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>${getButtonsHtml()}`; });
+        }
+        function showBedrockInfo() { connectionInfoContainer.innerHTML = `<div style="font-size: 1.5em; color: var(--kurucu-color); text-shadow: 2px 2px 0 #000; padding: 70px 0;">Yakında...</div>`; }
+        function getButtonsHtml() { return `<div style="display: flex; gap: 10px; margin-top: 15px;"><button id="copy-button" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button><button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513;">Mobil Java</button></div>`; }
+        javaButton.addEventListener('click', () => { if (javaButton.classList.contains('active')) return; bedrockButton.classList.remove('active'); javaButton.classList.add('active'); showJavaInfo(); });
+        bedrockButton.addEventListener('click', () => { if (bedrockButton.classList.contains('active')) return; javaButton.classList.remove('active'); bedrockButton.classList.add('active'); showBedrockInfo(); });
+        connectionInfoContainer.addEventListener('click', (event) => { const target = event.target.closest('button'); if (!target) return; if (target.id === 'copy-button') { navigator.clipboard.writeText(javaIp).then(() => { target.textContent = 'Kopyalandı!'; target.style.backgroundColor = 'var(--aktif-color)'; setTimeout(() => { target.textContent = 'IP Kopyala'; target.style.backgroundColor = '#5555FF'; }, 2000); }); } if (target.id === 'mobile-java-btn') { window.open('https://zalithlauncher.com/apk', '_blank'); } });
+
+        // --- SAYFA YÜKLENİNCE BAŞLAT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Oturum kontrolü
+            const storedAccountRaw = localStorage.getItem('brtmc-account');
+            if (storedAccountRaw) {
+                currentUser = JSON.parse(storedAccountRaw);
+            }
+            updateUI(); // Arayüzü ilk duruma göre ayarla
+            showJavaInfo(); // Sunucu durumunu yükle
+        });
     </script>
     </body>
 </html>
