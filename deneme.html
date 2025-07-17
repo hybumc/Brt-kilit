@@ -3,104 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Sunucu Durumu</title>
+    <title>BRT MC - Minecraft Sunucusu</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --kurucu-color: #FFAA00;
+            --aktif-color: #55FF55;
+            --kapali-color: #FF5555; /* Kapalı durumu için kırmızı renk */
+            --java-color: #8B4513;
+            --bedrock-color: #228B22;
+            --main-font: 'Press Start 2P', cursive;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #1c1e21;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.alphacoders.com/133/1337527.png');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: #ffffff; font-family: var(--main-font); text-align: center;
+            margin: 0; padding: 40px 20px; display: flex;
+            justify-content: center; align-items: flex-start;
+            min-height: 100vh; box-sizing: border-box;
         }
+
         .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 450px; /* Genişliği biraz artırdım */
+            background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            border: 5px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+            padding: 40px; max-width: 750px; width: 100%;
+            box-shadow: 0 0 35px rgba(0,0,0,0.5); margin-bottom: 40px;
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
+
+        .logo {
+            width: 160px; height: 160px; border-radius: 50%;
+            border: 6px solid #888888; object-fit: cover;
+            margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.7);
         }
-        p {
-            font-size: 18px;
-            color: #606770;
-            word-wrap: break-word; /* IP adresinin taşmasını önler */
+
+        h1, h2 { text-shadow: 4px 4px 0px #000; }
+        h1 { font-size: 2em; letter-spacing: 2px; }
+        h2 { font-size: 1.6em; margin-top: 40px; margin-bottom: 20px; }
+
+        .edition-selector {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
         }
-        .status {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
+
+        .edition-btn {
+            font-family: var(--main-font); font-size: 1em; color: #fff;
+            padding: 12px 20px; border-radius: 8px; border: none;
+            border-bottom: 4px solid; cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 10px;
         }
-        .online {
-            color: #31a24c; /* Yeşil */
-            background-color: #e7f3ff;
+        
+        .edition-btn .icon { font-size: 1.2em; }
+        .edition-btn[data-edition="bedrock"] { background-color: var(--bedrock-color); border-bottom-color: #1a691a; }
+        .edition-btn[data-edition="java"] { background-color: #5e3c25; border-bottom-color: #4a2d1a; }
+        .edition-btn.active[data-edition="java"] {
+            transform: translateY(-2px);
+            background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
-        .offline {
-            color: #fa383e; /* Kırmızı */
-            background-color: #ffebee;
+        
+        @keyframes rainbow-glow {
+            0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+            15% { border-color: #ff7f00; box-shadow: 0 0 20px #ff7f00; }
+            30% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+            45% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+            60% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
+            75% { border-color: #4b0082; box-shadow: 0 0 20px #4b0082; }
+            90% { border-color: #9400d3; box-shadow: 0 0 20px #9400d3; }
         }
-        .loading {
-            color: #606770; /* Gri */
+
+        .connection-info {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 3px solid;
+            padding: 25px; border-radius: 10px; min-height: 150px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
+            animation: rainbow-glow 3s linear infinite;
         }
+        
+        #server-ip { font-size: 1.1em; word-break: break-all; }
+        #server-version { font-size: 1em; color: #ccc; }
+        
+        .server-status {
+            font-size: 0.9em;
+            text-shadow: 0 0 8px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .server-status.active {
+            color: var(--aktif-color);
+            background-color: rgba(85, 255, 85, 0.1);
+            text-shadow: 0 0 8px var(--aktif-color);
+        }
+        .server-status.inactive {
+            color: var(--kapali-color);
+            background-color: rgba(255, 85, 85, 0.1);
+            text-shadow: 0 0 8px var(--kapali-color);
+        }
+
+        .founders-section { margin-top: 40px; }
+        .founders-grid {
+            display: grid; justify-content: center;
+            gap: 25px; margin-top: 25px;
+        }
+        .founder-card {
+            background-color: rgba(0, 0, 0, 0.4); padding: 20px;
+            border-radius: 10px; border: 3px solid;
+            transition: all 0.3s ease; width: 150px;
+            animation: rainbow-glow 3s linear infinite;
+        }
+        .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
+        .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
+        .founder-name { font-size: 1em; margin: 0 0 5px 0; }
+        .founder-rank { font-size: 0.8em; color: var(--kurucu-color); margin: 0; }
+
+        .footer { margin-top: 40px; font-size: 0.8em; color: #bbbbbb; text-shadow: 1px 1px 0 #000; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Minecraft Sunucum</h1>
-        <p>Sunucu Adresi: <strong>144.76.58.217:30394</strong></p>
-        
-        <div id="sunucu-durumu" class="status loading">
-            Durum kontrol ediliyor...
+        <img src="brtmc.jpg" alt="BRT MC Logo" class="logo">
+        <h1>BRT MC Sunucusuna Hoş Geldin!</h1>
+
+        <div class="edition-selector">
+            <button class="edition-btn active" data-edition="java"><span class="icon">☕</span>Java Edition</button>
+            <button class="edition-btn" data-edition="bedrock"><span class="icon">🌿</span>Bedrock Edition</button>
+        </div>
+
+        <div class="connection-info" id="connection-info-container">
+            </div>
+
+        <div class="founders-section">
+            <h2>Kurucular</h2>
+            <div class="founders-grid" id="founders-grid">
+                <div class="founder-card">
+                    <img src="https://mc-heads.net/avatar/brtmc/80" alt="brtmc skin" class="founder-avatar">
+                    <h3 class="founder-name">brtmc</h3>
+                    <p class="founder-rank">Kurucu</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 BRT MC. Bütün Hakları Saklıdır.</p>
         </div>
     </div>
 
     <script>
-        // IP adresi sizin verdiğiniz bilgiyle güncellendi.
-        const sunucuIp = "144.76.58.217:30394"; 
+        const editionButtons = document.querySelectorAll('.edition-btn');
+        const connectionInfoContainer = document.getElementById('connection-info-container');
 
-        const durumElementi = document.getElementById('sunucu-durumu');
+        const serverConfig = {
+            java: {
+                ip: '144.76.58.217:30394',
+                version: '1.20.x' // Sürümü buradan değiştirebilirsin
+            },
+            bedrock: {
+                status: 'Yakında...'
+            }
+        };
 
-        // mcapi.us API'sini kullanarak sunucu durumunu kontrol et
-        fetch(`https://mcapi.us/server/status?ip=${sunucuIp}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'error') {
-                    console.error('API Hatası:', data.error);
-                    // Hata mesajını doğrudan göster
-                    durumElementi.innerHTML = `Hata: ${data.error}`;
-                    durumElementi.className = 'status offline';
-                    return;
-                }
+        // --- YENİ VE DÜZELTİLMİŞ FONKSİYON ---
+        function fetchJavaServerStatus() {
+            const info = serverConfig.java;
+            const apiUrl = `https://mcapi.us/server/status?ip=${info.ip}`;
 
-                if (data.online) {
-                    // Sunucu Açıksa
-                    durumElementi.innerHTML = `
-                        Durum: <span style="color: #31a24c;">Açık</span> <br>
-                        Oyuncular: ${data.players.now} / ${data.players.max}
+            // Başlangıçta "Kontrol ediliyor..." göster
+            connectionInfoContainer.innerHTML = `
+                <span id="server-ip">${info.ip}</span>
+                <div class="server-status">Kontrol ediliyor...</div>
+                <span id="server-version">Sürüm: ${info.version}</span>
+            `;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let statusHtml;
+                    if (data.online) {
+                        // SUNUCU AÇIKSA
+                        statusHtml = `
+                            <span id="server-ip">${info.ip}</span>
+                            <div class="server-status active">● Aktif (${data.players.now}/${data.players.max})</div>
+                            <span id="server-version">Sürüm: ${info.version}</span>
+                        `;
+                    } else {
+                        // SUNUCU KAPALIYSA (Hata vermeden)
+                        statusHtml = `
+                            <span id="server-ip">${info.ip}</span>
+                            <div class="server-status inactive">● Kapalı</div>
+                            <span id="server-version">Sürüm: ${info.version}</span>
+                        `;
+                    }
+                    connectionInfoContainer.innerHTML = statusHtml + getButtonsHtml();
+                })
+                .catch(error => {
+                    // API'ye ulaşılamazsa veya başka bir ağ hatası olursa
+                    console.error("API Hatası:", error);
+                    connectionInfoContainer.innerHTML = `
+                        <span id="server-ip">${info.ip}</span>
+                        <div class="server-status inactive">● Durum Alınamadı</div>
+                        <span id="server-version">Sürüm: ${info.version}</span>
+                        ${getButtonsHtml()}
                     `;
-                    durumElementi.className = 'status online';
-                } else {
-                    // Sunucu Kapalıysa
-                    durumElementi.innerHTML = 'Durum: <span style="color: #fa383e;">Kapalı</span>';
-                    durumElementi.className = 'status offline';
-                }
-            })
-            .catch(error => {
-                console.error('Sunucuya bağlanırken bir hata oluştu:', error);
-                durumElementi.innerHTML = 'Sunucu bilgileri alınamadı. Lütfen IP adresini kontrol edin.';
-                durumElementi.className = 'status offline';
-            });
-    </script>
+                });
+        }
 
+        function showBedrockInfo() {
+            connectionInfoContainer.innerHTML = `
+                <span style="font-size: 1.2em; color: #ccc;">${serverConfig.bedrock.status}</span>
+            `;
+        }
+
+        function getButtonsHtml() {
+            return `
+                <button id="copy-button" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
+                <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513; margin-top: 10px;">Mobil İçin Java</button>
+            `;
+        }
+
+        function updateActiveButton(selectedEdition) {
+             editionButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.edition === selectedEdition);
+            });
+        }
+
+        // Buton ve kopyalama olayları
+        connectionInfoContainer.addEventListener('click', (event) => {
+            if (event.target && event.target.id === 'copy-button') {
+                const copyButton = event.target;
+                navigator.clipboard.writeText(serverConfig.java.ip).then(() => {
+                    copyButton.textContent = 'Kopyalandı!';
+                    copyButton.style.backgroundColor = 'var(--aktif-color)';
+                    copyButton.style.borderBottomColor = '#386129';
+                    setTimeout(() => {
+                        copyButton.textContent = 'IP Kopyala';
+                        copyButton.style.backgroundColor = '#5555FF';
+                        copyButton.style.borderBottomColor = '#0000AA';
+                    }, 2000);
+                });
+            }
+
+            if (event.target && event.target.id === 'mobile-java-btn') {
+                window.open('https://zalithlauncher.com/apk', '_blank');
+                alert(
+                    "Yönlendiriliyorsunuz...\n\n" +
+                    "Lütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\n" +
+                    "--- Video Linki ---\n" +
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Örnek link, istersen değiştirebilirsin
+                );
+            }
+        });
+
+        editionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const edition = button.dataset.edition;
+                updateActiveButton(edition);
+                if (edition === 'java') {
+                    fetchJavaServerStatus();
+                } else {
+                    showBedrockInfo();
+                }
+            });
+        });
+
+        // Sayfa ilk yüklendiğinde Java durumunu kontrol et
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveButton('java');
+            fetchJavaServerStatus();
+        });
+    </script>
 </body>
 </html>
