@@ -10,8 +10,9 @@
         :root {
             --kurucu-color: #FFAA00;
             --aktif-color: #55FF55;
-            --java-color: #8B4513; /* Kahverengi - Kahve */
-            --bedrock-color: #228B22; /* Yeşil - Çimen */
+            --kapali-color: #FF5555; /* Kapalı durumu için kırmızı renk */
+            --java-color: #8B4513;
+            --bedrock-color: #228B22;
             --main-font: 'Press Start 2P', cursive;
         }
 
@@ -60,7 +61,6 @@
             background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
         
-        /* SÜREKLİ ANİMASYON EKLENDİ */
         @keyframes rainbow-glow {
             0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
             15% { border-color: #ff7f00; box-shadow: 0 0 20px #ff7f00; }
@@ -73,19 +73,30 @@
 
         .connection-info {
             background-color: rgba(0, 0, 0, 0.4);
-            border: 3px solid; /* Kalınlık artırıldı */
+            border: 3px solid;
             padding: 25px; border-radius: 10px; min-height: 150px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
-            animation: rainbow-glow 3s linear infinite; /* Animasyon direkt eklendi */
+            animation: rainbow-glow 3s linear infinite;
         }
         
         #server-ip { font-size: 1.1em; word-break: break-all; }
         #server-version { font-size: 1em; color: #ccc; }
         
-        .server-status-active {
-            color: var(--aktif-color); font-size: 0.9em;
-            text-shadow: 0 0 8px var(--aktif-color); padding: 5px 10px;
-            border-radius: 5px; background-color: rgba(85, 255, 85, 0.1);
+        .server-status {
+            font-size: 0.9em;
+            text-shadow: 0 0 8px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .server-status.active {
+            color: var(--aktif-color);
+            background-color: rgba(85, 255, 85, 0.1);
+            text-shadow: 0 0 8px var(--aktif-color);
+        }
+        .server-status.inactive {
+            color: var(--kapali-color);
+            background-color: rgba(255, 85, 85, 0.1);
+            text-shadow: 0 0 8px var(--kapali-color);
         }
 
         .founders-section { margin-top: 40px; }
@@ -95,9 +106,9 @@
         }
         .founder-card {
             background-color: rgba(0, 0, 0, 0.4); padding: 20px;
-            border-radius: 10px; border: 3px solid; /* Kalınlık artırıldı */
+            border-radius: 10px; border: 3px solid;
             transition: all 0.3s ease; width: 150px;
-            animation: rainbow-glow 3s linear infinite; /* Animasyon direkt eklendi */
+            animation: rainbow-glow 3s linear infinite;
         }
         .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
         .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
@@ -145,7 +156,7 @@
             java: {
                 ip: 'gold.magmanode.com:30394',
                 version: '1.20.1',
-                status: 'Aktif'
+                status: 'Kapalı' // DEĞİŞİKLİK BURADA
             },
             bedrock: {
                 status: 'Yakında...'
@@ -162,9 +173,13 @@
 
             if (edition === 'java') {
                 const info = serverInfo.java;
+                
+                // DEĞİŞİKLİK: Duruma göre stil belirle
+                const statusClass = info.status === 'Aktif' ? 'active' : 'inactive';
+
                 connectionInfoContainer.innerHTML = `
                     <span id="server-ip">${info.ip}</span>
-                    <div class="server-status-active">● ${info.status}</div>
+                    <div class="server-status ${statusClass}">● ${info.status}</div>
                     <span id="server-version">Sürüm: ${info.version}</span>
                     <button id="copy-button" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
                     <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513; margin-top: 10px;">Mobil İçin Java</button>
@@ -177,7 +192,6 @@
         }
 
         connectionInfoContainer.addEventListener('click', (event) => {
-            // IP Kopyalama Butonu
             if (event.target && event.target.id === 'copy-button') {
                 const copyButton = event.target;
                 navigator.clipboard.writeText(serverInfo.java.ip).then(() => {
@@ -192,10 +206,8 @@
                 });
             }
 
-            // Mobil İçin Java Butonu
             if (event.target && event.target.id === 'mobile-java-btn') {
                 window.open('https://zalithlauncher.com/apk', '_blank');
-                // ALERT MESAJI DÜZENLENDİ
                 alert(
                     "Yönlendiriliyorsunuz...\n\n" +
                     "Lütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\n" +
