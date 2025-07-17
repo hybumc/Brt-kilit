@@ -54,12 +54,20 @@
         }
         
         .edition-btn .icon { font-size: 1.2em; }
-        .edition-btn[data-edition="bedrock"] { background-color: var(--bedrock-color); border-bottom-color: #1a691a; }
+        
+        /* --- DEĞİŞİKLİK: Düğme stilleri güncellendi --- */
         .edition-btn[data-edition="java"] { background-color: #5e3c25; border-bottom-color: #4a2d1a; }
         .edition-btn.active[data-edition="java"] {
             transform: translateY(-2px);
             background-color: var(--java-color); border-bottom-color: #5a2d0c;
         }
+        
+        .edition-btn[data-edition="bedrock"] { background-color: #1a691a; border-bottom-color: #114b11; }
+        .edition-btn.active[data-edition="bedrock"] {
+            transform: translateY(-2px);
+            background-color: var(--bedrock-color); border-bottom-color: #1a691a;
+        }
+        /* --- DEĞİŞİKLİK SONU --- */
         
         @keyframes rainbow-glow {
             0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
@@ -74,7 +82,7 @@
         .connection-info {
             background-color: rgba(0, 0, 0, 0.4);
             border: 3px solid;
-            padding: 25px; border-radius: 10px; min-height: 200px; /* Butonlar için yüksekliği artırdım */
+            padding: 25px; border-radius: 10px; min-height: 200px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
             animation: rainbow-glow 3s linear infinite;
         }
@@ -83,9 +91,9 @@
         #server-version { font-size: 1em; color: #ccc; }
         
         .server-status {
-            font-size: 1.1em; /* Yazıyı biraz büyüttüm */
+            font-size: 1.1em;
             text-shadow: 0 0 8px;
-            padding: 8px 12px; /* İç boşluğu artırdım */
+            padding: 8px 12px;
             border-radius: 5px;
         }
         .server-status.active {
@@ -150,11 +158,13 @@
 
     <script>
         const javaIp = '144.76.58.217:30394';
-        const javaVersion = '1.20.x';
+        const javaVersion = '1.20.1'; // Sürüm güncellendi
         const connectionInfoContainer = document.getElementById('connection-info-container');
+        const javaButton = document.querySelector('.edition-btn[data-edition="java"]');
+        const bedrockButton = document.querySelector('.edition-btn[data-edition="bedrock"]');
 
-        function fetchServerStatus() {
-            // Başlangıçta "Kontrol ediliyor..." göster
+        // Java sunucu bilgilerini gösteren fonksiyon
+        function showJavaInfo() {
             connectionInfoContainer.innerHTML = `
                 <div class="server-status">Kontrol ediliyor...</div>
                 <span id="server-ip">${javaIp}</span>
@@ -165,7 +175,6 @@
                 .then(response => response.json())
                 .then(data => {
                     let statusHtml;
-                    // API'den gelen yanıtta "online" değeri true ise sunucu açıktır.
                     if (data.online === true) {
                         statusHtml = `
                             <div class="server-status active">● Açık (${data.players.now}/${data.players.max})</div>
@@ -173,18 +182,15 @@
                             <span id="server-version">Sürüm: ${javaVersion}</span>
                         `;
                     } else {
-                        // "online" değeri true değilse (false, undefined, vb.), sunucu kapalıdır.
                         statusHtml = `
                             <div class="server-status inactive">● Kapalı</div>
                             <span id="server-ip">${javaIp}</span>
                             <span id="server-version">Sürüm: ${javaVersion}</span>
                         `;
                     }
-                    // Butonları da ekleyerek içeriği güncelle
                     connectionInfoContainer.innerHTML = statusHtml + getButtonsHtml();
                 })
                 .catch(error => {
-                    // Fetch işlemi başarısız olursa (ağ hatası vb.)
                     console.error("Sunucu durumu alınamadı:", error);
                     connectionInfoContainer.innerHTML = `
                         <div class="server-status inactive">● Kapalı</div>
@@ -195,6 +201,14 @@
                 });
         }
 
+        // Bedrock için "Yakında" mesajını gösteren fonksiyon
+        function showBedrockInfo() {
+            connectionInfoContainer.innerHTML = `
+                <div style="font-size: 1.5em; color: var(--kurucu-color); text-shadow: 2px 2px 0 #000; padding: 70px 0;">Yakında...</div>
+            `;
+        }
+
+        // Java bilgileri gösterildiğinde butonları oluşturan yardımcı fonksiyon
         function getButtonsHtml() {
             return `
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -203,8 +217,23 @@
                 </div>
             `;
         }
+        
+        // Java ve Bedrock düğmeleri için olay dinleyicileri
+        javaButton.addEventListener('click', () => {
+            if (javaButton.classList.contains('active')) return;
+            bedrockButton.classList.remove('active');
+            javaButton.classList.add('active');
+            showJavaInfo();
+        });
 
-        // Buton ve kopyalama olayları için olay dinleyici
+        bedrockButton.addEventListener('click', () => {
+            if (bedrockButton.classList.contains('active')) return;
+            javaButton.classList.remove('active');
+            bedrockButton.classList.add('active');
+            showBedrockInfo();
+        });
+
+        // IP Kopyalama ve Mobil Java butonları için olay dinleyici (event delegation)
         connectionInfoContainer.addEventListener('click', (event) => {
             const target = event.target.closest('button');
             if (!target) return;
@@ -225,8 +254,8 @@
             }
         });
 
-        // Sayfa yüklendiğinde durumu kontrol et
-        document.addEventListener('DOMContentLoaded', fetchServerStatus);
+        // Sayfa ilk yüklendiğinde Java bilgilerini göster
+        document.addEventListener('DOMContentLoaded', showJavaInfo);
     </script>
-</body>
+    </body>
 </html>
