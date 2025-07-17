@@ -10,7 +10,7 @@
         :root {
             --kurucu-color: #FFAA00;
             --aktif-color: #55FF55;
-            --kapali-color: #FF5555; /* Kapalı durumu için kırmızı renk */
+            --kapali-color: #FF5555;
             --java-color: #8B4513;
             --bedrock-color: #228B22;
             --main-font: 'Press Start 2P', cursive;
@@ -74,7 +74,7 @@
         .connection-info {
             background-color: rgba(0, 0, 0, 0.4);
             border: 3px solid;
-            padding: 25px; border-radius: 10px; min-height: 150px;
+            padding: 25px; border-radius: 10px; min-height: 200px; /* Butonlar için yüksekliği artırdım */
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
             animation: rainbow-glow 3s linear infinite;
         }
@@ -83,9 +83,9 @@
         #server-version { font-size: 1em; color: #ccc; }
         
         .server-status {
-            font-size: 0.9em;
+            font-size: 1.1em; /* Yazıyı biraz büyüttüm */
             text-shadow: 0 0 8px;
-            padding: 5px 10px;
+            padding: 8px 12px; /* İç boşluğu artırdım */
             border-radius: 5px;
         }
         .server-status.active {
@@ -149,127 +149,84 @@
     </div>
 
     <script>
-        const editionButtons = document.querySelectorAll('.edition-btn');
+        const javaIp = '144.76.58.217:30394';
+        const javaVersion = '1.20.x';
         const connectionInfoContainer = document.getElementById('connection-info-container');
 
-        const serverConfig = {
-            java: {
-                ip: '144.76.58.217:30394',
-                version: '1.20.x' // Sürümü buradan değiştirebilirsin
-            },
-            bedrock: {
-                status: 'Yakında...'
-            }
-        };
-
-        // --- YENİ VE DÜZELTİLMİŞ FONKSİYON ---
-        function fetchJavaServerStatus() {
-            const info = serverConfig.java;
-            const apiUrl = `https://mcapi.us/server/status?ip=${info.ip}`;
-
+        function fetchServerStatus() {
             // Başlangıçta "Kontrol ediliyor..." göster
             connectionInfoContainer.innerHTML = `
-                <span id="server-ip">${info.ip}</span>
                 <div class="server-status">Kontrol ediliyor...</div>
-                <span id="server-version">Sürüm: ${info.version}</span>
+                <span id="server-ip">${javaIp}</span>
+                <span id="server-version">Sürüm: ${javaVersion}</span>
             `;
 
-            fetch(apiUrl)
+            fetch(`https://mcapi.us/server/status?ip=${javaIp}`)
                 .then(response => response.json())
                 .then(data => {
                     let statusHtml;
-                    if (data.online) {
-                        // SUNUCU AÇIKSA
+                    // API'den gelen yanıtta "online" değeri true ise sunucu açıktır.
+                    if (data.online === true) {
                         statusHtml = `
-                            <span id="server-ip">${info.ip}</span>
-                            <div class="server-status active">● Aktif (${data.players.now}/${data.players.max})</div>
-                            <span id="server-version">Sürüm: ${info.version}</span>
+                            <div class="server-status active">● Açık (${data.players.now}/${data.players.max})</div>
+                            <span id="server-ip">${javaIp}</span>
+                            <span id="server-version">Sürüm: ${javaVersion}</span>
                         `;
                     } else {
-                        // SUNUCU KAPALIYSA (Hata vermeden)
+                        // "online" değeri true değilse (false, undefined, vb.), sunucu kapalıdır.
                         statusHtml = `
-                            <span id="server-ip">${info.ip}</span>
                             <div class="server-status inactive">● Kapalı</div>
-                            <span id="server-version">Sürüm: ${info.version}</span>
+                            <span id="server-ip">${javaIp}</span>
+                            <span id="server-version">Sürüm: ${javaVersion}</span>
                         `;
                     }
+                    // Butonları da ekleyerek içeriği güncelle
                     connectionInfoContainer.innerHTML = statusHtml + getButtonsHtml();
                 })
                 .catch(error => {
-                    // API'ye ulaşılamazsa veya başka bir ağ hatası olursa
-                    console.error("API Hatası:", error);
+                    // Fetch işlemi başarısız olursa (ağ hatası vb.)
+                    console.error("Sunucu durumu alınamadı:", error);
                     connectionInfoContainer.innerHTML = `
-                        <span id="server-ip">${info.ip}</span>
-                        <div class="server-status inactive">● Durum Alınamadı</div>
-                        <span id="server-version">Sürüm: ${info.version}</span>
+                        <div class="server-status inactive">● Kapalı</div>
+                        <span id="server-ip">${javaIp}</span>
+                        <span id="server-version">Sürüm: ${javaVersion}</span>
                         ${getButtonsHtml()}
                     `;
                 });
         }
 
-        function showBedrockInfo() {
-            connectionInfoContainer.innerHTML = `
-                <span style="font-size: 1.2em; color: #ccc;">${serverConfig.bedrock.status}</span>
-            `;
-        }
-
         function getButtonsHtml() {
             return `
-                <button id="copy-button" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
-                <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.9em; color: #fff; padding: 12px 18px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513; margin-top: 10px;">Mobil İçin Java</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button id="copy-button" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #0000AA; cursor: pointer; background-color: #5555FF;">IP Kopyala</button>
+                    <button id="mobile-java-btn" style="font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; border-bottom: 4px solid #5a2d0c; cursor: pointer; background-color: #8B4513;">Mobil Java</button>
+                </div>
             `;
         }
 
-        function updateActiveButton(selectedEdition) {
-             editionButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.edition === selectedEdition);
-            });
-        }
-
-        // Buton ve kopyalama olayları
+        // Buton ve kopyalama olayları için olay dinleyici
         connectionInfoContainer.addEventListener('click', (event) => {
-            if (event.target && event.target.id === 'copy-button') {
-                const copyButton = event.target;
-                navigator.clipboard.writeText(serverConfig.java.ip).then(() => {
-                    copyButton.textContent = 'Kopyalandı!';
-                    copyButton.style.backgroundColor = 'var(--aktif-color)';
-                    copyButton.style.borderBottomColor = '#386129';
+            const target = event.target.closest('button');
+            if (!target) return;
+
+            if (target.id === 'copy-button') {
+                navigator.clipboard.writeText(javaIp).then(() => {
+                    target.textContent = 'Kopyalandı!';
+                    target.style.backgroundColor = 'var(--aktif-color)';
                     setTimeout(() => {
-                        copyButton.textContent = 'IP Kopyala';
-                        copyButton.style.backgroundColor = '#5555FF';
-                        copyButton.style.borderBottomColor = '#0000AA';
+                        target.textContent = 'IP Kopyala';
+                        target.style.backgroundColor = '#5555FF';
                     }, 2000);
                 });
             }
 
-            if (event.target && event.target.id === 'mobile-java-btn') {
+            if (target.id === 'mobile-java-btn') {
                 window.open('https://zalithlauncher.com/apk', '_blank');
-                alert(
-                    "Yönlendiriliyorsunuz...\n\n" +
-                    "Lütfen YouTube'dan 'Zalitch Launcher 1.20.1 Kurulum' videosunu izleyerek ve 00:30 saniyesinden başlayarak, indirdiğiniz APK ile videodaki gibi kurulumu yapınız.\n\n" +
-                    "--- Video Linki ---\n" +
-                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Örnek link, istersen değiştirebilirsin
-                );
             }
         });
 
-        editionButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const edition = button.dataset.edition;
-                updateActiveButton(edition);
-                if (edition === 'java') {
-                    fetchJavaServerStatus();
-                } else {
-                    showBedrockInfo();
-                }
-            });
-        });
-
-        // Sayfa ilk yüklendiğinde Java durumunu kontrol et
-        document.addEventListener('DOMContentLoaded', () => {
-            updateActiveButton('java');
-            fetchJavaServerStatus();
-        });
+        // Sayfa yüklendiğinde durumu kontrol et
+        document.addEventListener('DOMContentLoaded', fetchServerStatus);
     </script>
 </body>
 </html>
