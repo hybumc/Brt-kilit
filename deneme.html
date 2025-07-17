@@ -22,7 +22,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 400px;
+            max-width: 450px; /* Genişliği biraz artırdım */
         }
         h1 {
             font-size: 24px;
@@ -31,6 +31,7 @@
         p {
             font-size: 18px;
             color: #606770;
+            word-wrap: break-word; /* IP adresinin taşmasını önler */
         }
         .status {
             font-size: 20px;
@@ -56,7 +57,7 @@
 
     <div class="container">
         <h1>Minecraft Sunucum</h1>
-        <p>Sunucu Adresi: <strong>SUNUCU_IP_ADRESINIZI_BURAYA_YAZIN</strong></p>
+        <p>Sunucu Adresi: <strong>144.76.58.217:30394</strong></p>
         
         <div id="sunucu-durumu" class="status loading">
             Durum kontrol ediliyor...
@@ -64,10 +65,8 @@
     </div>
 
     <script>
-        // --- DÜZENLENECEK ALAN ---
-        // Lütfen bu satıra kendi Minecraft sunucunuzun IP adresini yazın.
-        const sunucuIp = "gold.magmanode.com:30394"; 
-        // -------------------------
+        // IP adresi sizin verdiğiniz bilgiyle güncellendi.
+        const sunucuIp = "144.76.58.217:30394"; 
 
         const durumElementi = document.getElementById('sunucu-durumu');
 
@@ -77,6 +76,7 @@
             .then(data => {
                 if (data.status === 'error') {
                     console.error('API Hatası:', data.error);
+                    // Hata mesajını doğrudan göster
                     durumElementi.innerHTML = `Hata: ${data.error}`;
                     durumElementi.className = 'status offline';
                     return;
@@ -85,13 +85,13 @@
                 if (data.online) {
                     // Sunucu Açıksa
                     durumElementi.innerHTML = `
-                        Durum: Açık <br>
+                        Durum: <span style="color: #31a24c;">Açık</span> <br>
                         Oyuncular: ${data.players.now} / ${data.players.max}
                     `;
                     durumElementi.className = 'status online';
                 } else {
                     // Sunucu Kapalıysa
-                    durumElementi.innerHTML = 'Durum: Kapalı';
+                    durumElementi.innerHTML = 'Durum: <span style="color: #fa383e;">Kapalı</span>';
                     durumElementi.className = 'status offline';
                 }
             })
