@@ -38,10 +38,16 @@
         #auth-container { position: absolute; top: 20px; right: 25px; display: flex; gap: 10px; align-items: center; }
         .auth-btn, .user-display-btn { font-family: var(--main-font); font-size: 0.7em; color: #fff; background-color: rgba(0,0,0,0.5); border: 2px solid #fff; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; }
         .auth-btn:hover, .user-display-btn:hover { background-color: #fff; color: #000; }
-        .user-display { display: flex; align-items: center; gap: 15px; }
+        .user-display { display: flex; align-items: center; gap: 10px; } /* YENİ: gap 15px -> 10px yapıldı */
         #username-display { font-size: 0.8em; color: var(--kurucu-color); }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background-color: rgba(10, 10, 10, 0.9); border: 3px solid var(--kurucu-color); border-radius: 15px; padding: 30px; width: 90%; max-width: 400px; font-family: var(--main-font); color: #fff; text-align: left; }
+        
+        /* YENİ: Yorumlar Modalı için daha geniş ayar */
+        .modal.comments-modal {
+            max-width: 800px;
+        }
+
         .modal h3 { text-align: center; font-size: 1.2em; margin-top: 0; margin-bottom: 25px; }
         .modal-form-group { margin-bottom: 15px; }
         .modal-form-group label { font-size: 0.8em; display: block; margin-bottom: 8px; }
@@ -52,7 +58,7 @@
         .terms-group input { margin-right: 10px; }
         .terms-group a { color: var(--kurucu-color); text-decoration: underline; cursor: pointer; }
         #modal-error { color: var(--kapali-color); font-size: 0.7em; text-align: center; height: 20px; }
-        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; z-index: 10; /* YENİ */}
 
         /* --- ANA SAYFA CSS --- */
         .logo { width: 160px; height: 160px; border-radius: 50%; border: 6px solid #888888; object-fit: cover; margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
@@ -87,22 +93,8 @@
         .online-player-avatar { width: 50px; height: 50px; border-radius: 5px; margin-bottom: 10px; image-rendering: pixelated; }
         .online-player-name { font-size: 0.8em; margin: 0; word-break: break-all; }
         
-        .action-buttons-container {
-            display: flex; 
-            gap: 10px; 
-            margin-top: 15px;
-            justify-content: center;
-            align-items: flex-start;
-        }
-        .action-button {
-            font-family: var(--main-font); 
-            font-size: 0.8em; 
-            color: #fff; 
-            padding: 10px 15px; 
-            border-radius: 8px; 
-            border: none;
-            cursor: pointer;
-        }
+        .action-buttons-container { display: flex; gap: 10px; margin-top: 15px; justify-content: center; align-items: flex-start; }
+        .action-button { font-family: var(--main-font); font-size: 0.8em; color: #fff; padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; }
         .action-button#copy-button { background-color: #5555FF; border-bottom: 4px solid #0000AA; }
         .action-button#mobile-java-btn { background-color: #8B4513; border-bottom: 4px solid #5a2d0c; }
         .action-button#about-btn { background-color: #6a0dad; border-bottom: 4px solid #4b0082; }
@@ -163,22 +155,63 @@
         // --- ARAYÜZ GÜNCELLEME ---
         function updateUI() {
             if (currentUser) {
-                authContainer.innerHTML = `<div class="user-display"><span id="username-display">${currentUser.username}</span><button id="settings-btn" class="user-display-btn">Ayarlar</button></div>`;
+                // YENİ: Yorumlar butonu eklendi.
+                authContainer.innerHTML = `
+                    <div class="user-display">
+                        <span id="username-display">${currentUser.username}</span>
+                        <button id="comments-btn" class="user-display-btn">Yorumlar</button>
+                        <button id="settings-btn" class="user-display-btn">Ayarlar</button>
+                    </div>`;
             } else {
                 authContainer.innerHTML = `<button id="login-btn" class="auth-btn">Giriş Yap</button><button id="register-btn" class="auth-btn">Kayıt Ol</button>`;
             }
-            showJavaInfo(); // Arayüz her güncellendiğinde sunucu bilgisi de yenilensin.
+            showJavaInfo();
         }
         
         // --- MODAL İŞLEMLERİ ---
-        function openModal(htmlContent) { modalContent.innerHTML = htmlContent; modalOverlay.style.display = 'flex'; }
-        function closeModal() { modalOverlay.style.display = 'none'; modalContent.innerHTML = ''; }
+        function openModal(htmlContent, isComments = false) { // YENİ: Yorumlar modali için parametre eklendi
+            modalContent.innerHTML = htmlContent; 
+            if (isComments) {
+                modalContent.classList.add('comments-modal');
+            } else {
+                modalContent.classList.remove('comments-modal');
+            }
+            modalOverlay.style.display = 'flex'; 
+        }
+
+        function closeModal() { 
+            modalOverlay.style.display = 'none'; 
+            modalContent.innerHTML = ''; 
+            modalContent.classList.remove('comments-modal'); // YENİ: Modal kapanınca class'ı temizle
+        }
         
         // --- MODAL İÇERİKLERİ ---
         const registerModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Hesap Oluştur</h3> <div id="modal-error"></div> <form id="register-form"> <div class="modal-form-group"> <label for="reg-username">Kullanıcı Adı</label> <input type="text" id="reg-username" class="modal-input" required> </div> <div class="modal-form-group"> <label for="reg-password">Şifre</label> <input type="password" id="reg-password" class="modal-input" required> </div> <div class="modal-form-group terms-group"> <input type="checkbox" id="terms-check"> <label for="terms-check"> <a id="show-terms-link">Kullanım Şartları</a>'nı okudum ve kabul ediyorum. </label> </div> <button type="submit" class="modal-button">Kayıt Ol</button> </form> `;
         const loginModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Giriş Yap</h3> <div id="modal-error"></div> <form id="login-form"> <div class="modal-form-group"> <label for="login-username">Kullanıcı Adı</label> <input type="text" id="login-username" class="modal-input" required> </div> <div class="modal-form-group"> <label for="login-password">Şifre</label> <input type="password" id="login-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Giriş Yap</button> </form> `;
         const termsModalHTML = ` <h3>Kullanım Şartları</h3> <p style="font-size:0.8em; line-height:1.5;"> Bu hesap, sunucu tabanlı bir sistem kullanmaz. Tüm bilgileriniz (kullanıcı adı ve şifre) yalnızca şu an kullandığınız bu tarayıcının yerel deposunda ('localStorage') saklanır. </p> <ul style="font-size:0.8em; line-height:1.5;"> <li>Hesabınıza başka bir bilgisayardan veya telefondan <b>erişemezsiniz.</b></li> <li>Tarayıcınızın verilerini (geçmiş, çerezler vb.) temizlerseniz hesabınız <b>kalıcı olarak silinir.</b></li> <li>Bu sistem güvenli değildir. Lütfen başka yerlerde kullandığınız şifreleri girmeyin.</li> </ul> <button class="modal-button secondary" id="back-to-register-btn">Anladım, Geri Dön</button> `;
         const settingsModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Ayarlar</h3> <div id="modal-error"></div> <form id="change-password-form"> <div class="modal-form-group"> <label for="new-password">Yeni Şifre</label> <input type="password" id="new-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Şifreyi Değiştir</button> </form> <button id="logout-btn" class="modal-button secondary" style="margin-top: 15px;">Çıkış Yap</button> `;
+        
+        // --- YENİ: YORUM SİSTEMİ İÇİN GİSCUS MODAL İÇERİĞİ ---
+        // ÖNEMLİ: Aşağıdaki 'data-' ile başlayan değerleri giscus.app sitesinden aldığınız KENDİ DEĞERLERİNİZLE değiştirin!
+        const commentsModalHTML = `
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+            <h3>Yorumlar ve Değerlendirmeler</h3>
+            <script src="https://giscus.app/client.js"
+                data-repo="KULLANICI-ADINIZ/DEPO-ADINIZ" 
+                data-repo-id="BURAYA-REPO-ID-GELECEK"
+                data-category="general"
+                data-category-id="BURAYA-KATEGORI-ID-GELECEK"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="top"
+                data-theme="transparent_dark"
+                data-lang="tr"
+                crossorigin="anonymous"
+                async>
+            </script>
+        `;
         
         // --- HESAP İŞLEMLERİ (localStorage) ---
         function handleRegister(e) { e.preventDefault(); const username = document.getElementById('reg-username').value; const password = document.getElementById('reg-password').value; const termsChecked = document.getElementById('terms-check').checked; const errorDiv = document.getElementById('modal-error'); if (!termsChecked) { errorDiv.textContent = "Kullanım şartlarını kabul etmelisiniz."; return; } if (!username || !password) { errorDiv.textContent = "Tüm alanları doldurun."; return; } if (localStorage.getItem('brtmc-account')) { errorDiv.textContent = "Bu tarayıcıda zaten bir hesap var."; return; } const account = { username, password }; localStorage.setItem('brtmc-account', JSON.stringify(account)); currentUser = account; updateUI(); closeModal(); }
@@ -187,21 +220,24 @@
         function handleChangePassword(e) { e.preventDefault(); const newPassword = document.getElementById('new-password').value; if (!newPassword) { document.getElementById('modal-error').textContent = "Yeni şifre boş olamaz."; return; } currentUser.password = newPassword; localStorage.setItem('brtmc-account', JSON.stringify(currentUser)); alert("Şifre başarıyla değiştirildi!"); closeModal(); }
 
         // --- GENEL OLAY DİNLEYİCİLERİ ---
-        document.addEventListener('click', (e) => { if (e.target.id === 'register-btn') openModal(registerModalHTML); if (e.target.id === 'login-btn') openModal(loginModalHTML); if (e.target.id === 'settings-btn') openModal(settingsModalHTML); if (e.target.id === 'logout-btn') handleLogout(); if (e.target.id === 'show-terms-link') openModal(termsModalHTML); if (e.target.id === 'back-to-register-btn') openModal(registerModalHTML); if (e.target.classList.contains('modal-overlay')) closeModal(); });
+        document.addEventListener('click', (e) => { 
+            if (e.target.id === 'register-btn') openModal(registerModalHTML); 
+            if (e.target.id === 'login-btn') openModal(loginModalHTML); 
+            if (e.target.id === 'settings-btn') openModal(settingsModalHTML); 
+            if (e.target.id === 'logout-btn') handleLogout(); 
+            if (e.target.id === 'show-terms-link') openModal(termsModalHTML); 
+            if (e.target.id === 'back-to-register-btn') openModal(registerModalHTML); 
+            if (e.target.classList.contains('modal-overlay')) closeModal(); 
+            
+            // YENİ: Yorumlar butonu için olay dinleyicisi
+            if (e.target.id === 'comments-btn') {
+                openModal(commentsModalHTML, true); // true parametresi modal'ın daha geniş olmasını sağlar
+            }
+        });
         document.addEventListener('submit', (e) => { if (e.target.id === 'register-form') handleRegister(e); if (e.target.id === 'login-form') handleLogin(e); if (e.target.id === 'change-password-form') handleChangePassword(e); });
         
         // --- SUNUCU DURUMU KODLARI ---
-        function getButtonsHtml() {
-            // Butonları Hakkında butonuyla birlikte oluşturur.
-            return `
-                <div class="action-buttons-container">
-                    <button id="copy-button" class="action-button">IP Kopyala</button>
-                    <button id="mobile-java-btn" class="action-button">Mobil Java</button>
-                    <button id="about-btn" class="action-button">Hakkında</button>
-                </div>
-            `; 
-        }
-
+        function getButtonsHtml() { return ` <div class="action-buttons-container"> <button id="copy-button" class="action-button">IP Kopyala</button> <button id="mobile-java-btn" class="action-button">Mobil Java</button> <button id="about-btn" class="action-button">Hakkında</button> </div> `; }
         function showJavaInfo() { 
             connectionInfoContainer.innerHTML = `<div class="server-status">Kontrol ediliyor...</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>`;
             onlinePlayersSection.style.display = 'none';
@@ -240,26 +276,9 @@
         connectionInfoContainer.addEventListener('click', (event) => { 
             const target = event.target.closest('button'); 
             if (!target) return; 
-
-            if (target.id === 'copy-button') { 
-                navigator.clipboard.writeText(javaIp).then(() => { 
-                    target.textContent = 'Kopyalandı!'; 
-                    target.style.backgroundColor = 'var(--aktif-color)'; 
-                    setTimeout(() => { 
-                        target.textContent = 'IP Kopyala'; 
-                        target.style.backgroundColor = '#5555FF'; 
-                    }, 2000); 
-                }); 
-            } 
-            
-            if (target.id === 'mobile-java-btn') { 
-                window.open('https://play.google.com/store/apps/details?id=git.artdeell.mojo', '_blank'); 
-            }
-
-            if (target.id === 'about-btn') {
-                // Şimdilik boş. Burayı daha sonra düzenleyebilirsin.
-                alert('Hakkında bölümü yakında eklenecektir.');
-            }
+            if (target.id === 'copy-button') { navigator.clipboard.writeText(javaIp).then(() => { target.textContent = 'Kopyalandı!'; target.style.backgroundColor = 'var(--aktif-color)'; setTimeout(() => { target.textContent = 'IP Kopyala'; target.style.backgroundColor = '#5555FF'; }, 2000); }); } 
+            if (target.id === 'mobile-java-btn') { window.open('https://play.google.com/store/apps/details?id=git.artdeell.mojo', '_blank'); }
+            if (target.id === 'about-btn') { alert('Hakkında bölümü yakında eklenecektir.'); }
         });
 
         // --- SAYFA YÜKLENİNCE BAŞLAT ---
