@@ -210,9 +210,7 @@
                 data-lang="tr"
                 crossorigin="anonymous"
                 async>
-            </script>
-        `;
-        
+            
         // --- HESAP İŞLEMLERİ (localStorage) ---
         function handleRegister(e) { e.preventDefault(); const username = document.getElementById('reg-username').value; const password = document.getElementById('reg-password').value; const termsChecked = document.getElementById('terms-check').checked; const errorDiv = document.getElementById('modal-error'); if (!termsChecked) { errorDiv.textContent = "Kullanım şartlarını kabul etmelisiniz."; return; } if (!username || !password) { errorDiv.textContent = "Tüm alanları doldurun."; return; } if (localStorage.getItem('brtmc-account')) { errorDiv.textContent = "Bu tarayıcıda zaten bir hesap var."; return; } const account = { username, password }; localStorage.setItem('brtmc-account', JSON.stringify(account)); currentUser = account; updateUI(); closeModal(); }
         function handleLogin(e) { e.preventDefault(); const username = document.getElementById('login-username').value; const password = document.getElementById('login-password').value; const errorDiv = document.getElementById('modal-error'); const storedAccountRaw = localStorage.getItem('brtmc-account'); if (!storedAccountRaw) { errorDiv.textContent = "Kayıtlı hesap bulunamadı."; return; } const storedAccount = JSON.parse(storedAccountRaw); if (storedAccount.username === username && storedAccount.password === password) { currentUser = storedAccount; updateUI(); closeModal(); } else { errorDiv.textContent = "Kullanıcı adı veya şifre yanlış."; } }
