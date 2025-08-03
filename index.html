@@ -133,47 +133,50 @@
     <div class="modal-overlay" id="modal-overlay" style="display: none;">
         <div class="modal" id="modal-content"></div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
+        // --- SUPABASE AYARLARI ---
+        // ÖNEMLİ: BU BİLGİLERİ KENDİ SUPABASE PROJENİZDEKİ BİLGİLERLE DEĞİŞTİRİN
+        const SUPABASE_URL = 'https://myapdyyizzkeuqzfvwjf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15YXBkeXlpenprZXVxemZ2d2pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMTI4NTksImV4cCI6MjA2OTc4ODg1OX0.KF0xJ1FbVQ1l4D1Gp9M1-VU9rglUiHCiakz1e5juGrY';
+        const supabase = self.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // --- DOM Elementleri ---
         const authContainer = document.getElementById('auth-container');
         const modalOverlay = document.getElementById('modal-overlay');
         const modalContent = document.getElementById('modal-content');
         const onlinePlayersSection = document.getElementById('online-players-section');
         const onlinePlayersGrid = document.getElementById('online-players-grid');
+        const connectionInfoContainer = document.getElementById('connection-info-container');
         
         // --- Sunucu Bilgileri ---
         const javaIp = 'gold.magmanode.com:31278';
         const javaVersion = '1.20.1 Java';
-        const connectionInfoContainer = document.getElementById('connection-info-container');
-        const javaButton = document.querySelector('.edition-btn[data-edition="java"]');
         
-        // --- Global Durum ---
-        let currentUser = null;
-
         // --- ARAYÜZ GÜNCELLEME ---
-        function updateUI() {
-            if (currentUser) {
+        function updateUI(user) {
+            if (user) {
+                // Kullanıcı giriş yapmışsa, kullanıcı adını veya e-postasını göster
+                const username = user.user_metadata?.username || user.email;
                 authContainer.innerHTML = `
                     <div class="user-display">
-                        <span id="username-display">${currentUser.username}</span>
+                        <span id="username-display">${username}</span>
                         <button id="comments-btn" class="user-display-btn">Yorumlar</button>
                         <button id="settings-btn" class="user-display-btn">Ayarlar</button>
                     </div>`;
             } else {
+                // Kullanıcı giriş yapmamışsa
                 authContainer.innerHTML = `<button id="login-btn" class="auth-btn">Giriş Yap</button><button id="register-btn" class="auth-btn">Kayıt Ol</button>`;
             }
-            showJavaInfo();
         }
         
         // --- MODAL İŞLEMLERİ ---
         function openModal(htmlContent, isComments = false) {
             modalContent.innerHTML = htmlContent; 
-            if (isComments) {
-                modalContent.classList.add('comments-modal');
-            } else {
-                modalContent.classList.remove('comments-modal');
-            }
+            if (isComments) modalContent.classList.add('comments-modal');
+            else modalContent.classList.remove('comments-modal');
             modalOverlay.style.display = 'flex'; 
         }
 
@@ -183,14 +186,10 @@
             modalContent.classList.remove('comments-modal');
         }
         
-        // --- MODAL İÇERİKLERİ ---
-        const registerModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Hesap Oluştur</h3> <div id="modal-error"></div> <form id="register-form"> <div class="modal-form-group"> <label for="reg-username">Kullanıcı Adı</label> <input type="text" id="reg-username" class="modal-input" required> </div> <div class="modal-form-group"> <label for="reg-password">Şifre</label> <input type="password" id="reg-password" class="modal-input" required> </div> <div class="modal-form-group terms-group"> <input type="checkbox" id="terms-check"> <label for="terms-check"> <a id="show-terms-link">Kullanım Şartları</a>'nı okudum ve kabul ediyorum. </label> </div> <button type="submit" class="modal-button">Kayıt Ol</button> </form> `;
-        const loginModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Giriş Yap</h3> <div id="modal-error"></div> <form id="login-form"> <div class="modal-form-group"> <label for="login-username">Kullanıcı Adı</label> <input type="text" id="login-username" class="modal-input" required> </div> <div class="modal-form-group"> <label for="login-password">Şifre</label> <input type="password" id="login-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Giriş Yap</button> </form> `;
-        const termsModalHTML = ` <h3>Kullanım Şartları</h3> <p style="font-size:0.8em; line-height:1.5;"> Bu hesap, sunucu tabanlı bir sistem kullanmaz. Tüm bilgileriniz (kullanıcı adı ve şifre) yalnızca şu an kullandığınız bu tarayıcının yerel deposunda ('localStorage') saklanır. </p> <ul style="font-size:0.8em; line-height:1.5;"> <li>Hesabınıza başka bir bilgisayardan veya telefondan <b>erişemezsiniz.</b></li> <li>Tarayıcınızın verilerini (geçmiş, çerezler vb.) temizlerseniz hesabınız <b>kalıcı olarak silinir.</b></li> <li>Bu sistem güvenli değildir. Lütfen başka yerlerde kullandığınız şifreleri girmeyin.</li> </ul> <button class="modal-button secondary" id="back-to-register-btn">Anladım, Geri Dön</button> `;
-        const settingsModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Ayarlar</h3> <div id="modal-error"></div> <form id="change-password-form"> <div class="modal-form-group"> <label for="new-password">Yeni Şifre</label> <input type="password" id="new-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Şifreyi Değiştir</button> </form> <button id="logout-btn" class="modal-button secondary" style="margin-top: 15px;">Çıkış Yap</button> `;
-        
-        // --- YORUM SİSTEMİ İÇİN GİSCUS MODAL İÇERİĞİ ---
-        // ÖNEMLİ: Aşağıdaki 'data-' ile başlayan değerleri giscus.app sitesinden aldığınız KENDİ DEĞERLERİNİZLE değiştirin!
+        // --- MODAL İÇERİKLERİ (SUPABASE İÇİN GÜNCELLENDİ) ---
+        const registerModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Hesap Oluştur</h3> <div id="modal-error"></div> <form id="register-form"> <div class="modal-form-group"> <label for="reg-username">Kullanıcı Adı</label> <input type="text" id="reg-username" class="modal-input" required> </div> <div class="modal-form-group"> <label for="reg-email">E-posta</label> <input type="email" id="reg-email" class="modal-input" required> </div> <div class="modal-form-group"> <label for="reg-password">Şifre</label> <input type="password" id="reg-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Kayıt Ol</button> </form> `;
+        const loginModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Giriş Yap</h3> <div id="modal-error"></div> <form id="login-form"> <div class="modal-form-group"> <label for="login-email">E-posta</label> <input type="email" id="login-email" class="modal-input" required> </div> <div class="modal-form-group"> <label for="login-password">Şifre</label> <input type="password" id="login-password" class="modal-input" required> </div> <button type="submit" class="modal-button">Giriş Yap</button> </form> `;
+        const settingsModalHTML = ` <button class="modal-close-btn" onclick="closeModal()">×</button> <h3>Ayarlar</h3> <p style="font-size:0.8em;">Şifre değiştirmek için Supabase projenizin ayarlarından "Email Templates" bölümünü yapılandırmanız gerekir.</p> <button id="logout-btn" class="modal-button secondary" style="margin-top: 15px;">Çıkış Yap</button> `;
         const commentsModalHTML = `
             <button class="modal-close-btn" onclick="closeModal()">×</button>
             <h3>Yorumlar ve Değerlendirmeler</h3>
@@ -211,11 +210,52 @@
             </` + `script>
         `;
         
-        // --- HESAP İŞLEMLERİ (localStorage) ---
-        function handleRegister(e) { e.preventDefault(); const username = document.getElementById('reg-username').value; const password = document.getElementById('reg-password').value; const termsChecked = document.getElementById('terms-check').checked; const errorDiv = document.getElementById('modal-error'); if (!termsChecked) { errorDiv.textContent = "Kullanım şartlarını kabul etmelisiniz."; return; } if (!username || !password) { errorDiv.textContent = "Tüm alanları doldurun."; return; } if (localStorage.getItem('brtmc-account')) { errorDiv.textContent = "Bu tarayıcıda zaten bir hesap var."; return; } const account = { username, password }; localStorage.setItem('brtmc-account', JSON.stringify(account)); currentUser = account; updateUI(); closeModal(); }
-        function handleLogin(e) { e.preventDefault(); const username = document.getElementById('login-username').value; const password = document.getElementById('login-password').value; const errorDiv = document.getElementById('modal-error'); const storedAccountRaw = localStorage.getItem('brtmc-account'); if (!storedAccountRaw) { errorDiv.textContent = "Kayıtlı hesap bulunamadı."; return; } const storedAccount = JSON.parse(storedAccountRaw); if (storedAccount.username === username && storedAccount.password === password) { currentUser = storedAccount; updateUI(); closeModal(); } else { errorDiv.textContent = "Kullanıcı adı veya şifre yanlış."; } }
-        function handleLogout() { localStorage.removeItem('brtmc-account'); currentUser = null; updateUI(); closeModal(); }
-        function handleChangePassword(e) { e.preventDefault(); const newPassword = document.getElementById('new-password').value; if (!newPassword) { document.getElementById('modal-error').textContent = "Yeni şifre boş olamaz."; return; } currentUser.password = newPassword; localStorage.setItem('brtmc-account', JSON.stringify(currentUser)); alert("Şifre başarıyla değiştirildi!"); closeModal(); }
+        // --- HESAP İŞLEMLERİ (SUPABASE İLE YENİLENDİ) ---
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const errorDiv = document.getElementById('modal-error');
+            
+            const { error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { username: username } // Kullanıcı adını metadata olarak sakla
+                }
+            });
+
+            if (error) {
+                errorDiv.textContent = error.message;
+            } else {
+                alert("Kayıt başarılı! Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin.");
+                closeModal();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('modal-error');
+
+            const { error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                errorDiv.textContent = "E-posta veya şifre hatalı.";
+            } else {
+                closeModal();
+            }
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            closeModal();
+        }
 
         // --- GENEL OLAY DİNLEYİCİLERİ ---
         document.addEventListener('click', (e) => { 
@@ -223,17 +263,17 @@
             if (e.target.id === 'login-btn') openModal(loginModalHTML); 
             if (e.target.id === 'settings-btn') openModal(settingsModalHTML); 
             if (e.target.id === 'logout-btn') handleLogout(); 
-            if (e.target.id === 'show-terms-link') openModal(termsModalHTML); 
-            if (e.target.id === 'back-to-register-btn') openModal(registerModalHTML); 
             if (e.target.classList.contains('modal-overlay')) closeModal(); 
-            
-            if (e.target.id === 'comments-btn') {
-                openModal(commentsModalHTML, true);
-            }
+            if (e.target.id === 'comments-btn') openModal(commentsModalHTML, true);
         });
-        document.addEventListener('submit', (e) => { if (e.target.id === 'register-form') handleRegister(e); if (e.target.id === 'login-form') handleLogin(e); if (e.target.id === 'change-password-form') handleChangePassword(e); });
+
+        document.addEventListener('submit', (e) => {
+            e.preventDefault(); // Tüm form gönderimlerini tek bir yerden yönet
+            if (e.target.id === 'register-form') handleRegister(e);
+            if (e.target.id === 'login-form') handleLogin(e);
+        });
         
-        // --- SUNUCU DURUMU KODLARI ---
+        // --- SUNUCU DURUMU KODLARI (DEĞİŞTİRİLMEDİ) ---
         function getButtonsHtml() { return ` <div class="action-buttons-container"> <button id="copy-button" class="action-button">IP Kopyala</button> <button id="mobile-java-btn" class="action-button">Mobil Java</button> <button id="about-btn" class="action-button">Hakkında</button> </div> `; }
         function showJavaInfo() { 
             connectionInfoContainer.innerHTML = `<div class="server-status">Kontrol ediliyor...</div><span id="server-ip">${javaIp}</span><span id="server-version">Sürüm: ${javaVersion}</span>`;
@@ -279,13 +319,15 @@
         });
 
         // --- SAYFA YÜKLENİNCE BAŞLAT ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const storedAccountRaw = localStorage.getItem('brtmc-account');
-            if (storedAccountRaw) {
-                currentUser = JSON.parse(storedAccountRaw);
-            }
-            updateUI();
+        // Oturum durumunu dinle ve arayüzü güncelle
+        supabase.auth.onAuthStateChange((event, session) => {
+            const user = session?.user || null;
+            updateUI(user);
         });
+
+        // Sayfa ilk yüklendiğinde sunucu bilgisini göster
+        showJavaInfo();
+
     </script>
 </body>
 </html>
