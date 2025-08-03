@@ -64,18 +64,18 @@
         #modal-error { color: var(--kapali-color); font-size: 0.7em; text-align: center; height: 20px; margin-bottom: 10px; }
         .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; z-index: 10; }
 
-        /* Yorumlar ve Puan Sistemi CSS */
+        /* Yorumlar ve Puan Sistemi CSS (DÜZELTİLDİ) */
         #comment-form-container { border-bottom: 2px solid var(--kurucu-color); padding-bottom: 20px; margin-bottom: 20px; }
         #comments-list { overflow-y: auto; flex-grow: 1; padding-right: 10px; }
         .comment-card { background-color: rgba(0,0,0,0.3); border: 2px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .comment-author { font-size: 0.9em; color: var(--aktif-color); }
         .comment-body { font-size: 0.8em; line-height: 1.5; }
-        .star-rating { display: flex; direction: rtl; }
-        .star-rating span { font-size: 1.5em; color: #555; cursor: pointer; }
-        .star-rating span:hover, .star-rating span:hover ~ span { color: var(--kurucu-color); }
+        .star-rating { display: flex; direction: rtl; justify-content: center; } /* Ortalamak için eklendi */
         .star-rating input[type="radio"] { display: none; }
-        .star-rating input[type="radio"]:checked ~ span { color: var(--kurucu-color); }
+        .star-rating label { font-size: 1.5em; color: #555; cursor: pointer; padding: 0 5px; } /* label olarak değiştirildi */
+        .star-rating label:hover, .star-rating label:hover ~ label { color: var(--kurucu-color); } /* span'den label'a değiştirildi */
+        .star-rating input[type="radio"]:checked ~ label { color: var(--kurucu-color); } /* span'den label'a değiştirildi */
         .comment-card .star-display { font-size: 0.9em; color: var(--kurucu-color); }
 
         /* --- ANA SAYFA CSS --- */
@@ -228,6 +228,7 @@
             let formHtml = `<p style="font-size:0.8em; text-align:center;">Yorum yapmak için giriş yapmalısınız.</p>`;
 
             if (user) {
+                // HTML İÇİNDEKİ YILDIZ SİSTEMİ DÜZELTİLDİ
                 formHtml = `
                     <div id="comment-form-container">
                         <div id="modal-error"></div>
@@ -239,11 +240,11 @@
                             <div class="modal-form-group">
                                 <label>Puanınız</label>
                                 <div class="star-rating">
-                                    <input type="radio" id="star5" name="rating" value="5" required/><label for="star5"></label><span>☆</span>
-                                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4"></label><span>☆</span>
-                                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3"></label><span>☆</span>
-                                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2"></label><span>☆</span>
-                                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1"></label><span>☆</span>
+                                    <input type="radio" id="star5" name="rating" value="5" required/><label for="star5">☆</label>
+                                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4">☆</label>
+                                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3">☆</label>
+                                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2">☆</label>
+                                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1">☆</label>
                                 </div>
                             </div>
                             <button type="submit" class="modal-button">Yorumu Gönder</button>
@@ -262,6 +263,8 @@
 
         async function loadComments() {
             const commentsList = document.getElementById('comments-list');
+            if (!commentsList) return; // Modal kapalıysa fonksiyonu durdur
+            
             const { data, error } = await supabase.from('comments').select('*').order('created_at', { ascending: false });
 
             if (error) {
@@ -279,7 +282,7 @@
                 <div class="comment-card">
                     <div class="comment-header">
                         <span class="comment-author">${comment.username || 'Anonim'}</span>
-                        <span class="star-display">${'★'.repeat(comment.rating)}${'☆'.repeat(5 - comment.rating)}</span>
+                        <span class="star-display">${'★'.repeat(comment.rating || 0)}${'☆'.repeat(5 - (comment.rating || 0))}</span>
                     </div>
                     <p class="comment-body">${comment.comment_text}</p>
                 </div>
@@ -306,11 +309,12 @@
             const username = user.user_metadata?.username || user.email;
 
             const { error } = await supabase.from('comments').insert([
-                { user_id: user.id, username: username, comment_text: commentText, rating: rating.value }
+                { user_id: user.id, username: username, comment_text: commentText, rating: parseInt(rating.value, 10) } // parseInt eklendi
             ]);
 
             if (error) {
                 errorDiv.textContent = 'Yorum gönderilirken bir hata oluştu: ' + error.message;
+                console.error("Supabase ekleme hatası:", error);
             } else {
                 e.target.reset(); // Formu temizle
                 errorDiv.textContent = '';
@@ -374,13 +378,24 @@
             if (e.target.id === 'open-terms-link') openModal(termsModalHTML);
             if (e.target.id === 'open-privacy-link') openModal(privacyModalHTML);
             if (e.target.id === 'comments-btn') openCommentsModal();
-            if (e.target.classList.contains('modal-overlay')) closeModal(); 
+            // Modal dışına tıklayınca kapatma (ID kontrolü ile daha güvenli)
+            if (e.target.id === 'modal-overlay') closeModal(); 
         });
 
         document.addEventListener('submit', (e) => {
-            if (e.target.id === 'register-form') handleRegister(e);
-            if (e.target.id === 'login-form') handleLogin(e);
-            if (e.target.id === 'comment-form') handleCommentSubmit(e);
+            // Form gönderimlerini ID ile daha spesifik hedefle
+            if (e.target.id === 'register-form') {
+                e.preventDefault();
+                handleRegister(e);
+            }
+            if (e.target.id === 'login-form') {
+                e.preventDefault();
+                handleLogin(e);
+            }
+            if (e.target.id === 'comment-form') {
+                e.preventDefault();
+                handleCommentSubmit(e);
+            }
         });
         
         // --- SUNUCU DURUMU KODLARI (DEĞİŞTİRİLMEDİ) ---
