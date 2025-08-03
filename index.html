@@ -64,19 +64,38 @@
         #modal-error { color: var(--kapali-color); font-size: 0.7em; text-align: center; height: 20px; margin-bottom: 10px; }
         .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; z-index: 10; }
 
-        /* Yorumlar ve Puan Sistemi CSS (DÜZELTİLDİ) */
+        /* Yorumlar ve Puan Sistemi CSS */
         #comment-form-container { border-bottom: 2px solid var(--kurucu-color); padding-bottom: 20px; margin-bottom: 20px; }
         #comments-list { overflow-y: auto; flex-grow: 1; padding-right: 10px; }
         .comment-card { background-color: rgba(0,0,0,0.3); border: 2px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .comment-header .right-side { display: flex; align-items: center; } /* YENİ */
         .comment-author { font-size: 0.9em; color: var(--aktif-color); }
         .comment-body { font-size: 0.8em; line-height: 1.5; }
-        .star-rating { display: flex; direction: rtl; justify-content: center; } /* Ortalamak için eklendi */
+        .star-rating { display: flex; direction: rtl; justify-content: center; }
         .star-rating input[type="radio"] { display: none; }
-        .star-rating label { font-size: 1.5em; color: #555; cursor: pointer; padding: 0 5px; } /* label olarak değiştirildi */
-        .star-rating label:hover, .star-rating label:hover ~ label { color: var(--kurucu-color); } /* span'den label'a değiştirildi */
-        .star-rating input[type="radio"]:checked ~ label { color: var(--kurucu-color); } /* span'den label'a değiştirildi */
+        .star-rating label { font-size: 1.5em; color: #555; cursor: pointer; padding: 0 5px; }
+        .star-rating label:hover, .star-rating label:hover ~ label { color: var(--kurucu-color); }
+        .star-rating input[type="radio"]:checked ~ label { color: var(--kurucu-color); }
         .comment-card .star-display { font-size: 0.9em; color: var(--kurucu-color); }
+
+        /* YENİ: Silme Butonu CSS */
+        .delete-comment-btn {
+            background-color: transparent;
+            border: 1px solid var(--kapali-color);
+            color: var(--kapali-color);
+            font-family: var(--main-font);
+            font-size: 0.6em;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.2s ease;
+        }
+        .delete-comment-btn:hover {
+            background-color: var(--kapali-color);
+            color: #000;
+        }
 
         /* --- ANA SAYFA CSS --- */
         .logo { width: 160px; height: 160px; border-radius: 50%; border: 6px solid #888888; object-fit: cover; margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
@@ -228,7 +247,6 @@
             let formHtml = `<p style="font-size:0.8em; text-align:center;">Yorum yapmak için giriş yapmalısınız.</p>`;
 
             if (user) {
-                // HTML İÇİNDEKİ YILDIZ SİSTEMİ DÜZELTİLDİ
                 formHtml = `
                     <div id="comment-form-container">
                         <div id="modal-error"></div>
@@ -263,7 +281,10 @@
 
         async function loadComments() {
             const commentsList = document.getElementById('comments-list');
-            if (!commentsList) return; // Modal kapalıysa fonksiyonu durdur
+            if (!commentsList) return;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            const currentUserId = user ? user.id : null;
             
             const { data, error } = await supabase.from('comments').select('*').order('created_at', { ascending: false });
 
@@ -278,15 +299,23 @@
                 return;
             }
 
-            commentsList.innerHTML = data.map(comment => `
+            commentsList.innerHTML = data.map(comment => {
+                const deleteButtonHtml = currentUserId === comment.user_id
+                    ? `<button class="delete-comment-btn" data-id="${comment.id}">Sil</button>`
+                    : '';
+
+                return `
                 <div class="comment-card">
                     <div class="comment-header">
                         <span class="comment-author">${comment.username || 'Anonim'}</span>
-                        <span class="star-display">${'★'.repeat(comment.rating || 0)}${'☆'.repeat(5 - (comment.rating || 0))}</span>
+                        <div class="right-side">
+                            <span class="star-display">${'★'.repeat(comment.rating || 0)}${'☆'.repeat(5 - (comment.rating || 0))}</span>
+                            ${deleteButtonHtml}
+                        </div>
                     </div>
                     <p class="comment-body">${comment.comment_text}</p>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         async function handleCommentSubmit(e) {
@@ -309,16 +338,36 @@
             const username = user.user_metadata?.username || user.email;
 
             const { error } = await supabase.from('comments').insert([
-                { user_id: user.id, username: username, comment_text: commentText, rating: parseInt(rating.value, 10) } // parseInt eklendi
+                { user_id: user.id, username: username, comment_text: commentText, rating: parseInt(rating.value, 10) }
             ]);
 
             if (error) {
                 errorDiv.textContent = 'Yorum gönderilirken bir hata oluştu: ' + error.message;
                 console.error("Supabase ekleme hatası:", error);
             } else {
-                e.target.reset(); // Formu temizle
+                e.target.reset();
                 errorDiv.textContent = '';
-                loadComments(); // Yorum listesini yenile
+                loadComments();
+            }
+        }
+
+        // YENİ: Yorum silme fonksiyonu
+        async function handleDeleteComment(commentId) {
+            if (!commentId) return;
+
+            const isConfirmed = confirm('Bu yorumu kalıcı olarak silmek istediğinize emin misiniz?');
+            if (isConfirmed) {
+                const { error } = await supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentId);
+
+                if (error) {
+                    alert('Hata: Yorum silinemedi. ' + error.message);
+                    console.error('Yorum silme hatası:', error);
+                } else {
+                    loadComments();
+                }
             }
         }
 
@@ -378,12 +427,16 @@
             if (e.target.id === 'open-terms-link') openModal(termsModalHTML);
             if (e.target.id === 'open-privacy-link') openModal(privacyModalHTML);
             if (e.target.id === 'comments-btn') openCommentsModal();
-            // Modal dışına tıklayınca kapatma (ID kontrolü ile daha güvenli)
             if (e.target.id === 'modal-overlay') closeModal(); 
+
+            // YENİ: Silme butonu tıklamasını dinle
+            if (e.target.classList.contains('delete-comment-btn')) {
+                const commentId = e.target.dataset.id;
+                handleDeleteComment(commentId);
+            }
         });
 
         document.addEventListener('submit', (e) => {
-            // Form gönderimlerini ID ile daha spesifik hedefle
             if (e.target.id === 'register-form') {
                 e.preventDefault();
                 handleRegister(e);
