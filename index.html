@@ -25,6 +25,15 @@
             justify-content: center;
             align-items: flex-start;
         }
+        
+        /* YASAK BÖLGE EKRANI İÇİN CSS */
+        #yasak-bolge {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; color: red;
+            display: none; justify-content: center; align-items: center;
+            font-size: 3em; z-index: 9999;
+            text-shadow: 0 0 10px red;
+        }
 
         .container {
             position: relative;
@@ -69,7 +78,7 @@
         #comments-list { overflow-y: auto; flex-grow: 1; padding-right: 10px; }
         .comment-card { background-color: rgba(0,0,0,0.3); border: 2px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .comment-header .right-side { display: flex; align-items: center; } /* YENİ */
+        .comment-header .right-side { display: flex; align-items: center; } 
         .comment-author { font-size: 0.9em; color: var(--aktif-color); }
         .comment-body { font-size: 0.8em; line-height: 1.5; }
         .star-rating { display: flex; direction: rtl; justify-content: center; }
@@ -79,7 +88,6 @@
         .star-rating input[type="radio"]:checked ~ label { color: var(--kurucu-color); }
         .comment-card .star-display { font-size: 0.9em; color: var(--kurucu-color); }
 
-        /* YENİ: Silme Butonu CSS */
         .delete-comment-btn {
             background-color: transparent;
             border: 1px solid var(--kapali-color);
@@ -135,7 +143,9 @@
         .action-button#about-btn { background-color: #6a0dad; border-bottom: 4px solid #4b0082; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
+    
+    <div id="yasak-bolge">YASAK BÖLGE</div>
 
     <div class="container">
         <div id="auth-container"></div>
@@ -351,7 +361,6 @@
             }
         }
 
-        // YENİ: Yorum silme fonksiyonu
         async function handleDeleteComment(commentId) {
             if (!commentId) return;
 
@@ -429,7 +438,6 @@
             if (e.target.id === 'comments-btn') openCommentsModal();
             if (e.target.id === 'modal-overlay') closeModal(); 
 
-            // YENİ: Silme butonu tıklamasını dinle
             if (e.target.classList.contains('delete-comment-btn')) {
                 const commentId = e.target.dataset.id;
                 handleDeleteComment(commentId);
@@ -505,5 +513,51 @@
         showJavaInfo();
 
     </script>
+    
+    <script>
+    (function() {
+        // Konsol için büyük bir uyarı mesajı gösterme
+        const style = 'font-size: 24px; font-weight: bold; color: red; text-shadow: 1px 1px 5px yellow;';
+        console.log('%cDUR! 🛑', style);
+        console.log('%cBu alan geliştiricilere özeldir. Buraya bir şey yapıştırmanız hesabınızın çalınmasına neden olabilir.', 'font-size: 16px; color: white;');
+        console.log('%cYASAK', 'font-size: 14px; color: orange;');
+
+        // Geliştirici araçları açıldığında "Yasak Bölge" gösterme
+        let devtoolsOpen = false;
+        const threshold = 160;
+        
+        const detectDevTools = (e) => {
+            if (window.innerHeight < (window.outerHeight - threshold) || window.innerWidth < (window.outerWidth - threshold)) {
+                if (!devtoolsOpen) {
+                    document.getElementById('yasak-bolge').style.display = 'flex';
+                    devtoolsOpen = true;
+                }
+            }
+        };
+        
+        // Sağ tık menüsünü engelleme
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Klavye kısayollarını engelleme (F12, Ctrl+Shift+I, Ctrl+U vb.)
+        document.addEventListener('keydown', function(e) {
+            if (
+                e.key === "F12" || // F12
+                (e.ctrlKey && e.shiftKey && e.key === 'I') || // Ctrl+Shift+I
+                (e.ctrlKey && e.shiftKey && e.key === 'J') || // Ctrl+Shift+J
+                (e.ctrlKey && e.key === 'U') // Ctrl+U
+            ) {
+                e.preventDefault();
+                document.getElementById('yasak-bolge').style.display = 'flex';
+            }
+        });
+        
+        // Pencere yeniden boyutlandırıldığında da kontrol et (Geliştirici araçları açılıp kapanabilir)
+        window.addEventListener('resize', detectDevTools);
+
+    })();
+    </script>
+
 </body>
 </html>
