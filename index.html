@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRT MC - Minecraft Sunucusu</title>
+    <title>HYB MC - Minecraft Sunucusu</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -123,7 +123,7 @@
         .server-status.active { color: var(--aktif-color); background-color: rgba(85, 255, 85, 0.1); text-shadow: 0 0 8px var(--aktif-color); }
         .server-status.inactive { color: var(--kapali-color); background-color: rgba(255, 85, 85, 0.1); text-shadow: 0 0 8px var(--kapali-color); }
         .founders-section { margin-top: 40px; }
-        .founders-grid { display: grid; justify-content: center; gap: 25px; margin-top: 25px; }
+        .founders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); justify-items: center; gap: 25px; margin-top: 25px; }
         .founder-card { background-color: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px; border: 3px solid; transition: all 0.3s ease; width: 150px; animation: rainbow-glow 3s linear infinite; }
         .founder-card:hover { transform: translateY(-5px); background-color: rgba(0, 0, 0, 0.6); }
         .founder-avatar { width: 80px; height: 80px; border-radius: 8px; margin-bottom: 15px; image-rendering: pixelated; }
@@ -149,8 +149,8 @@
 
     <div class="container">
         <div id="auth-container"></div>
-        <img src="brtmc.jpg" alt="BRT MC Logo" class="logo">
-        <h1>BRT MC Sunucusuna Hoş Geldin!</h1>
+        <img src="hybmc.jpg" alt="HYB MC Logo" class="logo">
+        <h1>HYB MC Sunucusuna Hoş Geldin!</h1>
         <div class="edition-selector">
             <button class="edition-btn active" data-edition="java"><span class="icon">☕</span>Java</button>
         </div>
@@ -163,6 +163,11 @@
                     <h3 class="founder-name">brtmc</h3>
                     <p class="founder-rank">Kurucu</p>
                 </div>
+                <div class="founder-card">
+                    <img src="https://mc-heads.net/avatar/Hasan/80" alt="Hasan skin" class="founder-avatar">
+                    <h3 class="founder-name">Hasan</h3>
+                    <p class="founder-rank">Kurucu</p>
+                </div>
             </div>
         </div>
 
@@ -172,7 +177,7 @@
         </div>
 
         <div class="footer">
-            <p>© 2025 BRT MC. Bütün Hakları Saklıdır.</p>
+            <p>© 2025 HYB MC. Bütün Hakları Saklıdır.</p>
         </div>
     </div>
 
