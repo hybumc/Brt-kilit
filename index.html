@@ -360,6 +360,7 @@
 
         async function loadAllCommentsForAdmin() {
             const listContainer = document.getElementById('admin-comments-list');
+            listContainer.innerHTML = '<div class="loader"></div>'; // Yükleme animasyonunu göster
             const { data, error } = await supabase
                 .from('comments')
                 .select('*')
@@ -376,7 +377,7 @@
 
             const tableRows = data.map(comment => `
                 <tr>
-                    <td>${comment.username}</td>
+                    <td>${comment.username || 'Bilinmiyor'}</td>
                     <td>${comment.comment_text}</td>
                     <td>${'★'.repeat(comment.rating || 0)}${'☆'.repeat(5 - (comment.rating || 0))}</td>
                     <td>${new Date(comment.created_at).toLocaleString('tr-TR')}</td>
@@ -460,11 +461,7 @@
             }
 
             commentsList.innerHTML = data.map(comment => {
-                // Adminler tüm yorumları kendi yorumları gibi silebilsin diye butonu her zaman göster
-                const { data: { user } } = supabase.auth.getSession();
-                let canDelete = currentUserId === comment.user_id;
-
-                const deleteButtonHtml = canDelete ? `<button class="delete-comment-btn" data-id="${comment.id}">Sil</button>` : '';
+                const deleteButtonHtml = currentUserId === comment.user_id ? `<button class="delete-comment-btn" data-id="${comment.id}">Sil</button>` : '';
 
                 return `
                 <div class="comment-card">
@@ -558,11 +555,8 @@
             if (error) {
                 errorDiv.textContent = error.message;
             } else {
-                // Trigger'ın çalışması için küçük bir bekleme
-                setTimeout(() => {
-                     alert("Kayıt başarılı! Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin.");
-                     closeModal();
-                }, 1000);
+                alert("Kayıt başarılı! Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin.");
+                closeModal();
             }
         }
 
@@ -588,18 +582,19 @@
 
         // --- GENEL OLAY DİNLEYİCİLERİ ---
         document.addEventListener('click', (e) => { 
-            if (e.target.id === 'register-btn') openModal(registerModalHTML, 'default'); 
-            if (e.target.id === 'login-btn') openModal(loginModalHTML, 'default'); 
-            if (e.target.id === 'settings-btn') openModal(settingsModalHTML, 'default'); 
-            if (e.target.id === 'logout-btn') handleLogout();
-            if (e.target.id === 'open-terms-link') openModal(termsModalHTML, 'default');
-            if (e.target.id === 'open-privacy-link') openModal(privacyModalHTML, 'default');
-            if (e.target.id === 'comments-btn') openCommentsModal();
-            if (e.target.id === 'admin-panel-btn') openAdminPanel(); // Yönetim paneli butonu
-            if (e.target.id === 'modal-overlay' && e.target.id !== 'modal-content' && !modalContent.contains(e.target)) closeModal(); 
+            const target = e.target;
+            if (target.id === 'register-btn') openModal(registerModalHTML, 'default'); 
+            if (target.id === 'login-btn') openModal(loginModalHTML, 'default'); 
+            if (target.id === 'settings-btn') openModal(settingsModalHTML, 'default'); 
+            if (target.id === 'logout-btn') handleLogout();
+            if (target.id === 'open-terms-link') openModal(termsModalHTML, 'default');
+            if (target.id === 'open-privacy-link') openModal(privacyModalHTML, 'default');
+            if (target.id === 'comments-btn') openCommentsModal();
+            if (target.id === 'admin-panel-btn') openAdminPanel(); // Yönetim paneli butonu
+            if (target.id === 'modal-overlay' && !modalContent.contains(target)) closeModal(); 
 
-            if (e.target.classList.contains('delete-comment-btn')) {
-                const commentId = e.target.dataset.id;
+            if (target.classList.contains('delete-comment-btn')) {
+                const commentId = target.dataset.id;
                 handleDeleteComment(commentId);
             }
         });
