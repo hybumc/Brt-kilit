@@ -523,7 +523,6 @@
                 if (error) {
                     alert('Hata: Yorum silinemedi. ' + error.message);
                 } else {
-                    // Hangi panelin açık olduğunu kontrol et ve ona göre listeyi yenile
                     if (document.querySelector('.admin-modal')) {
                         loadAllCommentsForAdmin();
                     } else if (document.querySelector('.comments-modal')) {
@@ -590,7 +589,7 @@
             if (target.id === 'open-terms-link') openModal(termsModalHTML, 'default');
             if (target.id === 'open-privacy-link') openModal(privacyModalHTML, 'default');
             if (target.id === 'comments-btn') openCommentsModal();
-            if (target.id === 'admin-panel-btn') openAdminPanel(); // Yönetim paneli butonu
+            if (target.id === 'admin-panel-btn') openAdminPanel();
             if (target.id === 'modal-overlay' && !modalContent.contains(target)) closeModal(); 
 
             if (target.classList.contains('delete-comment-btn')) {
@@ -678,27 +677,48 @@
             if (target.id === 'about-btn') { alert('Hakkında bölümü yakında eklenecektir.'); }
         });
 
-        // --- SAYFA YÜKLENİNCE BAŞLAT (ROL KONTROLLÜ) ---
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        // --- OTURUM KONTROLÜ VE BAŞLANGIÇ ---
+
+        // Bu ana fonksiyon, hem sayfa ilk yüklendiğinde hem de oturum durumu değiştiğinde çalışacak.
+        const checkUserSessionAndUpdateUI = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
             const user = session?.user || null;
+            let profile = null;
+
             if (user) {
-                // Kullanıcı giriş yapmışsa, profil bilgisini ve rolünü çek
-                const { data: profile, error } = await supabase
+                // Eğer bir kullanıcı oturumu varsa, profil bilgilerini (rol dahil) çekelim.
+                const { data: profileData, error } = await supabase
                     .from('profiles')
                     .select('username, role')
                     .eq('id', user.id)
                     .single();
-
-                if (error && error.code !== 'PGRST116') { // PGRST116: no rows found, which is ok for a moment after signup
+                
+                // Bir hata varsa ama bu hata "hiç satır bulunamadı" hatası değilse, konsola yazdır.
+                if (error && error.code !== 'PGRST116') {
                     console.error('Profil bilgisi çekilirken hata oluştu:', error);
                 }
-                updateUI(user, profile); // UI'ı hem kullanıcı hem profil bilgisiyle güncelle
-            } else {
-                // Kullanıcı çıkış yapmışsa
-                updateUI(null, null);
+                profile = profileData;
+            }
+            
+            // Elde edilen kullanıcı ve profil bilgisine göre arayüzü güncelle.
+            // Eğer session veya profile boş ise (null), updateUI fonksiyonu otomatik olarak çıkış yapmış arayüzünü gösterecektir.
+            updateUI(user, profile);
+        };
+
+        // Dinleyici: Kullanıcı giriş yaptığında veya çıkış yaptığında (sayfa yenilenmeden) arayüzü güncellemek için.
+        supabase.auth.onAuthStateChange((event, session) => {
+            // Örneğin, kullanıcı "Çıkış Yap" butonuna tıkladığında bu dinleyici tetiklenir.
+            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                checkUserSessionAndUpdateUI();
             }
         });
 
+        // --- SAYFA İLK YÜKLENDİĞİNDE ÇALIŞTIRILACAK FONKSİYONLAR ---
+
+        // 1. Oturum durumunu hemen kontrol et ve arayüzü güncelle.
+        checkUserSessionAndUpdateUI();
+        
+        // 2. Sunucu durumunu kontrol et.
         showJavaInfo();
 
     </script>
