@@ -305,20 +305,213 @@
         const termsModalHTML = `<button class="modal-close-btn" onclick="openModal(registerModalHTML)">← Geri</button><h3>Kullanım Şartları</h3><div style="font-size:0.7em; line-height:1.6; max-height: 50vh; overflow-y:auto; padding-right:10px;"><p>1. Bu siteye ve sunucuya kayıt olarak tüm kuralları kabul etmiş sayılırsınız.</p><p>2. Saygı: Diğer oyunculara, yöneticilere karşı saygılı olun. Küfür, hakaret, ırkçılık ve aşağılayıcı dil kullanmak yasaktır.</p><p>3. Hile ve Kötüye Kullanım: Oyun içi hataları (glitch/bug) kötüye kullanmak, hile yazılımları kullanmak kalıcı yasaklanma sebebidir.</p><p>4. Hesap Güvenliği: Hesap güvenliğinizden siz sorumlusunuz. Hesap bilgilerinizi kimseyle paylaşmayın.</p><p>5. Yönetim: Yönetim ekibinin kararları nihaidir. Yöneticileri gereksiz yere rahatsız etmekten kaçının.</p></div>`;
         const privacyModalHTML = `<button class="modal-close-btn" onclick="openModal(registerModalHTML)">← Geri</button><h3>Gizlilik Politikası</h3><div style="font-size:0.7em; line-height:1.6; max-height: 50vh; overflow-y:auto; padding-right:10px;"><p>Verilerinizin güvenliği bizim için önemlidir. Bu site, kullanıcı kimlik doğrulama işlemleri için güvenilir bir altyapı olan <strong>Supabase</strong> hizmetini kullanmaktadır.</p><p><strong>Toplanan Veriler:</strong> Kayıt sırasında girdiğiniz e-posta adresi, kullanıcı adı ve şifreniz (güvenli bir şekilde şifrelenmiş/hashlenmiş olarak) Supabase veritabanında saklanır.</p><p><strong>Veri Kullanımı:</strong> Bu bilgiler yalnızca siteye giriş yapabilmeniz, kimliğinizi doğrulamanız ve yorumlar gibi site özelliklerini kullanabilmeniz için kullanılır. Bilgileriniz asla üçüncü partilerle paylaşılmaz veya satılmaz.</p><p><strong>Çerezler (Cookies):</strong> Oturumunuzu açık tutmak gibi temel işlevler için anonim çerezler kullanılabilir.</p></div>`;
         
-        // --- YORUM SİSTEMİ İŞLEVLERİ (DEĞİŞİKLİK YOK) ---
-        async function openCommentsModal() { /* ... Mevcut kod ... */ }
-        async function loadComments() { /* ... Mevcut kod ... */ }
-        async function handleCommentSubmit(e) { /* ... Mevcut kod ... */ }
-        async function handleDeleteComment(commentId) { /* ... Mevcut kod ... */ }
+        // --- YORUM SİSTEMİ İŞLEVLERİ ---
+        async function openCommentsModal() {
+            const { data: { user } } = await supabase.auth.getUser();
+            let formHtml = `<p style="font-size:0.8em; text-align:center;">Yorum yapmak için giriş yapmalısınız.</p>`;
 
-        // --- HESAP İŞLEMLERİ (DEĞİŞİKLİK YOK) ---
-        async function handleRegister(e) { /* ... Mevcut kod ... */ }
-        async function handleLogin(e) { /* ... Mevcut kod ... */ }
-        async function handleLogout() { /* ... Mevcut kod ... */ }
-        
-        // --- GENEL OLAY DİNLEYİCİLERİ (DEĞİŞİKLİK YOK) ---
-        document.addEventListener('click', (e) => { /* ... Mevcut kod ... */ });
-        document.addEventListener('submit', (e) => { /* ... Mevcut kod ... */ });
+            if (user) {
+                formHtml = `
+                    <div id="comment-form-container">
+                        <div id="modal-error"></div>
+                        <form id="comment-form">
+                            <div class="modal-form-group">
+                                <label for="comment-text">Yorumunuz</label>
+                                <textarea id="comment-text" class="modal-input" required></textarea>
+                            </div>
+                            <div class="modal-form-group">
+                                <label>Puanınız</label>
+                                <div class="star-rating">
+                                    <input type="radio" id="star5" name="rating" value="5" required/><label for="star5">☆</label>
+                                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4">☆</label>
+                                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3">☆</label>
+                                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2">☆</label>
+                                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1">☆</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="modal-button">Yorumu Gönder</button>
+                        </form>
+                    </div>`;
+            }
+            const fullModalHtml = `
+                <button class="modal-close-btn" onclick="closeModal()">×</button>
+                <h3>Yorumlar ve Değerlendirmeler</h3>
+                ${formHtml}
+                <div id="comments-list"><p>Yorumlar yükleniyor...</p></div>`;
+
+            openModal(fullModalHtml, true);
+            loadComments();
+        }
+
+        async function loadComments() {
+            const commentsList = document.getElementById('comments-list');
+            if (!commentsList) return;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            const currentUserId = user ? user.id : null;
+            
+            const { data, error } = await supabase.from('comments').select('*').order('created_at', { ascending: false });
+
+            if (error) {
+                commentsList.innerHTML = `<p>Yorumlar yüklenirken bir hata oluştu.</p>`;
+                console.error('Yorumları çekerken hata:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                commentsList.innerHTML = `<p>Henüz hiç yorum yapılmamış. İlk yorumu sen yap!</p>`;
+                return;
+            }
+
+            commentsList.innerHTML = data.map(comment => {
+                const deleteButtonHtml = currentUserId === comment.user_id
+                    ? `<button class="delete-comment-btn" data-id="${comment.id}">Sil</button>`
+                    : '';
+
+                return `
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-author">${comment.username || 'Anonim'}</span>
+                        <div class="right-side">
+                            <span class="star-display">${'★'.repeat(comment.rating || 0)}${'☆'.repeat(5 - (comment.rating || 0))}</span>
+                            ${deleteButtonHtml}
+                        </div>
+                    </div>
+                    <p class="comment-body">${comment.comment_text}</p>
+                </div>`;
+            }).join('');
+        }
+
+        async function handleCommentSubmit(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('modal-error');
+            const commentText = document.getElementById('comment-text').value;
+            const rating = document.querySelector('input[name="rating"]:checked');
+            
+            if (!rating) {
+                errorDiv.textContent = 'Lütfen bir puan seçin.';
+                return;
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                errorDiv.textContent = 'Yorum yapmak için giriş yapmalısınız.';
+                return;
+            }
+            
+            const username = user.user_metadata?.username || user.email;
+
+            const { error } = await supabase.from('comments').insert([
+                { user_id: user.id, username: username, comment_text: commentText, rating: parseInt(rating.value, 10) }
+            ]);
+
+            if (error) {
+                errorDiv.textContent = 'Yorum gönderilirken bir hata oluştu: ' + error.message;
+                console.error("Supabase ekleme hatası:", error);
+            } else {
+                e.target.reset();
+                errorDiv.textContent = '';
+                loadComments();
+            }
+        }
+
+        async function handleDeleteComment(commentId) {
+            if (!commentId) return;
+
+            const isConfirmed = confirm('Bu yorumu kalıcı olarak silmek istediğinize emin misiniz?');
+            if (isConfirmed) {
+                const { error } = await supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentId);
+
+                if (error) {
+                    alert('Hata: Yorum silinemedi. ' + error.message);
+                    console.error('Yorum silme hatası:', error);
+                } else {
+                    loadComments();
+                }
+            }
+        }
+
+        // --- HESAP İŞLEMLERİ ---
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const termsCheckbox = document.getElementById('terms-checkbox');
+            const errorDiv = document.getElementById('modal-error');
+            
+            if (!termsCheckbox.checked) {
+                errorDiv.textContent = 'Lütfen kullanım şartlarını ve gizlilik politikasını kabul edin.';
+                return;
+            }
+
+            const { error } = await supabase.auth.signUp({
+                email: email, password: password,
+                options: { data: { username: username } }
+            });
+
+            if (error) {
+                errorDiv.textContent = error.message;
+            } else {
+                alert("Kayıt başarılı! Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin.");
+                closeModal();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('modal-error');
+
+            const { error } = await supabase.auth.signInWithPassword({ email: email, password: password });
+
+            if (error) {
+                errorDiv.textContent = "E-posta veya şifre hatalı.";
+            } else {
+                closeModal();
+            }
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            closeModal();
+        }
+
+        // --- GENEL OLAY DİNLEYİCİLERİ ---
+        document.addEventListener('click', (e) => { 
+            if (e.target.id === 'register-btn') openModal(registerModalHTML); 
+            if (e.target.id === 'login-btn') openModal(loginModalHTML); 
+            if (e.target.id === 'settings-btn') openModal(settingsModalHTML); 
+            if (e.target.id === 'logout-btn') handleLogout();
+            if (e.target.id === 'open-terms-link') openModal(termsModalHTML);
+            if (e.target.id === 'open-privacy-link') openModal(privacyModalHTML);
+            if (e.target.id === 'comments-btn') openCommentsModal();
+            if (e.target.id === 'modal-overlay') closeModal(); 
+
+            if (e.target.classList.contains('delete-comment-btn')) {
+                const commentId = e.target.dataset.id;
+                handleDeleteComment(commentId);
+            }
+        });
+
+        document.addEventListener('submit', (e) => {
+            if (e.target.id === 'register-form') {
+                e.preventDefault();
+                handleRegister(e);
+            }
+            if (e.target.id === 'login-form') {
+                e.preventDefault();
+                handleLogin(e);
+            }
+            if (e.target.id === 'comment-form') {
+                e.preventDefault();
+                handleCommentSubmit(e);
+            }
+        });
         
         // --- SUNUCU DURUMU KODLARI ---
         function getButtonsHtml() { 
@@ -371,7 +564,7 @@
             if (!target) return; 
             
             if (target.id === 'copy-button') { 
-                const originalText = target.innerHTML; // Orijinal metni sakla
+                const originalHTML = target.innerHTML; // Orijinal içeriği (sadece metin) sakla
                 const checkIconSVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 6L9 17L4 12"></path></svg>`;
                 
                 navigator.clipboard.writeText(javaIp).then(() => { 
@@ -379,7 +572,7 @@
                     target.style.backgroundColor = 'var(--aktif-color)'; 
                     
                     setTimeout(() => { 
-                        target.innerHTML = originalText; // Orijinal metne geri dön
+                        target.innerHTML = originalHTML; // Orijinal içeriğe geri dön
                         target.style.backgroundColor = '#5555FF'; 
                     }, 2000); 
                 }); 
@@ -400,9 +593,47 @@
     </script>
     
     <script>
-    // Bu script'te değişiklik yapılmadı
     (function() {
-        // ... Mevcut kod ...
+        // Konsol için büyük bir uyarı mesajı gösterme
+        const style = 'font-size: 24px; font-weight: bold; color: red; text-shadow: 1px 1px 5px yellow;';
+        console.log('%cDUR! 🛑', style);
+        console.log('%cBu alan geliştiricilere özeldir. Buraya bir şey yapıştırmanız hesabınızın çalınmasına neden olabilir.', 'font-size: 16px; color: white;');
+        console.log('%cYASAK', 'font-size: 14px; color: orange;');
+
+        // Geliştirici araçları açıldığında "Yasak Bölge" gösterme
+        let devtoolsOpen = false;
+        const threshold = 160;
+        
+        const detectDevTools = (e) => {
+            if (window.innerHeight < (window.outerHeight - threshold) || window.innerWidth < (window.outerWidth - threshold)) {
+                if (!devtoolsOpen) {
+                    document.getElementById('yasak-bolge').style.display = 'flex';
+                    devtoolsOpen = true;
+                }
+            }
+        };
+        
+        // Sağ tık menüsünü engelleme
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Klavye kısayollarını engelleme (F12, Ctrl+Shift+I, Ctrl+U vb.)
+        document.addEventListener('keydown', function(e) {
+            if (
+                e.key === "F12" || // F12
+                (e.ctrlKey && e.shiftKey && e.key === 'I') || // Ctrl+Shift+I
+                (e.ctrlKey && e.shiftKey && e.key === 'J') || // Ctrl+Shift+J
+                (e.ctrlKey && e.key === 'U') // Ctrl+U
+            ) {
+                e.preventDefault();
+                document.getElementById('yasak-bolge').style.display = 'flex';
+            }
+        });
+        
+        // Pencere yeniden boyutlandırıldığında da kontrol et (Geliştirici araçları açılıp kapanabilir)
+        window.addEventListener('resize', detectDevTools);
+
     })();
     </script>
 
