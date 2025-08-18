@@ -8,142 +8,62 @@
         /* --- GOOGLE FONT --- */
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
 
-        /* --- TEMEL SAYFA VE ANİMASYONLU ARKA PLAN --- */
-        :root {
-            --glow-color: hsl(0, 79%, 56%); /* Kırmızı parlama rengi */
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
+        /* --- TEMEL SAYFA VE ARKA PLAN --- */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             font-family: 'Space Grotesk', sans-serif;
-            background-color: #000000;
+            background-color: #0a0a0a; /* Düz siyah arkaplan, daha güvenilir */
             color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Kenarlarda taşma olmasın */
+            padding: 20px;
+            box-sizing: border-box;
         }
         
-        /* Arka plan yıldız animasyonu */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 150px 120px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 100px 200px, #fff, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            animation: twinkle 10s linear infinite;
-            z-index: -1;
-        }
-        
-        @keyframes twinkle {
-            from { transform: translateY(0); }
-            to { transform: translateY(-200px); }
-        }
-
-        /* --- ANA İÇERİK KUTUSU (MODERN KART) --- */
+        /* --- ANA İÇERİK KUTUSU --- */
         .ban-container {
-            position: relative;
-            background-color: rgba(18, 18, 18, 0.75); /* Yarı şeffaf arka plan */
-            backdrop-filter: blur(20px); /* Frosted glass efekti */
-            -webkit-backdrop-filter: blur(20px);
+            background-color: #1b1b1b; /* Şeffaflık kaldırıldı, daha iyi uyumluluk */
             padding: 40px 50px;
             border-radius: 25px;
             text-align: center;
             max-width: 750px;
-            width: 90%;
-            z-index: 1;
-            
-            /* Gradyan Kenarlık */
-            border: 1px solid transparent;
-            background-clip: padding-box;
-            border-image: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) 1;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            border: 1px solid #333;
+            border-top: 6px solid #c0392b; /* Vurgulu üst kenarlık */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
 
-            /* Kademeli giriş animasyonu */
-            transform: scale(0.95);
-            opacity: 0;
-            animation: fadeInScale 1s 0.2s forwards cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes fadeInScale {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            /* HATA DÜZELTME: Başlangıçta görünür olma garantisi */
+            opacity: 1; /* Opacity başlangıçta 1 olarak ayarlandı */
+            transform: scale(1); /* Ölçek başlangıçta 1 olarak ayarlandı */
         }
         
         /* --- DAİRESEL LOGO --- */
         .logo-wrapper {
             width: 140px;
             height: 140px;
-            margin: -110px auto 20px; /* Kutunun üstüne taşmasını sağlar */
+            margin: -110px auto 20px; /* Kutunun üstüne taşar */
             border-radius: 50%;
             padding: 5px;
-            background: linear-gradient(145deg, #222, #000);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(0, 0, 0, 0.5);
-            
-            /* Kademeli giriş animasyonu */
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideInFade 0.8s 0.8s forwards ease-out;
+            background: #1b1b1b; /* Ana kutuyla aynı renk */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
         }
+
         .logo {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover; /* Resmin bozulmasını engeller */
-            border: 3px solid #111;
         }
-        /* Logo parlama efekti */
-        .logo-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0) 50%, var(--glow-color) 100%);
-            filter: blur(25px);
-            opacity: 0.4;
-            z-index: -1;
-            animation: pulse 4s infinite;
-        }
-
-        @keyframes pulse {
-            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
-        }
-
+        
         /* --- METİN STİLLERİ --- */
-        h1, .reason p, .contact-info, .site-name {
-            opacity: 0;
-            transform: translateY(15px);
-            animation: slideInFade 0.8s forwards ease-out;
-        }
-
         h1 {
             font-size: 36px;
-            color: #fff;
+            color: #ffffff;
             margin-bottom: 25px;
-            text-shadow: 0 0 15px rgba(255, 82, 82, 0.5);
-            animation-delay: 1s;
         }
 
         .reason p {
@@ -152,31 +72,28 @@
             color: #b0b0b0;
             text-align: center;
             margin-bottom: 15px;
-            animation-delay: 1.2s;
         }
 
         .reason strong {
-            color: var(--glow-color);
+            color: #e74c3c;
             font-weight: 700;
         }
         
         .contact-info {
             margin-top: 30px;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             font-size: 15px;
             color: #888;
-            animation-delay: 1.4s;
         }
         
         .site-name {
             margin-top: 40px;
             padding-top: 25px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid #333;
             color: #555;
             font-weight: 500;
-            animation-delay: 1.6s;
         }
 
         /* --- MOBİL UYUMLULUK --- */
@@ -189,8 +106,6 @@
     </style>
 </head>
 <body>
-
-    <div class="stars"></div>
 
     <div class="ban-container">
         
@@ -219,5 +134,5 @@
 
     </div>
     
-    </body>
+</body>
 </html>
