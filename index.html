@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erişim Durduruldu - HY MC</title>
+    <style>
+        /* --- TEMEL STİLLER --- */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Montserrat', sans-serif; /* Daha modern bir font */
+            background-color: #121212; /* Daha koyu ve derin bir arkaplan */
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* --- ANA İÇERİK KUTUSU --- */
+        .ban-container {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f); /* Gradyan arkaplan */
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            max-width: 700px; /* Daha uzun metin için genişletildi */
+            width: 100%;
+            border-top: 6px solid #c0392b; /* Kırmızının daha koyu bir tonu */
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInAndFloat 1.5s 0.2s forwards ease-out; /* Animasyona küçük bir gecikme eklendi */
+        }
+
+        /* --- LOGO STİLİ --- */
+        .logo {
+            max-width: 130px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.5));
+        }
+
+        /* --- METİN STİLLERİ --- */
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .reason {
+            font-size: 17px;
+            line-height: 1.8; /* Okunabilirlik için satır aralığı artırıldı */
+            margin-bottom: 25px;
+            color: #c7c7c7;
+            text-align: left; /* Detaylı metin için sola hizalama daha iyi */
+            border-left: 3px solid #c0392b; /* Sol tarafa vurgu çizgisi */
+            padding-left: 20px;
+        }
+
+        .reason strong {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        /* --- İTİRAZ/İLETİŞİM BÖLÜMÜ --- */
+        .contact-info {
+            font-size: 15px;
+            line-height: 1.7;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            color: #aaa;
+        }
+        
+        .contact-info strong {
+            color: #ddd;
+        }
+
+        /* --- SİTE ADI (ALT BİLGİ) --- */
+        .site-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            margin-top: 40px;
+            border-top: 1px solid #333;
+            padding-top: 25px;
+        }
+        
+        /* --- ANİMASYON --- */
+        @keyframes fadeInAndFloat {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ban-container" id="ban-box">
+        
+        <img src="hymc.png" alt="HY MC Logosu" class="logo">
+        
+        <h1>Site Erişime Kapatılmıştır</h1>
+        
+        <div class="reason">
+            <p>
+                <strong>Değerli Ziyaretçilerimiz,</strong>
+            </p>
+            <p>
+                HY MC platformu, <strong>Topluluk Kuralları ve Hizmet Şartları'nın</strong> ciddi bir şekilde ihlal edilmesi nedeniyle süresiz olarak erişime kapatılmıştır. Temel önceliğimiz olan kullanıcı güvenliği ve veri gizliliğinin tehlikeye atılmasına asla müsamaha gösterilemez.
+            </p>
+            <p>
+                <strong>Yasaklama Gerekçesi:</strong> Platform üzerinde, kullanıcıların kişisel verilerinin rızaları dışında toplandığı, paylaşıldığı ve kötüye kullanıldığı tespit edilmiştir. Bu durum, yalnızca topluluk kurallarımızı değil, aynı zamanda evrensel veri koruma ilkelerini de ağır bir şekilde ihlal etmektedir. Topluluğumuzun güvenini sarsan bu tür faaliyetlere tolerans göstermemiz mümkün değildir.
+            </p>
+        </div>
+        
+        <div class="contact-info">
+            Bu kararın bir yanlış anlaşılma sonucu alındığını düşünüyorsanız veya durum hakkında daha fazla bilgi almak isterseniz, lütfen resmi iletişim kanallarımız üzerinden <strong>site yönetimiyle</strong> temasa geçerek durumu detaylı bir şekilde kontrol ediniz.
+        </div>
+        
+        <div class="site-name">
+            HY MC Yönetim Kurulu
+        </div>
+
+    </div>
+
+    <script>
+    // --- JAVASCRIPT BÖLÜMÜ ---
+    // Fare hareketine duyarlı 3D efekti.
+    const banBox = document.getElementById('ban-box');
+
+    document.body.addEventListener('mousemove', (e) => {
+        if (window.innerWidth < 768) return; // Mobil cihazlarda efekti devre dışı bırak
+
+        const { clientX, clientY, currentTarget } = e;
+        const { clientWidth, clientHeight } = currentTarget;
+
+        const xPos = (clientX / clientWidth - 0.5) * 2;
+        const yPos = (clientY / clientHeight - 0.5) * 2;
+
+        const maxRotate = 5; // Efekti biraz daha yumuşattım
+
+        banBox.style.transform = `perspective(1200px) rotateY(${xPos * maxRotate}deg) rotateX(${-yPos * maxRotate}deg) scale(1.03)`;
+        banBox.style.transition = 'transform 0.1s ease-out';
+    });
+
+    document.body.addEventListener('mouseleave', () => {
+        banBox.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg) scale(1)';
+        banBox.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)'; // Daha yumuşak bir dönüş animasyonu
+    });
+    </script>
+
+</body>
+</html>
