@@ -3,163 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erişim Durduruldu - HY MC</title>
+    <title>Platforma Erişim Sağlanamıyor - HY MC</title>
     <style>
-        /* --- TEMEL STİLLER --- */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        /* --- GOOGLE FONT --- */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
+        /* --- TEMEL SAYFA VE ANİMASYONLU ARKA PLAN --- */
+        :root {
+            --glow-color: hsl(0, 79%, 56%); /* Kırmızı parlama rengi */
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            font-family: 'Montserrat', sans-serif; /* Daha modern bir font */
-            background-color: #121212; /* Daha koyu ve derin bir arkaplan */
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000000;
             color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow: hidden;
+            overflow: hidden; /* Kenarlarda taşma olmasın */
         }
-
-        /* --- ANA İÇERİK KUTUSU --- */
-        .ban-container {
-            background: linear-gradient(145deg, #2a2a2a, #1f1f1f); /* Gradyan arkaplan */
-            padding: 40px 50px;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-            text-align: center;
-            max-width: 700px; /* Daha uzun metin için genişletildi */
+        
+        /* Arka plan yıldız animasyonu */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-top: 6px solid #c0392b; /* Kırmızının daha koyu bir tonu */
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeInAndFloat 1.5s 0.2s forwards ease-out; /* Animasyona küçük bir gecikme eklendi */
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 120px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 100px 200px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: twinkle 10s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes twinkle {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
         }
 
-        /* --- LOGO STİLİ --- */
+        /* --- ANA İÇERİK KUTUSU (MODERN KART) --- */
+        .ban-container {
+            position: relative;
+            background-color: rgba(18, 18, 18, 0.75); /* Yarı şeffaf arka plan */
+            backdrop-filter: blur(20px); /* Frosted glass efekti */
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px 50px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 750px;
+            width: 90%;
+            z-index: 1;
+            
+            /* Gradyan Kenarlık */
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            border-image: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) 1;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+
+            /* Kademeli giriş animasyonu */
+            transform: scale(0.95);
+            opacity: 0;
+            animation: fadeInScale 1s 0.2s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* --- DAİRESEL LOGO --- */
+        .logo-wrapper {
+            width: 140px;
+            height: 140px;
+            margin: -110px auto 20px; /* Kutunun üstüne taşmasını sağlar */
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(145deg, #222, #000);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(0, 0, 0, 0.5);
+            
+            /* Kademeli giriş animasyonu */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInFade 0.8s 0.8s forwards ease-out;
+        }
         .logo {
-            max-width: 130px;
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.5));
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover; /* Resmin bozulmasını engeller */
+            border: 3px solid #111;
+        }
+        /* Logo parlama efekti */
+        .logo-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0) 50%, var(--glow-color) 100%);
+            filter: blur(25px);
+            opacity: 0.4;
+            z-index: -1;
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
         }
 
         /* --- METİN STİLLERİ --- */
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        h1, .reason p, .contact-info, .site-name {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: slideInFade 0.8s forwards ease-out;
         }
 
-        .reason {
-            font-size: 17px;
-            line-height: 1.8; /* Okunabilirlik için satır aralığı artırıldı */
+        h1 {
+            font-size: 36px;
+            color: #fff;
             margin-bottom: 25px;
-            color: #c7c7c7;
-            text-align: left; /* Detaylı metin için sola hizalama daha iyi */
-            border-left: 3px solid #c0392b; /* Sol tarafa vurgu çizgisi */
-            padding-left: 20px;
+            text-shadow: 0 0 15px rgba(255, 82, 82, 0.5);
+            animation-delay: 1s;
+        }
+
+        .reason p {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #b0b0b0;
+            text-align: center;
+            margin-bottom: 15px;
+            animation-delay: 1.2s;
         }
 
         .reason strong {
-            color: #e74c3c;
-            font-weight: 600;
+            color: var(--glow-color);
+            font-weight: 700;
         }
         
-        /* --- İTİRAZ/İLETİŞİM BÖLÜMÜ --- */
         .contact-info {
-            font-size: 15px;
-            line-height: 1.7;
             margin-top: 30px;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            color: #aaa;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            font-size: 15px;
+            color: #888;
+            animation-delay: 1.4s;
         }
         
-        .contact-info strong {
-            color: #ddd;
+        .site-name {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #555;
+            font-weight: 500;
+            animation-delay: 1.6s;
         }
 
-        /* --- SİTE ADI (ALT BİLGİ) --- */
-        .site-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #666;
-            margin-top: 40px;
-            border-top: 1px solid #333;
-            padding-top: 25px;
-        }
-        
-        /* --- ANİMASYON --- */
-        @keyframes fadeInAndFloat {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* --- MOBİL UYUMLULUK --- */
+        @media (max-width: 768px) {
+            .ban-container { padding: 30px 25px; }
+            .logo-wrapper { width: 120px; height: 120px; margin-top: -90px; }
+            h1 { font-size: 28px; }
+            .reason p { font-size: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="ban-container" id="ban-box">
+    <div class="stars"></div>
+
+    <div class="ban-container">
         
-        <img src="hymc.png" alt="HY MC Logosu" class="logo">
+        <div class="logo-wrapper">
+            <img src="hymc.png" alt="HY MC Logosu" class="logo">
+        </div>
         
-        <h1>Site Erişime Kapatılmıştır</h1>
+        <h1>PLATFORM ERİŞİME KAPATILDI</h1>
         
         <div class="reason">
             <p>
-                <strong>Değerli Ziyaretçilerimiz,</strong>
+                HY MC platformu, temel <strong>Topluluk İlkeleri'nin</strong> ve <strong>Hizmet Şartları'nın</strong> ağır ihlali sonucunda, tüm faaliyetlerini durdurma kararı almıştır.
             </p>
             <p>
-                HY MC platformu, <strong>Topluluk Kuralları ve Hizmet Şartları'nın</strong> ciddi bir şekilde ihlal edilmesi nedeniyle süresiz olarak erişime kapatılmıştır. Temel önceliğimiz olan kullanıcı güvenliği ve veri gizliliğinin tehlikeye atılmasına asla müsamaha gösterilemez.
-            </p>
-            <p>
-                <strong>Yasaklama Gerekçesi:</strong> Platform üzerinde, kullanıcıların kişisel verilerinin rızaları dışında toplandığı, paylaşıldığı ve kötüye kullanıldığı tespit edilmiştir. Bu durum, yalnızca topluluk kurallarımızı değil, aynı zamanda evrensel veri koruma ilkelerini de ağır bir şekilde ihlal etmektedir. Topluluğumuzun güvenini sarsan bu tür faaliyetlere tolerans göstermemiz mümkün değildir.
+                Platformumuzun varlık sebebi olan <strong>güvenli ve adil kullanıcı ortamı</strong>, tespit edilen sistematik veri paylaşımı faaliyetleri nedeniyle sürdürülemez hale gelmiştir. Bu durum, topluluğumuzun mahremiyetine yönelik ciddi bir tehdit oluşturmaktadır.
             </p>
         </div>
         
         <div class="contact-info">
-            Bu kararın bir yanlış anlaşılma sonucu alındığını düşünüyorsanız veya durum hakkında daha fazla bilgi almak isterseniz, lütfen resmi iletişim kanallarımız üzerinden <strong>site yönetimiyle</strong> temasa geçerek durumu detaylı bir şekilde kontrol ediniz.
+            Bu kararın bir hata olduğunu düşünüyorsanız, lütfen resmi kanallar üzerinden durumu yeniden değerlendirmeleri için <strong>site yönetimiyle</strong> irtibata geçiniz.
         </div>
         
         <div class="site-name">
-            HY MC Yönetim Kurulu
+            HY MC YÖNETİM KURULU
         </div>
 
     </div>
-
-    <script>
-    // --- JAVASCRIPT BÖLÜMÜ ---
-    // Fare hareketine duyarlı 3D efekti.
-    const banBox = document.getElementById('ban-box');
-
-    document.body.addEventListener('mousemove', (e) => {
-        if (window.innerWidth < 768) return; // Mobil cihazlarda efekti devre dışı bırak
-
-        const { clientX, clientY, currentTarget } = e;
-        const { clientWidth, clientHeight } = currentTarget;
-
-        const xPos = (clientX / clientWidth - 0.5) * 2;
-        const yPos = (clientY / clientHeight - 0.5) * 2;
-
-        const maxRotate = 5; // Efekti biraz daha yumuşattım
-
-        banBox.style.transform = `perspective(1200px) rotateY(${xPos * maxRotate}deg) rotateX(${-yPos * maxRotate}deg) scale(1.03)`;
-        banBox.style.transition = 'transform 0.1s ease-out';
-    });
-
-    document.body.addEventListener('mouseleave', () => {
-        banBox.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg) scale(1)';
-        banBox.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)'; // Daha yumuşak bir dönüş animasyonu
-    });
-    </script>
-
-</body>
+    
+    </body>
 </html>
